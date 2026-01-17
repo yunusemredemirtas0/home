@@ -49,6 +49,9 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setCurrentUser(user);
+            setLoading(false);
+
             if (user) {
                 // Sync user data on every auth state change (login/refresh)
                 await syncUserProfile(user);
@@ -64,8 +67,6 @@ export function AuthProvider({ children }) {
             } else {
                 setIsAdmin(false);
             }
-            setCurrentUser(user);
-            setLoading(false);
         });
 
         return unsubscribe;

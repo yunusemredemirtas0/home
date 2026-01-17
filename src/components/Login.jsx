@@ -52,6 +52,7 @@ export default function Login() {
             navigate('/dashboard'); // Changed from '/' to '/dashboard'
         } catch (err) {
             console.error(err);
+            alert('Google Sign-In Error: ' + err.message); // Explicit alert for debugging
             setError('Google login failed. ' + err.message);
         }
         setLoading(false);
