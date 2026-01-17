@@ -9,6 +9,7 @@ import {
     signInWithPopup,
     GoogleAuthProvider
 } from 'firebase/auth';
+import { syncUserProfile, getUserRole } from '../services/db';
 
 const AuthContext = React.createContext();
 
@@ -18,15 +19,18 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState();
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
     function signup(email, password, name) {
         return createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
+            .then(async (userCredential) => {
                 // Update the user profile with the name
-                return updateProfile(userCredential.user, {
+                await updateProfile(userCredential.user, {
                     displayName: name
                 });
+                await syncUserProfile(userCredential.user); // Sync to DB
+                return userCredential;
             });
     }
 
@@ -44,7 +48,22 @@ export function AuthProvider({ children }) {
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Sync user data on every auth state change (login/refresh)
+                await syncUserProfile(user);
+
+                // Check role
+                // HARDCODED ADMIN FOR SETUP:
+                // You can replace this with purely DB based role check later
+                // For now, let's say the current user is admin if email matches, OR if DB says so.
+                const role = await getUserRole(user.uid);
+                // Replace 'yunusemredemirtas@gmail.com' or similar with the actual admin email if known,
+                // or just rely on DB role. We'll rely on DB role 'admin'.
+                setIsAdmin(role === 'admin');
+            } else {
+                setIsAdmin(false);
+            }
             setCurrentUser(user);
             setLoading(false);
         });
@@ -54,6 +73,7 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
+        isAdmin,
         signup,
         login,
         loginWithGoogle,

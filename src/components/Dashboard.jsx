@@ -6,15 +6,15 @@ import { useEffect, useState } from 'react';
 import Header from './Header';
 import {
     FiHome, FiBox, FiLifeBuoy, FiSettings, FiLogOut,
-    FiActivity, FiFileText, FiUser, FiMenu, FiX, FiCheckCircle, FiClock
+    FiActivity, FiFileText, FiUser, FiMenu, FiX, FiShield, FiPlus
 } from 'react-icons/fi';
 import { updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
+import { createTicket, getUserTickets, getAllUsers, getAllTickets } from '../services/db';
 
 export default function Dashboard() {
     const { t, language } = useLanguage();
-    const { currentUser, logout } = useAuth();
-    const { theme } = useTheme();
+    const { currentUser, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
 
     const [activeTab, setActiveTab] = useState('overview');
@@ -25,6 +25,16 @@ export default function Dashboard() {
     const [statusMsg, setStatusMsg] = useState({ type: '', msg: '' });
     const [loading, setLoading] = useState(false);
 
+    // Ticket Modal State
+    const [showTicketModal, setShowTicketModal] = useState(false);
+    const [ticketSubject, setTicketSubject] = useState('');
+    const [ticketContent, setTicketContent] = useState('');
+    const [tickets, setTickets] = useState([]);
+
+    // Admin Data State
+    const [adminUsers, setAdminUsers] = useState([]);
+    const [adminTickets, setAdminTickets] = useState([]);
+
     useEffect(() => {
         if (!currentUser) {
             navigate('/login');
@@ -32,6 +42,22 @@ export default function Dashboard() {
             setDisplayName(currentUser.displayName || '');
         }
     }, [currentUser, navigate]);
+
+    // Fetch Data based on Tab
+    useEffect(() => {
+        async function fetchData() {
+            if (activeTab === 'support') {
+                const userTickets = await getUserTickets(currentUser.uid);
+                setTickets(userTickets);
+            } else if (activeTab === 'admin' && isAdmin) {
+                const users = await getAllUsers();
+                const allTickets = await getAllTickets();
+                setAdminUsers(users);
+                setAdminTickets(allTickets);
+            }
+        }
+        fetchData();
+    }, [activeTab, currentUser, isAdmin, showTicketModal]); // Refresh when modal closes too
 
     if (!currentUser) return null;
 
@@ -51,6 +77,7 @@ export default function Dashboard() {
             await updateProfile(auth.currentUser, { displayName });
             setStatusMsg({ type: 'success', msg: t.dashboard.settings.success });
         } catch (error) {
+            console.error(error);
             setStatusMsg({ type: 'error', msg: t.dashboard.settings.error });
         }
         setLoading(false);
@@ -63,6 +90,22 @@ export default function Dashboard() {
             setStatusMsg({ type: 'success', msg: t.dashboard.settings.success });
         } catch (error) {
             setStatusMsg({ type: 'error', msg: t.dashboard.settings.error });
+        }
+        setLoading(false);
+    };
+
+    const handleSubmitTicket = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            await createTicket(currentUser.uid, currentUser.email, ticketSubject, ticketContent);
+            setShowTicketModal(false);
+            setTicketSubject('');
+            setTicketContent('');
+            // Refresh list happens via effect dependency
+        } catch (error) {
+            console.error("Ticket error:", error);
+            alert('Failed to submit ticket');
         }
         setLoading(false);
     };
@@ -132,14 +175,14 @@ export default function Dashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
                 <StatCard title={t.dashboard.overview.activeServices} value="1" icon={<FiBox />} color="16, 185, 129" />
-                <StatCard title={t.dashboard.overview.openTickets} value="0" icon={<FiLifeBuoy />} color="59, 130, 246" />
+                <StatCard title={t.dashboard.overview.openTickets} value={tickets.length} icon={<FiLifeBuoy />} color="59, 130, 246" />
                 <StatCard title={t.dashboard.overview.totalInvoices} value="$0.00" icon={<FiFileText />} color="245, 158, 11" />
             </div>
 
             <div className="glass" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.dashboard.overview.quickActions}</h3>
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                    <button onClick={() => setActiveTab('support')} style={{
+                    <button onClick={() => { setActiveTab('support'); setShowTicketModal(true); }} style={{
                         padding: '0.8rem 1.5rem',
                         borderRadius: '12px',
                         background: 'var(--accent-gradient)',
@@ -166,10 +209,10 @@ export default function Dashboard() {
         </div>
     );
 
+    // ... Services Component (Existing) ...
     const Services = () => (
         <div className="glass" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{t.dashboard.services.title}</h2>
-
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text-primary)' }}>
                     <thead>
@@ -188,26 +231,12 @@ export default function Dashboard() {
                             </td>
                             <td style={{ padding: '1rem' }}>Jan 15, 2024</td>
                             <td style={{ padding: '1rem' }}>
-                                <span style={{
-                                    background: 'rgba(16, 185, 129, 0.2)',
-                                    color: '#10b981',
-                                    padding: '4px 12px',
-                                    borderRadius: '20px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: '600'
-                                }}>
+                                <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: '600' }}>
                                     {t.dashboard.services.active}
                                 </span>
                             </td>
                             <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                <button style={{
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '8px',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    border: '1px solid var(--border-color)',
-                                    color: 'var(--text-primary)',
-                                    cursor: 'pointer'
-                                }}>
+                                <button style={{ padding: '0.5rem 1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer' }}>
                                     {t.dashboard.services.manage}
                                 </button>
                             </td>
@@ -222,36 +251,131 @@ export default function Dashboard() {
         <div className="glass" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>{t.dashboard.support.title}</h2>
-                <button style={{
+                <button onClick={() => setShowTicketModal(true)} style={{
                     padding: '0.8rem 1.5rem',
                     borderRadius: '12px',
                     background: 'var(--accent-gradient)',
                     color: 'white',
                     border: 'none',
                     fontWeight: '600',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '8px'
                 }}>
+                    <FiPlus />
                     {t.dashboard.support.createTicket}
                 </button>
             </div>
 
-            <div style={{
-                padding: '3rem',
-                background: 'rgba(255,255,255,0.02)',
-                borderRadius: '16px',
-                textAlign: 'center',
-                color: 'var(--text-secondary)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '1rem'
-            }}>
-                <FiLifeBuoy size={48} style={{ opacity: 0.3 }} />
-                <p>{t.dashboard.support.noTickets}</p>
+            {tickets.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {tickets.map(ticket => (
+                        <div key={ticket.id} style={{
+                            padding: '1.5rem',
+                            background: 'rgba(255,255,255,0.03)',
+                            borderRadius: '16px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                        }}>
+                            <div>
+                                <div style={{ fontWeight: '700', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{ticket.subject}</div>
+                                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>{ticket.content.substring(0, 100)}...</div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                    {ticket.createdAt ? new Date(ticket.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}
+                                </div>
+                            </div>
+                            <span style={{
+                                background: 'rgba(59, 130, 246, 0.2)',
+                                color: '#60a5fa',
+                                padding: '6px 16px',
+                                borderRadius: '20px',
+                                fontSize: '0.9rem',
+                                fontWeight: '600'
+                            }}>
+                                {ticket.status}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={{
+                    padding: '3rem',
+                    background: 'rgba(255,255,255,0.02)',
+                    borderRadius: '16px',
+                    textAlign: 'center',
+                    color: 'var(--text-secondary)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem'
+                }}>
+                    <FiLifeBuoy size={48} style={{ opacity: 0.3 }} />
+                    <p>{t.dashboard.support.noTickets}</p>
+                </div>
+            )}
+        </div>
+    );
+
+    const AdminPanel = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {/* Admin Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+                <StatCard title="Total Users" value={adminUsers.length} icon={<FiUser />} color="139, 92, 246" />
+                <StatCard title="Total Tickets" value={adminTickets.length} icon={<FiLifeBuoy />} color="236, 72, 153" />
+            </div>
+
+            {/* Users Table */}
+            <div className="glass" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>All Users</h2>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text-primary)' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
+                                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>User</th>
+                                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Email</th>
+                                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Last Login</th>
+                                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {adminUsers.map(u => (
+                                <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                    <td style={{ padding: '1rem' }}>{u.displayName || 'No Name'}</td>
+                                    <td style={{ padding: '1rem' }}>{u.email}</td>
+                                    <td style={{ padding: '1rem' }}>{u.lastLogin ? new Date(u.lastLogin.seconds * 1000).toLocaleString() : 'N/A'}</td>
+                                    <td style={{ padding: '1rem' }}>{u.role}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Tickets Table */}
+            <div className="glass" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Recent Tickets</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {adminTickets.map(ticket => (
+                        <div key={ticket.id} style={{
+                            padding: '1rem',
+                            background: 'rgba(255,255,255,0.03)',
+                            borderRadius: '12px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                        }}>
+                            <div>
+                                <div style={{ fontWeight: '600' }}>{ticket.subject} <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>by {ticket.userEmail}</span></div>
+                                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>{ticket.content}</div>
+                            </div>
+                            <span style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem' }}>
+                                {ticket.status}
+                            </span>
+                        </div>
+                    ))}
+                    {adminTickets.length === 0 && <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No tickets found.</p>}
+                </div>
             </div>
         </div>
     );
 
+    // ... Settings Component (Existing) ...
     const Settings = () => (
         <div style={{ maxWidth: '600px' }}>
             <div className="glass" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '2rem' }}>
@@ -322,6 +446,35 @@ export default function Dashboard() {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex' }}>
+            {/* Modal */}
+            {showTicketModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', zIndex: 1000,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+                }}>
+                    <div className="glass" style={{ width: '100%', maxWidth: '500px', padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', color: 'white' }}>{t.dashboard.support.createTicket}</h2>
+                            <button onClick={() => setShowTicketModal(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><FiX size={24} /></button>
+                        </div>
+                        <form onSubmit={handleSubmitTicket} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>{t.dashboard.support.subject}</label>
+                                <input required type="text" value={ticketSubject} onChange={(e) => setTicketSubject(e.target.value)} style={{ width: '100%', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white' }} />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Message</label>
+                                <textarea required rows={5} value={ticketContent} onChange={(e) => setTicketContent(e.target.value)} style={{ width: '100%', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', color: 'white', fontFamily: 'inherit' }} />
+                            </div>
+                            <button type="submit" disabled={loading} style={{ padding: '1rem', borderRadius: '12px', background: 'var(--accent-gradient)', color: 'white', border: 'none', fontWeight: 'bold', cursor: loading ? 'wait' : 'pointer' }}>
+                                {loading ? 'Sending...' : 'Submit Ticket'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Background Gradients */}
             <div style={{
                 position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -332,7 +485,6 @@ export default function Dashboard() {
             {/* Mobile Header */}
             <div style={{
                 display: 'none',
-                // We'll use media query styles at bottom to show this on mobile
                 width: '100%', padding: '1rem', alignItems: 'center', justifyContent: 'space-between',
                 position: 'fixed', top: 0, left: 0, zIndex: 100, background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)'
             }} className="mobile-header">
@@ -390,6 +542,7 @@ export default function Dashboard() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <SidebarItem id="overview" icon={<FiHome />} label={t.dashboard.tabs.overview} />
+                    {isAdmin && <SidebarItem id="admin" icon={<FiShield />} label="Admin Panel" />}
                     <SidebarItem id="services" icon={<FiBox />} label={t.dashboard.tabs.services} />
                     <SidebarItem id="support" icon={<FiLifeBuoy />} label={t.dashboard.tabs.support} />
                     <SidebarItem id="settings" icon={<FiSettings />} label={t.dashboard.tabs.settings} />
@@ -409,7 +562,7 @@ export default function Dashboard() {
             }} className="main-content">
                 <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                     <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                        {t.dashboard.tabs[activeTab]}
+                        {activeTab === 'admin' ? 'Admin Panel' : t.dashboard.tabs[activeTab]}
                     </h1>
                     <button onClick={() => navigate('/')} style={{
                         padding: '0.5rem 1rem',
@@ -427,6 +580,7 @@ export default function Dashboard() {
                 {activeTab === 'services' && <Services />}
                 {activeTab === 'support' && <Support />}
                 {activeTab === 'settings' && <Settings />}
+                {activeTab === 'admin' && isAdmin && <AdminPanel />}
             </main>
 
             <style>{`
