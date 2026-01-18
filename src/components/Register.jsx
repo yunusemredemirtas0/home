@@ -69,14 +69,14 @@ export default function Register() {
                 top: '70%',
                 left: '20%',
                 transform: 'translate(-50%, -30%)',
-                width: '500px',
-                height: '500px',
+                width: 'min(500px, 90vw)',
+                height: 'min(500px, 90vw)',
                 background: 'radial-gradient(circle, rgba(78, 205, 196, 0.15) 0%, transparent 70%)',
                 zIndex: -1
             }}></div>
 
             <div className="glass" style={{
-                padding: '3rem',
+                padding: '2rem', // Reduced for mobile
                 borderRadius: '30px',
                 width: '100%',
                 maxWidth: '400px',

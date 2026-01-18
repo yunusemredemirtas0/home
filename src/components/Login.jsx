@@ -74,14 +74,14 @@ export default function Login() {
                 top: '30%',
                 left: '50%',
                 transform: 'translate(-50%, -30%)',
-                width: '600px',
-                height: '600px',
+                width: 'min(600px, 90vw)',
+                height: 'min(600px, 90vw)',
                 background: 'radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%)',
                 zIndex: -1
             }}></div>
 
             <div className="glass" style={{
-                padding: '3rem',
+                padding: '2rem', // Reduced for mobile
                 borderRadius: '30px',
                 width: '100%',
                 maxWidth: '400px',

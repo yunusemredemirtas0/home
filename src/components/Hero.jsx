@@ -20,8 +20,9 @@ export default function Hero() {
                 top: '20%',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                width: '600px',
-                height: '600px',
+                transform: 'translateX(-50%)',
+                width: 'min(600px, 90vw)',
+                height: 'min(600px, 90vw)',
                 background: 'radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%)',
                 filter: 'blur(60px)',
                 zIndex: -1

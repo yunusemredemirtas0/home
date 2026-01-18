@@ -2,7 +2,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { FiMoon, FiSun, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiMoon, FiSun, FiUser, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 
@@ -11,6 +11,7 @@ export default function Header() {
     const { language, toggleLanguage, t } = useLanguage();
     const { currentUser, logout } = useAuth();
     const [scrolled, setScrolled] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -23,6 +24,7 @@ export default function Header() {
     }, []);
 
     const handleNavClick = (id) => {
+        setMenuOpen(false); // Close mobile menu if open
         // If we are on the home page, scroll to section
         if (location.pathname === '/') {
             const element = document.getElementById(id);
@@ -214,6 +216,65 @@ export default function Header() {
                         {theme === 'light' ? <FiMoon /> : <FiSun />}
                     </button>
                 </div>
+
+                {/* Mobile Menu Toggle */}
+                <button
+                    className="mobile-only"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    style={{
+                        fontSize: '1.5rem',
+                        color: 'var(--text-primary)',
+                        marginLeft: '1rem',
+                        zIndex: 1002
+                    }}
+                >
+                    {menuOpen ? <FiX /> : <FiMenu />}
+                </button>
+
+                {/* Mobile Menu Overlay */}
+                {menuOpen && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'var(--bg-primary)',
+                        zIndex: 1001,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '2rem'
+                    }}>
+                        <ul style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2rem',
+                            alignItems: 'center',
+                            marginBottom: '2rem'
+                        }}>
+                            {['home', 'about', 'services', 'projects', 'contact'].map((item) => {
+                                const targetId = item === 'services' ? 'projects' : item;
+                                return (
+                                    <li key={item}>
+                                        <button
+                                            onClick={() => handleNavClick(targetId)}
+                                            style={{
+                                                fontSize: '1.5rem',
+                                                color: 'var(--text-primary)',
+                                                fontWeight: '600',
+                                                textTransform: 'capitalize'
+                                            }}
+                                        >
+                                            {t.nav[item] || item}
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                )}
             </div>
 
             <style>{`

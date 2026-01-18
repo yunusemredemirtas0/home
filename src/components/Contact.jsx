@@ -64,7 +64,7 @@ export default function Contact() {
                 </h2>
 
                 <div className="glass" style={{
-                    padding: '3rem',
+                    padding: '2rem', // Reduced from 3rem for better mobile fit
                     borderRadius: '30px',
                     border: '1px solid rgba(255, 255, 255, 0.08)'
                 }}>

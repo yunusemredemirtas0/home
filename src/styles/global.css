@@ -113,3 +113,36 @@ button {
 section {
   padding: 6rem 0;
 }
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px; /* Slightly smaller base font size */
+  }
+
+  section {
+    padding: 4rem 0;
+  }
+
+  h1 {
+    font-size: 2.2rem !important; /* Force smaller size on mobile */
+  }
+
+  h2 {
+    font-size: 1.8rem !important;
+  }
+}
+
+/* Utility to hide/show elements */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .mobile-only {
+    display: block;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+}
