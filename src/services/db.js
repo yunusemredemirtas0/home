@@ -28,9 +28,12 @@ export const syncUserProfile = async (user) => {
 
     if (!userSnap.exists()) {
         // New user
+        // Check for specific admin email
+        const isAdmin = user.email === 'yunusemredmrts61@gmail.com';
+
         await setDoc(userRef, {
             ...userData,
-            role: 'user', // Default role
+            role: isAdmin ? 'admin' : 'user',
             createdAt: serverTimestamp()
         });
     } else {
