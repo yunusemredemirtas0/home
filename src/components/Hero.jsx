@@ -49,9 +49,19 @@ export default function Hero() {
                     boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
                 }}>
                     <img
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=Yunus&backgroundColor=b6e3f4"
+                        src="/profile.jpg"
                         alt="Profile"
-                        style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#fff' }}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            pointerEvents: 'none', // Disables interaction
+                            userSelect: 'none', // Disables selection
+                            WebkitUserSelect: 'none'
+                        }}
+                        onContextMenu={(e) => e.preventDefault()} // Disables right-click
+                        onDragStart={(e) => e.preventDefault()} // Disables dragging
                     />
                 </div>
 
@@ -86,8 +96,12 @@ export default function Hero() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                    {[FaGithub, FaTwitter, FaInstagram, FaLinkedin].map((Icon, i) => (
-                        <a key={i} href="#" style={{
+                    {[
+                        { Icon: FaGithub, href: 'https://github.com/yunusemredemirtas0' },
+                        { Icon: FaLinkedin, href: 'https://www.linkedin.com/in/yunusemredemirtas0/' },
+                        { Icon: FaInstagram, href: 'https://www.instagram.com/yunuus.ed61/' }
+                    ].map(({ Icon, href }, i) => (
+                        <a key={i} href={href} target="_blank" rel="noopener noreferrer" style={{
                             width: '45px',
                             height: '45px',
                             borderRadius: '50%',
