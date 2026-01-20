@@ -112,18 +112,22 @@ export default function Header() {
                     {/* User Auth Section */}
                     {currentUser ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '0.5rem' }}>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                padding: '0.4rem 0.8rem',
-                                borderRadius: '20px',
-                                border: '1px solid var(--border-color)',
-                                color: 'var(--text-primary)',
-                                fontSize: '0.9rem',
-                                fontWeight: '600'
-                            }}>
+                            <div
+                                onClick={() => navigate('/dashboard')}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    padding: '0.4rem 0.8rem',
+                                    borderRadius: '20px',
+                                    border: '1px solid var(--border-color)',
+                                    color: 'var(--text-primary)',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}>
                                 {currentUser.photoURL ? (
                                     <img
                                         src={currentUser.photoURL}
