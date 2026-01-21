@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -9,6 +9,7 @@ import {
     signInWithPopup,
     GoogleAuthProvider
 } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { syncUserProfile, getUserRole } from '../services/db';
 
 const AuthContext = React.createContext();
@@ -47,24 +48,41 @@ export function AuthProvider({ children }) {
         return signOut(auth);
     }
 
+    const [sessionStart] = useState(Date.now());
+
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        let unsubscribeUserDoc = null;
+
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
             try {
                 setCurrentUser(user);
 
                 if (user) {
-                    // Sync user data on every auth state change (login/refresh)
                     await syncUserProfile(user);
-
-                    // Check role
                     const role = await getUserRole(user.uid);
-
-                    // Replace 'yunusemredemirtas@gmail.com' or similar with the actual admin email if known,
-                    // or just rely on DB role. We'll rely on DB role 'admin'.
                     const isAdminEmail = user.email && user.email.toLowerCase() === 'yunusemredmrts61@gmail.com';
                     setIsAdmin(role === 'admin' || isAdminEmail);
+
+                    // Real-time listener for session revocation
+                    const userRef = doc(db, 'users', user.uid);
+                    unsubscribeUserDoc = onSnapshot(userRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            if (data.sessionsRevokedAt) {
+                                const revokedAt = data.sessionsRevokedAt.toMillis();
+                                if (revokedAt > sessionStart) {
+                                    console.log("Session revoked remotely. Logging out...");
+                                    logout();
+                                }
+                            }
+                        }
+                    });
                 } else {
                     setIsAdmin(false);
+                    if (unsubscribeUserDoc) {
+                        unsubscribeUserDoc();
+                        unsubscribeUserDoc = null;
+                    }
                 }
             } catch (error) {
                 console.error("Auth initialization error:", error);
@@ -73,12 +91,16 @@ export function AuthProvider({ children }) {
             }
         });
 
-        return unsubscribe;
-    }, []);
+        return () => {
+            unsubscribeAuth();
+            if (unsubscribeUserDoc) unsubscribeUserDoc();
+        };
+    }, [sessionStart]);
 
     const value = {
         currentUser,
         isAdmin,
+        loading,
         signup,
         login,
         loginWithGoogle,

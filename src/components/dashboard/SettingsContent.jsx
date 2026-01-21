@@ -3,15 +3,16 @@ import {
     FiUser, FiLock, FiBell, FiMonitor, FiShield, FiGlobe, FiSmartphone,
     FiTrash2, FiDownload, FiCheckCircle, FiLayout, FiLinkedin, FiGithub, FiTwitter
 } from 'react-icons/fi';
+import { revokeSessions, getUserDataForExport } from '../../services/db';
 import './SettingsContent.css';
 
 const SettingsContent = ({
     translations, settingsTab, setSettingsTab, currentUser, displayName, setDisplayName,
     phone, setPhone, bio, setBio, jobTitle, setJobTitle, website, setWebsite,
     socials, setSocials, coverImage, setCoverImage,
-    loading, handleUpdateProfile, accentColor,
+    loading, setLoading, handleUpdateProfile, accentColor,
     setAccentColor, onToggleTheme, theme, notifications, setNotifications,
-    handlePasswordReset, statusMsg
+    handlePasswordReset, statusMsg, setStatusMsg
 }) => {
 
     // Mock states for new features (visual only for now)
@@ -34,6 +35,47 @@ const SettingsContent = ({
     const updateGap = (val) => {
         document.documentElement.style.setProperty('--dash-gap', val);
         localStorage.setItem('dash-gap', val);
+    };
+
+    const handleLogoutAllDevices = async () => {
+        if (!currentUser) return;
+        if (window.confirm("Tüm cihazlardan çıkış yapmak istediğinize emin misiniz? Bu işlem mevcut oturumunuzu da sonlandırabilir.")) {
+            setLoading?.(true);
+            try {
+                await revokeSessions(currentUser.uid);
+                setStatusMsg?.({ type: 'success', msg: "Tüm cihazlardan çıkış yapıldı." });
+            } catch (error) {
+                console.error("Logout error:", error);
+                setStatusMsg?.({ type: 'error', msg: "Oturumlar kapatılırken bir hata oluştu." });
+            } finally {
+                setLoading?.(false);
+                setTimeout(() => setStatusMsg?.(null), 3000);
+            }
+        }
+    };
+
+    const handleDownloadData = async () => {
+        if (!currentUser) return;
+        setLoading?.(true);
+        try {
+            const data = await getUserDataForExport(currentUser.uid);
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `my-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setStatusMsg?.({ type: 'success', msg: "Verileriniz hazırlandı ve indiriliyor." });
+        } catch (error) {
+            console.error("Export error:", error);
+            setStatusMsg?.({ type: 'error', msg: "Veriler dışa aktarılırken bir hata oluştu." });
+        } finally {
+            setLoading?.(false);
+            setTimeout(() => setStatusMsg?.(null), 3000);
+        }
     };
 
     const categories = [
@@ -321,7 +363,12 @@ const SettingsContent = ({
                                         <div style={{ fontSize: '0.8rem', color: '#10b981' }}>Active Now • Istanbul, TR</div>
                                     </div>
                                 </div>
-                                <button style={{ color: 'var(--text-secondary)', textDecoration: 'underline', fontSize: '0.9rem' }}>{translations.dashboard.settings.logoutAll}</button>
+                                <button
+                                    onClick={handleLogoutAllDevices}
+                                    style={{ color: 'var(--text-secondary)', textDecoration: 'underline', fontSize: '0.9rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                                >
+                                    {translations.dashboard.settings.logoutAll}
+                                </button>
                             </div>
                         </div>
 
@@ -331,7 +378,7 @@ const SettingsContent = ({
                                 <h3 style={{ marginBottom: '0.5rem' }}>{translations.dashboard.settings.dataExport}</h3>
                                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{translations.dashboard.settings.dataExportDesc}</p>
                             </div>
-                            <button className="btn-secondary">
+                            <button onClick={handleDownloadData} className="btn-secondary">
                                 <FiDownload /> Download
                             </button>
                         </div>

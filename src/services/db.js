@@ -73,7 +73,8 @@ export const getAllUsers = async () => {
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-// Ticket Operations
+// ... (previous code)
+
 export const createTicket = async (userId, userEmail, subject, content) => {
     await addDoc(collection(db, 'tickets'), {
         userId,
@@ -84,6 +85,29 @@ export const createTicket = async (userId, userEmail, subject, content) => {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
     });
+};
+
+export const revokeSessions = async (uid) => {
+    const userRef = doc(db, 'users', uid);
+    await setDoc(userRef, {
+        sessionsRevokedAt: serverTimestamp()
+    }, { merge: true });
+};
+
+export const getUserDataForExport = async (uid) => {
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    const userData = userSnap.exists() ? userSnap.data() : {};
+
+    const ticketsQ = query(collection(db, 'tickets'), where('userId', '==', uid));
+    const ticketsSnap = await getDocs(ticketsQ);
+    const tickets = ticketsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    return {
+        profile: userData,
+        tickets: tickets,
+        exportDate: new Date().toISOString()
+    };
 };
 
 export const deleteTicket = async (ticketId) => {

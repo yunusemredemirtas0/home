@@ -32,11 +32,14 @@ export default function Dashboard() {
 
     // Navigation and Menu State
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const getActiveTab = () => {
-        const path = location.pathname.split('/').filter(Boolean).pop();
-        return (path === 'dashboard' || !path) ? 'overview' : path;
-    };
     const activeTab = getActiveTab();
+
+    // Auto-redirect to home if logged out
+    useEffect(() => {
+        if (!currentUser) {
+            navigate('/', { replace: true });
+        }
+    }, [currentUser, navigate]);
 
     // Settings State
     const [settingsTab, setSettingsTab] = useState('profile');
@@ -460,13 +463,13 @@ export default function Dashboard() {
                                 website={website} setWebsite={setWebsite}
                                 socials={socials} setSocials={setSocials}
                                 coverImage={coverImage} setCoverImage={setCoverImage}
-                                loading={loading}
+                                loading={loading} setLoading={setLoading}
                                 handleUpdateProfile={handleUpdateProfile}
                                 accentColor={accentColor} setAccentColor={setAccentColor}
                                 onToggleTheme={toggleTheme} theme={theme}
                                 notifications={notifications} setNotifications={setNotifications}
                                 handlePasswordReset={handlePasswordReset}
-                                statusMsg={statusMsg}
+                                statusMsg={statusMsg} setStatusMsg={setStatusMsg}
                             />
                         </div>
                     )}
