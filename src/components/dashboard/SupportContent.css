@@ -1,0 +1,649 @@
+/* Support Content Styles */
+.support-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Header & Actions */
+.support-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.support-title h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.support-title p {
+    color: var(--text-secondary);
+}
+
+.btn-primary {
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-secondary-glass {
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary-glass:hover {
+    background: var(--bg-primary);
+}
+
+/* Ticket List */
+.ticket-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ticket-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.ticket-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex: 1;
+    min-width: 250px;
+}
+
+.ticket-icon {
+    padding: 0.8rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ticket-icon.open {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+}
+
+.ticket-icon.closed {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6B7280;
+}
+
+.ticket-details h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+    word-break: break-word;
+}
+
+.ticket-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.ticket-status {
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+}
+
+.unread-badge {
+    width: 10px;
+    height: 10px;
+    background: #FF4444;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+    display: inline-block;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(255, 68, 68, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+    }
+}
+
+.ticket-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-left: auto;
+}
+
+.btn-icon-delete {
+    padding: 0.6rem;
+    border-radius: 10px;
+    background: rgba(255, 68, 68, 0.1);
+    color: #FF4444;
+    border: 1px solid rgba(255, 68, 68, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon-delete:hover {
+    background: #FF4444;
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-delete-ticket {
+    padding: 0.6rem;
+    border-radius: 12px;
+    background: rgba(255, 68, 68, 0.1);
+    color: #FF4444;
+    border: 1px solid rgba(255, 68, 68, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.btn-delete-ticket:hover {
+    background: #FF4444;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+}
+
+/* Mobile adjustments for deletion */
+@media (max-width: 768px) {
+    .ticket-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .ticket-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+.ticket-status.open {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+}
+
+.ticket-status.closed {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6B7280;
+}
+
+/* Create Ticket Form */
+.create-ticket-container {
+    padding: 2.5rem;
+    border-radius: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.ticket-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.status-message {
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.status-message.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+}
+
+.status-message.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+}
+
+.btn-submit {
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+}
+
+.btn-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+/* Detail View */
+.btn-icon-back {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon-back:hover {
+    background: var(--bg-primary);
+}
+
+.ticket-detail-container {
+    padding: 2rem;
+    border-radius: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.ticket-original-message {
+    padding: 1.5rem;
+    background: var(--bg-primary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+}
+
+.message-header .user {
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.message-header .date {
+    color: var(--text-secondary);
+}
+
+.message-content {
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+/* Thread / Chat */
+.messages-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.message-bubble {
+    display: flex;
+    max-width: 80%;
+}
+
+.message-bubble.own {
+    align-self: flex-end;
+}
+
+.message-bubble.other {
+    align-self: flex-start;
+}
+
+.bubble-content {
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    position: relative;
+    word-break: break-all;
+    /* Force break for emojis and special chars */
+    white-space: pre-wrap;
+    /* Preserve line breaks */
+}
+
+.message-bubble.own .bubble-content {
+    background: var(--accent-gradient);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble.other .bubble-content {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-bottom-left-radius: 4px;
+}
+
+.bubble-meta {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.4rem;
+    opacity: 0.8;
+}
+
+/* Input Area */
+.message-input-container {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.message-input-area {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    outline: none;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: none;
+    /* Prevent manual resize */
+    min-height: 50px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.chat-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.chat-tip {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    padding-left: 0.5rem;
+}
+
+.btn-send {
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bg-secondary);
+    box-shadow: none;
+}
+
+/* Admin Actions */
+.admin-actions-bar {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.btn-status-resolve,
+.btn-status-close {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.btn-status-resolve {
+    background: #10B981;
+    color: white;
+}
+
+.btn-status-close {
+    background: #6B7280;
+    color: white;
+}
+
+.btn-status-resolve:hover,
+.btn-status-close:hover {
+    transform: translateY(-2px);
+}
+
+.ticket-closed-notice {
+    padding: 1rem;
+    background: rgba(107, 114, 128, 0.1);
+    color: var(--text-secondary);
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Ticket Detail Mobile */
+@media (max-width: 768px) {
+    .ticket-detail-container {
+        padding: 1.2rem;
+    }
+
+    .message-bubble {
+        max-width: 90%;
+    }
+
+    .admin-actions-bar {
+        flex-direction: column;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .support-header {
+        flex-direction: column;
+        align-items: center;
+        /* Center header */
+        text-align: center;
+    }
+
+    .support-header button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ticket-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        align-items: center;
+        /* Center card content */
+        text-align: center;
+    }
+
+    .ticket-info {
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .ticket-icon {
+        margin-bottom: 0.5rem;
+    }
+
+    .ticket-meta {
+        justify-content: center;
+        /* Center meta info */
+    }
+
+    .ticket-status {
+        align-self: center;
+        /* Center status pill */
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+
+    .create-ticket-container {
+        padding: 1.5rem;
+    }
+
+    .support-title h2 {
+        font-size: 1.5rem;
+    }
+}

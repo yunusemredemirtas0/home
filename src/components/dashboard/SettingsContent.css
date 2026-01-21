@@ -1,0 +1,554 @@
+/* Settings Content Strings */
+.settings-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Tabs Navigation */
+.settings-tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+.settings-tabs::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+.tab-button {
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.tab-button.active {
+    background: var(--accent-gradient);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.tab-button:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-primary);
+}
+
+/* Main Content Area */
+.settings-content {
+    padding: 2.5rem;
+    border-radius: var(--dash-radius);
+    min-height: 500px;
+}
+
+/* Forms & Inputs */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form-input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input.has-icon {
+    padding-left: 3rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.form-input:disabled {
+    background: rgba(0, 0, 0, 0.05);
+    /* slightly darker than bg-secondary */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form-textarea {
+    resize: none;
+    min-height: 100px;
+}
+
+/* Section Headers */
+.section-header {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Grids */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.appearance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+/* Cards & Panels */
+.settings-card {
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.settings-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Theme Toggle Buttons */
+.theme-toggle-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.theme-btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.theme-btn.active-light {
+    border: 2px solid var(--accent-color);
+    background: white;
+    color: black;
+    font-weight: 700;
+}
+
+.theme-btn.active-dark {
+    border: 2px solid var(--accent-color);
+    background: #1f2937;
+    color: white;
+    font-weight: 700;
+}
+
+/* Accent Colors */
+.accent-color-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.accent-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.accent-btn.active {
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--text-primary);
+    transform: scale(1.1);
+}
+
+/* Radius Buttons */
+.radius-group {
+    display: flex;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 0.3rem;
+}
+
+.radius-btn {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radius-btn:focus,
+.radius-btn:hover {
+    background: var(--bg-primary);
+}
+
+/* Notification Items */
+.notification-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.notification-icon-wrapper {
+    padding: 0.8rem;
+    background: rgba(124, 58, 237, 0.1);
+    border-radius: 10px;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-secondary {
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid var(--text-primary);
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Data Export & Danger Zone */
+.danger-zone {
+    padding: 2rem;
+    background: rgba(239, 68, 68, 0.05);
+    border-radius: 20px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger {
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    background: #ef4444;
+    border: none;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-primary-action {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    transition: transform 0.2s;
+}
+
+.btn-primary-action:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.btn-primary-action:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Status Message */
+.status-msg {
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.status-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE STYLES
+   ========================================= */
+/* Mobile Nav Select */
+.settings-mobile-nav {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.mobile-nav-select {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+/* Visibility Utilities */
+.mobile-only {
+    display: none;
+}
+
+.desktop-only {
+    display: flex;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE STYLES
+   ========================================= */
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+
+    .desktop-only {
+        display: none;
+    }
+
+    .settings-container {
+        gap: 1.5rem;
+        padding: 0 1rem;
+        align-items: center;
+        /* Center container content */
+    }
+
+    .settings-content {
+        padding: 1.5rem;
+        border-radius: 20px;
+        width: 100%;
+    }
+
+    /* Strict Centering for EVERYTHING */
+    .settings-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .settings-card h3 {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .profile-grid,
+    .appearance-grid {
+        display: flex;
+        /* Use flex column instead of grid for stricter vertical stacking */
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        width: 100%;
+    }
+
+    .form-group {
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .form-label {
+        text-align: center;
+        width: 100%;
+    }
+
+    .form-input-wrapper {
+        width: 100%;
+    }
+
+    .form-input-icon {
+        left: 1rem;
+        /* Keep icon position relative to input */
+    }
+
+    /* Force inputs to be centered text if desired, usually left is better for typing, 
+       but user asked for "everything centered". 
+       Let's keep text-align left for inputs for usability, but center the input box itself.
+    */
+    .form-input {
+        text-align: center;
+        /* Per user request "her şeyi ortaya koymanı istiyorum" */
+    }
+
+    .form-input.has-icon {
+        padding-left: 1rem;
+        /* Remove extra padding if centering text, or keep it? */
+        /* Actually, if we center text, icon might look weird. 
+           Let's compromise: Input box centered, text inside left-aligned? 
+           User said "her şeyi sayfanın ortasına koymanı istiyorum". 
+           Usually means layout. Centered text in inputs is rare/ugly.
+           I will Center layout, but keep input text readable.
+           Wait, "az önce attığım fotoğrafta tüm her şeyi ortaya koymanı istiyorum".
+           The photo shows centered alignment.
+           I will center the text in P tags, H tags, etc.
+        */
+        text-align: left;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .theme-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Accent Colors */
+    .accent-color-grid {
+        justify-content: center;
+        width: 100%;
+    }
+
+    /* Radius Buttons */
+    .radius-group {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Notification Items */
+    .notification-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .notification-item>div:first-child {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .notification-item .switch {
+        align-self: center;
+    }
+
+    /* Danger Zone */
+    .danger-zone {
+        align-items: center;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .danger-zone h3 {
+        justify-content: center;
+    }
+
+    .btn-primary-action,
+    .btn-secondary,
+    .btn-danger {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .social-grid {
+        justify-content: center;
+        width: 100%;
+    }
+}

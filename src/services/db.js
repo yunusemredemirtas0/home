@@ -3,12 +3,14 @@ import {
     doc,
     setDoc,
     getDoc,
+    deleteDoc,
     collection,
     addDoc,
     query,
     where,
     getDocs,
     orderBy,
+    onSnapshot,
     serverTimestamp
 } from 'firebase/firestore';
 
@@ -23,7 +25,6 @@ export const syncUserProfile = async (user) => {
     const userData = {
         email: user.email,
         lastLogin: new Date(),
-        // Only update role if it's an admin email, otherwise keep existing role or default to user
         role: isAdminEmail ? 'admin' : (userSnap.exists() ? userSnap.data().role : 'user')
     };
 
@@ -35,22 +36,14 @@ export const syncUserProfile = async (user) => {
             createdAt: new Date()
         });
     } else {
-        // Sync basic auth data but don't overwrite profile if custom data exists
-        // We only forcefully update email, lastLogin, and role
-        // DisplayName and PhotoURL should be managed by the profile settings if they exist in DB
         const currentData = userSnap.data();
         const updates = { ...userData };
-
-        // If DB doesn't have displayName but Auth does, add it. 
-        // If DB has it, we assume the DB version is the source of truth (handled by profile settings)
         if (!currentData.displayName && user.displayName) updates.displayName = user.displayName;
         if (!currentData.photoURL && user.photoURL) updates.photoURL = user.photoURL;
-
         await setDoc(userRef, updates, { merge: true });
     }
 };
 
-// Update extended profile data
 export const updateUserProfileData = async (uid, data) => {
     const userRef = doc(db, 'users', uid);
     await setDoc(userRef, {
@@ -88,23 +81,115 @@ export const createTicket = async (userId, userEmail, subject, content) => {
         subject,
         content,
         status: 'open',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
     });
+};
+
+export const deleteTicket = async (ticketId) => {
+    const ticketRef = doc(db, 'tickets', ticketId);
+    await deleteDoc(ticketRef);
 };
 
 export const getUserTickets = async (userId) => {
     const q = query(
         collection(db, 'tickets'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', userId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const tickets = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    return tickets.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis?.() || Date.now();
+        const timeB = b.createdAt?.toMillis?.() || Date.now();
+        return timeB - timeA;
+    });
 };
 
 export const getAllTickets = async () => {
     const q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+export const streamTickets = (userId, isAdmin, callback) => {
+    let q;
+    if (isAdmin) {
+        q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'));
+    } else {
+        q = query(collection(db, 'tickets'), where('userId', '==', userId));
+    }
+
+    return onSnapshot(q, (snapshot) => {
+        const tickets = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (!isAdmin) {
+            tickets.sort((a, b) => {
+                const timeA = a.createdAt?.toMillis?.() || Date.now();
+                const timeB = b.createdAt?.toMillis?.() || Date.now();
+                return timeB - timeA;
+            });
+        }
+        callback(tickets);
+    });
+};
+
+export const streamMessages = (ticketId, callback) => {
+    const q = query(
+        collection(db, 'tickets', ticketId, 'messages'),
+        orderBy('createdAt', 'asc')
+    );
+    return onSnapshot(q, (snapshot) => {
+        callback(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+};
+
+export const updateTicketStatus = async (ticketId, status) => {
+    const ticketRef = doc(db, 'tickets', ticketId);
+    await setDoc(ticketRef, {
+        status,
+        updatedAt: serverTimestamp()
+    }, { merge: true });
+};
+
+export const addTicketMessage = async (ticketId, userId, userEmail, message, isAdminSender) => {
+    const messagesRef = collection(db, 'tickets', ticketId, 'messages');
+    await addDoc(messagesRef, {
+        userId,
+        userEmail,
+        message,
+        createdAt: serverTimestamp()
+    });
+
+    const ticketRef = doc(db, 'tickets', ticketId);
+    const updates = {
+        updatedAt: serverTimestamp()
+    };
+
+    if (isAdminSender) {
+        updates.unreadForUser = true;
+    } else {
+        updates.unreadForAdmin = true;
+    }
+
+    await setDoc(ticketRef, updates, { merge: true });
+};
+
+export const markTicketAsRead = async (ticketId, isAdmin) => {
+    const ticketRef = doc(db, 'tickets', ticketId);
+    const updates = {};
+    if (isAdmin) {
+        updates.unreadForAdmin = false;
+    } else {
+        updates.unreadForUser = false;
+    }
+    await setDoc(ticketRef, updates, { merge: true });
+};
+
+export const getTicketMessages = async (ticketId) => {
+    const q = query(
+        collection(db, 'tickets', ticketId, 'messages'),
+        orderBy('createdAt', 'asc')
+    );
     const snapshot = await getDocs(q);
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
