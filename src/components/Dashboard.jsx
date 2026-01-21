@@ -30,16 +30,20 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Navigation and Menu State
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const activeTab = getActiveTab();
-
-    // Auto-redirect to home if logged out
+    // Redirect to home if user logs out or session is revoked
     useEffect(() => {
         if (!currentUser) {
             navigate('/', { replace: true });
         }
     }, [currentUser, navigate]);
+
+    // Navigation and Menu State
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const getActiveTab = () => {
+        const path = location.pathname.split('/').filter(Boolean).pop();
+        return (path === 'dashboard' || !path) ? 'overview' : path;
+    };
+    const activeTab = getActiveTab();
 
     // Settings State
     const [settingsTab, setSettingsTab] = useState('profile');

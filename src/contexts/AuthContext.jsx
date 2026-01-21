@@ -48,16 +48,19 @@ export function AuthProvider({ children }) {
         return signOut(auth);
     }
 
-    const [sessionStart] = useState(Date.now());
+    const [currentSessionStart, setCurrentSessionStart] = useState(Date.now());
 
     useEffect(() => {
         let unsubscribeUserDoc = null;
 
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
             try {
-                setCurrentUser(user);
-
                 if (user) {
+                    // Update session start time on login
+                    const now = Date.now();
+                    setCurrentSessionStart(now);
+
+                    setCurrentUser(user);
                     await syncUserProfile(user);
                     const role = await getUserRole(user.uid);
                     const isAdminEmail = user.email && user.email.toLowerCase() === 'yunusemredmrts61@gmail.com';
@@ -70,7 +73,8 @@ export function AuthProvider({ children }) {
                             const data = docSnap.data();
                             if (data.sessionsRevokedAt) {
                                 const revokedAt = data.sessionsRevokedAt.toMillis();
-                                if (revokedAt > sessionStart) {
+                                // Only revoke if the revocation happened AFTER this session started
+                                if (revokedAt > now) {
                                     console.log("Session revoked remotely. Logging out...");
                                     logout();
                                 }
@@ -78,6 +82,7 @@ export function AuthProvider({ children }) {
                         }
                     });
                 } else {
+                    setCurrentUser(null);
                     setIsAdmin(false);
                     if (unsubscribeUserDoc) {
                         unsubscribeUserDoc();
@@ -95,12 +100,11 @@ export function AuthProvider({ children }) {
             unsubscribeAuth();
             if (unsubscribeUserDoc) unsubscribeUserDoc();
         };
-    }, [sessionStart]);
+    }, []);
 
     const value = {
         currentUser,
         isAdmin,
-        loading,
         signup,
         login,
         loginWithGoogle,

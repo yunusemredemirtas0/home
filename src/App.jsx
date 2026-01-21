@@ -14,6 +14,15 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 
+// ProtectedRoute component
+const ProtectedRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 // Home Component contains the landing page sections
 function Home() {
   return (
@@ -26,19 +35,6 @@ function Home() {
       <Footer />
     </>
   );
-}
-
-// Protected Route Component
-function ProtectedRoute({ children }) {
-  const { currentUser, loading } = useAuth();
-
-  if (loading) return null; // Or a loading spinner
-
-  if (!currentUser) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
 }
 
 function App() {

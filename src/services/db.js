@@ -73,6 +73,31 @@ export const getAllUsers = async () => {
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
+export const deleteUserAdmin = async (uid) => {
+    const userRef = doc(db, 'users', uid);
+    await deleteDoc(userRef);
+};
+
+export const updateUserDataAdmin = async (uid, data) => {
+    const userRef = doc(db, 'users', uid);
+    await setDoc(userRef, {
+        ...data,
+        updatedAt: serverTimestamp()
+    }, { merge: true });
+};
+
+export const registerUserManual = async (userData) => {
+    // Note: This only creates the Firestore document. 
+    // The user still needs to be created in Firebase Auth through the standard sign-up flow or Admin SDK.
+    const userRef = doc(db, 'users', userData.uid || Date.now().toString());
+    await setDoc(userRef, {
+        ...userData,
+        createdAt: serverTimestamp(),
+        lastLogin: null,
+        role: userData.role || 'user'
+    });
+};
+
 // ... (previous code)
 
 export const createTicket = async (userId, userEmail, subject, content) => {
