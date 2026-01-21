@@ -49,23 +49,27 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setCurrentUser(user);
-            setLoading(false);
+            try {
+                setCurrentUser(user);
 
-            if (user) {
-                // Sync user data on every auth state change (login/refresh)
-                await syncUserProfile(user);
+                if (user) {
+                    // Sync user data on every auth state change (login/refresh)
+                    await syncUserProfile(user);
 
-                // Check role
-                // HARDCODED ADMIN FOR SETUP:
-                // You can replace this with purely DB based role check later
-                // For now, let's say the current user is admin if email matches, OR if DB says so.
-                const role = await getUserRole(user.uid);
-                // Replace 'yunusemredemirtas@gmail.com' or similar with the actual admin email if known,
-                // or just rely on DB role. We'll rely on DB role 'admin'.
-                setIsAdmin(role === 'admin');
-            } else {
-                setIsAdmin(false);
+                    // Check role
+                    const role = await getUserRole(user.uid);
+
+                    // Replace 'yunusemredemirtas@gmail.com' or similar with the actual admin email if known,
+                    // or just rely on DB role. We'll rely on DB role 'admin'.
+                    const isAdminEmail = user.email && user.email.toLowerCase() === 'yunusemredmrts61@gmail.com';
+                    setIsAdmin(role === 'admin' || isAdminEmail);
+                } else {
+                    setIsAdmin(false);
+                }
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+            } finally {
+                setLoading(false);
             }
         });
 

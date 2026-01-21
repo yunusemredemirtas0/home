@@ -21,11 +21,7 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
 
     // Translations for Login
-    const loginText = {
-        tr: { title: 'Giriş Yap', email: 'E-posta', pass: 'Şifre', btn: 'Giriş Yap', google: 'Google ile Giriş Yap', noAccount: 'Hesabınız yok mu?', regi: 'Kayıt Ol', back: 'Ana Sayfaya Dön', loading: 'Giriş Yapılıyor...', remember: 'Beni Hatırla', or: 'veya' },
-        en: { title: 'Login', email: 'Email', pass: 'Password', btn: 'Login', google: 'Sign in with Google', noAccount: "Don't have an account?", regi: 'Register', back: 'Back to Home', loading: 'Logging in...', remember: 'Remember Me', or: 'or' }
-    };
-    const txt = useLanguage().language === 'tr' ? loginText.tr : loginText.en;
+    const txt = t.auth.login;
 
     async function handleSubmit(e) {
         e.preventDefault();

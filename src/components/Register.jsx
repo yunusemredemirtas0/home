@@ -18,11 +18,7 @@ export default function Register() {
     const [loading, setLoading] = useState(false);
 
     // Translations for Register
-    const regText = {
-        tr: { title: 'Kayıt Ol', name: 'Ad Soyad', email: 'E-posta', pass: 'Şifre', btn: 'Kayıt Ol', google: 'Google ile Kayıt Ol', hasAccount: 'Hesabınız var mı?', login: 'Giriş Yap', back: 'Ana Sayfaya Dön', loading: 'Kaydediliyor...', or: 'veya' },
-        en: { title: 'Register', name: 'Full Name', email: 'Email', pass: 'Password', btn: 'Register', google: 'Sign up with Google', hasAccount: 'Already have an account?', login: 'Login', back: 'Back to Home', loading: 'Creating Account...', or: 'or' }
-    };
-    const txt = useLanguage().language === 'tr' ? regText.tr : regText.en;
+    const txt = t.auth.register;
 
     async function handleSubmit(e) {
         e.preventDefault();

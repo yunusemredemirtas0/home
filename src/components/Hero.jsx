@@ -80,7 +80,7 @@ export default function Hero() {
                     marginBottom: '0.5rem',
                     opacity: 0.9
                 }}>
-                    Web Developer
+                    {t.hero.job}
                 </p>
 
                 <div style={{
@@ -92,7 +92,7 @@ export default function Hero() {
                     color: 'var(--text-secondary)',
                     fontSize: '0.9rem'
                 }}>
-                    <span>📍</span> Kocaeli, Türkiye
+                    <span>📍</span> {t.hero.location}
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>

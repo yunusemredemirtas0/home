@@ -55,33 +55,47 @@ export default function Header() {
     return (
         <header style={{
             position: 'fixed',
-            top: '20px',
+            top: 0,
             left: 0,
             right: 0,
             zIndex: 1000,
             display: 'flex',
             justifyContent: 'center',
-            padding: '0 1rem',
+            padding: 0,
             transition: 'all 0.3s ease',
-            transform: scrolled ? 'translateY(0)' : 'translateY(10px)',
+            // transform: scrolled ? 'translateY(0)' : 'translateY(10px)', // transform no longer needed if we want it always top
         }}>
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '0.5rem 1rem',
+                padding: '0.8rem 2rem',
                 width: '100%',
-                maxWidth: '1000px',
-                background: 'transparent',
-                backdropFilter: 'none',
-                border: 'none',
-                boxShadow: 'none'
+                background: 'var(--nav-bg)', // Use theme variable
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                borderBottom: '1px solid var(--glass-border)', // Bottom border instead of full border
             }}>
-                <div onClick={() => handleNavClick('home')} style={{ cursor: 'pointer' }}>
-                    <Logo />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        className="mobile-only"
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        style={{
+                            fontSize: '1.5rem',
+                            color: 'var(--text-primary)',
+                            zIndex: 1002
+                        }}
+                    >
+                        {menuOpen ? <FiX /> : <FiMenu />}
+                    </button>
+
+                    <div onClick={() => handleNavClick('home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <Logo />
+                    </div>
                 </div>
 
-                <nav style={{ display: 'none', md: { display: 'block' } }}>
+                <nav className="desktop-only">
                     <ul style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                         {['home', 'about', 'services', 'projects', 'contact'].map((item) => {
                             const targetId = item === 'services' ? 'projects' : item;
@@ -108,8 +122,9 @@ export default function Header() {
                     </ul>
                 </nav>
 
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    {/* User Auth Section */}
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: 'auto' }}>
+
+                    {/* User Auth Section - Moved to Left of Theme/Lang */}
                     {currentUser ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '0.5rem' }}>
                             <div
@@ -137,7 +152,7 @@ export default function Header() {
                                 ) : (
                                     <FiUser />
                                 )}
-                                <span>{currentUser.displayName || currentUser.email.split('@')[0]}</span>
+                                <span className="desktop-only">{currentUser.displayName || currentUser.email.split('@')[0]}</span>
                             </div>
                             <button onClick={handleLogout} style={{
                                 width: '36px',
@@ -157,16 +172,16 @@ export default function Header() {
                         </div>
                     ) : (
                         <button onClick={() => navigate('/login')} style={{
-                            padding: '0.6rem 1.2rem',
+                            padding: '0.5rem 1rem',
                             borderRadius: '20px',
                             border: '1px solid var(--accent-color)',
                             background: 'rgba(124, 58, 237, 0.1)',
                             color: 'var(--accent-color)',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            marginRight: '0.5rem',
                             transition: 'all 0.2s',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            marginRight: '0.5rem'
                         }}
                             onMouseOver={(e) => {
                                 e.target.style.background = 'var(--accent-color)';
@@ -177,9 +192,28 @@ export default function Header() {
                                 e.target.style.color = 'var(--accent-color)';
                             }}
                         >
-                            {language === 'tr' ? 'Giriş' : 'Login'}
+                            {t.nav.login}
                         </button>
                     )}
+
+                    <button onClick={toggleTheme} style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        background: 'var(--bg-secondary)',
+                        color: theme === 'light' ? '#fbbf24' : 'var(--text-primary)',
+                        fontSize: '1.1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid var(--border-color)',
+                        transition: 'all 0.2s'
+                    }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                    >
+                        {theme === 'light' ? <FiMoon /> : <FiSun />}
+                    </button>
 
                     <button onClick={toggleLanguage} style={{
                         width: '40px',
@@ -200,40 +234,7 @@ export default function Header() {
                             {language === 'tr' ? 'EN' : 'TR'}
                         </span>
                     </button>
-
-                    <button onClick={toggleTheme} style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background: 'var(--bg-secondary)',
-                        color: theme === 'light' ? '#fbbf24' : 'var(--text-primary)',
-                        fontSize: '1.1rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: '1px solid var(--border-color)',
-                        transition: 'all 0.2s'
-                    }}
-                        onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
-                        onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
-                    >
-                        {theme === 'light' ? <FiMoon /> : <FiSun />}
-                    </button>
                 </div>
-
-                {/* Mobile Menu Toggle */}
-                <button
-                    className="mobile-only"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    style={{
-                        fontSize: '1.5rem',
-                        color: 'var(--text-primary)',
-                        marginLeft: '1rem',
-                        zIndex: 1002
-                    }}
-                >
-                    {menuOpen ? <FiX /> : <FiMenu />}
-                </button>
 
                 {/* Mobile Menu Overlay */}
                 {menuOpen && (

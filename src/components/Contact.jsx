@@ -170,8 +170,8 @@ export default function Contact() {
                             {status === 'sending' ? '...' : (status === 'success' ? '✔' : (status === 'error' ? '❌' : t.contact.send))}
                         </button>
 
-                        {status === 'success' && <p style={{ color: '#10b981', textAlign: 'center', fontWeight: '600' }}>Mesajınız başarıyla gönderildi!</p>}
-                        {status === 'error' && <p style={{ color: '#ef4444', textAlign: 'center', fontWeight: '600' }}>Bir hata oluştu. Lütfen tekrar deneyin.</p>}
+                        {status === 'success' && <p style={{ color: '#10b981', textAlign: 'center', fontWeight: '600' }}>{t.contact.success}</p>}
+                        {status === 'error' && <p style={{ color: '#ef4444', textAlign: 'center', fontWeight: '600' }}>{t.contact.error}</p>}
 
                     </form>
                 </div>

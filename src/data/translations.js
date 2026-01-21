@@ -6,12 +6,47 @@ export const translations = {
       services: 'Hizmetlerim',
       projects: 'Projeler',
       contact: 'İletişim',
+      login: 'Giriş',
+    },
+    auth: {
+      login: {
+        title: 'Giriş Yap',
+        email: 'E-posta',
+        pass: 'Şifre',
+        btn: 'Giriş Yap',
+        google: 'Google ile Giriş Yap',
+        noAccount: 'Hesabınız yok mu?',
+        regi: 'Kayıt Ol',
+        back: 'Ana Sayfaya Dön',
+        loading: 'Giriş Yapılıyor...',
+        remember: 'Beni Hatırla',
+        or: 'veya',
+        error: 'Giriş başarısız oldu.',
+        googleError: 'Google girişi başarısız.'
+      },
+      register: {
+        title: 'Kayıt Ol',
+        name: 'Ad Soyad',
+        email: 'E-posta',
+        pass: 'Şifre',
+        btn: 'Kayıt Ol',
+        google: 'Google ile Kayıt Ol',
+        hasAccount: 'Hesabınız var mı?',
+        login: 'Giriş Yap',
+        back: 'Ana Sayfaya Dön',
+        loading: 'Kaydediliyor...',
+        or: 'veya',
+        error: 'Hesap oluşturulamadı.',
+        googleError: 'Google kaydı başarısız.'
+      }
     },
     hero: {
       greeting: 'Merhaba, ben',
       title: 'Yaratıcı Geliştirici & Tasarımcı',
       subtitle: 'Modern ve kullanıcı dostu web deneyimleri tasarlıyorum.',
       cta: 'Projelerimi Gör',
+      job: 'Web Geliştirici',
+      location: 'Kocaeli, Türkiye'
     },
     about: {
       title: 'Hakkımda',
@@ -50,6 +85,8 @@ export const translations = {
       subjectPlaceholder: 'Konu',
       messagePlaceholder: 'Mesajınız...',
       send: 'Gönder',
+      success: 'Mesajınız başarıyla gönderildi!',
+      error: 'Bir hata oluştu. Lütfen tekrar deneyin.'
     },
     footer: {
       rights: 'Tüm hakları saklıdır.',
@@ -57,22 +94,134 @@ export const translations = {
     dashboard: {
       title: 'Müşteri Paneli',
       welcome: 'Hoşgeldin,',
+      server: {
+        title: 'Sunucu Takibi',
+        subtitle: 'Glances üzerinden anlık sunucu metrikleri.',
+        configure: 'Sunucu Ayarları',
+        urlLabel: 'Glances API URL',
+        urlPlaceholder: 'https://api.sunucum.com:61208',
+        connect: 'Bağlan',
+        connected: 'Bağlandı',
+        disconnected: 'Bağlantı Yok',
+        error: 'Bağlantı Hatası',
+        cpu: 'CPU Kullanımı',
+        memory: 'RAM',
+        disk: 'Disk',
+        load: 'Yük (Load)',
+        iframeMode: 'Tam Ekran Görünüm',
+        widgetMode: 'Widget Görünüm',
+        save: 'Kaydet',
+        cancel: 'İptal',
+        sslWarning: "Not: Tarayıcı güvenliği nedeniyle HTTPS kullanmanız önerilir. HTTP kullanıyorsanız 'Güvenli olmayan içeriğe izin ver' ayarını yapmanız gerekebilir."
+      },
       tabs: {
         overview: 'Genel Bakış',
         services: 'Hizmetlerim',
+        packages: 'Paketler',
+        server: 'Sunucu İzleme',
         support: 'Destek',
         settings: 'Ayarlar',
+        users: 'Kullanıcılar',
+        admin: 'Yönetim',
         logout: 'Çıkış Yap'
+      },
+      admin: {
+        users: {
+          title: 'Kullanıcı Yönetimi',
+          subtitle: 'Tüm kayıtlı üyeleri ve sistem rollerini buradan takip edebilirsiniz.',
+          name: 'Ad Soyad',
+          email: 'E-posta',
+          role: 'Rol',
+          lastSeen: 'Son Görülme',
+          status: 'Durum',
+          actions: 'İşlemler',
+          active: 'Aktif',
+          neverLogin: 'Hiç giriş yapmadı',
+          loading: 'Üyeler yükleniyor...'
+        },
+        stats: {
+          totalUsers: 'Toplam Kullanıcı',
+          activeNow: 'Şu An Aktif',
+          newThisMonth: 'Bu Ay Katılan'
+        }
+      },
+      packages: {
+        title: 'n8n Otomasyon Paketleri',
+        subtitle: 'İş akışlarınızı otomatize edin ve verimliliğinizi artırın.',
+        subscribe: 'Paketi Seç',
+        features: 'Özellikler',
+        plans: [
+          {
+            id: 'starter',
+            name: 'Başlangıç',
+            price: '₺2.500',
+            period: '/ay',
+            description: 'Küçük işletmeler ve bireysel girişimciler için temel otomasyonlar.',
+            features: [
+              '5 Aktif İş Akışı',
+              'Aylık 1,000 İşlem',
+              'Temel Entegrasyonlar (Gmail, Sheets)',
+              'E-posta Desteği',
+              'Günlük Yedekleme'
+            ]
+          },
+          {
+            id: 'pro',
+            name: 'Profesyonel',
+            price: '₺5.000',
+            period: '/ay',
+            popular: true,
+            description: 'Büyüyen ekipler için gelişmiş otomasyon çözümleri.',
+            features: [
+              '20 Aktif İş Akışı',
+              'Aylık 10,000 İşlem',
+              'Tüm n8n Entegrasyonları',
+              'Webhook Desteği',
+              'Öncelikli Destek',
+              'Veritabanı Entegrasyonu'
+            ]
+          },
+          {
+            id: 'enterprise',
+            name: 'Kurumsal',
+            price: 'İletişime Geçin',
+            period: '',
+            description: 'Büyük ölçekli operasyonlar için limitsiz güç.',
+            features: [
+              'Sınırsız İş Akışı',
+              'Yüksek Hacimli İşlem Kapasitesi',
+              'Özel Sunucu Kurulumu',
+              '7/24 Canlı Destek',
+              'Özel Entegrasyon Geliştirme',
+              'SLA Garantisi'
+            ]
+          }
+        ]
       },
       overview: {
         activeServices: 'Aktif Hizmetler',
         openTickets: 'Açık Talepler',
-        totalInvoices: 'Toplam Fatura',
+        accountSecurity: 'Hesap Güvenliği',
+        systemOperational: 'Sistem Çalışıyor',
+        welcome: 'Hoş geldin',
         recentActivity: 'Son Aktiviteler',
         noActivity: 'Henüz bir aktivite yok.',
         quickActions: 'Hızlı İşlemler',
         newTicket: 'Destek Talebi Oluştur',
-        browseServices: 'Hizmetlere Göz At'
+        browseServices: 'Hizmetlere Göz At',
+        activeServices: 'Aktif Hizmetler',
+        supportTickets: 'Destek Talepleri',
+        accountSecurity: 'Hesap Güvenliği',
+        strong: 'Güçlü',
+        safe: 'Güvenli',
+        currentServices: 'Mevcut Hizmetler',
+        newService: 'Yeni Hizmet'
+      },
+      servicesList: {
+        webHosting: { name: 'Web Barındırma', desc: '%99.9 çalışma süresi ve global CDN ile yüksek performanslı bulut barındırma.' },
+        domain: { name: 'Alan Adı', desc: 'Gizlilik koruması ve DNS yönetimi ile premium .com alan adı.' },
+        ssl: { name: 'SSL Sertifikası', desc: 'Otomatik yenileme ve site mührü ile 256-bit şifreleme.' },
+        email: { name: 'E-posta Barındırma', desc: '50GB depolama ve senkronizasyon ile profesyonel iş e-postası.' }
       },
       services: {
         title: 'Hizmetlerim',
@@ -84,7 +233,10 @@ export const translations = {
         pending: 'Bekliyor',
         expired: 'Süresi Dolmuş',
         manage: 'Yönet',
-        noServices: 'Henüz aktif bir hizmetiniz bulunmamaktadır.'
+        noServices: 'Henüz aktif bir hizmetiniz bulunmamaktadır.',
+        newService: 'Yeni Hizmet Al',
+        available: 'Mevcut',
+        activate: 'Aktifleştir'
       },
       support: {
         title: 'Destek Talepleri',
@@ -101,14 +253,76 @@ export const translations = {
         title: 'Hesap Ayarları',
         profile: 'Profil Bilgileri',
         security: 'Güvenlik',
+        appearance: 'Görünüm',
+        notifications: 'Bildirimler',
+        preferences: 'Tercihler',
         displayName: 'Görünen İsim',
         email: 'E-posta',
+        phone: 'Telefon Numarası',
+        bio: 'Hakkımda / Biyografi',
         updateProfile: 'Profili Güncelle',
         changePassword: 'Şifre Değiştir',
         passwordResetTo: 'Şifre sıfırlama bağlantısı gönderilecek:',
         sendResetLink: 'Sıfırlama Bağlantısı Gönder',
+        accentColor: 'Vurgu Rengi',
+        theme: 'Tema',
+        language: 'Dil',
+        emailNotifications: 'E-posta Bildirimleri',
+        browserNotifications: 'Tarayıcı Bildirimleri',
+        marketingEmails: 'Pazarlama E-postaları',
+        savePreferences: 'Tercihleri Kaydet',
         success: 'Başarıyla güncellendi!',
-        error: 'Bir hata oluştu.'
+        error: 'Bir hata oluştu.',
+        member: 'Üye',
+        admin: 'Admin',
+        darkMode: 'Koy Mod',
+        lightMode: 'Açık Mod',
+        languageInfo: 'Türkçe / İngilizce',
+        twoFactor: 'İki Aşamalı Doğrulama (2FA)',
+        twoFactorDesc: 'Hesabınızı ekstra güvenlik katmanı ile koruyun.',
+        sessions: 'Oturum Yönetimi',
+        logoutAll: 'Tüm Cihazlardan Çıkış Yap',
+        dataExport: 'Verilerimi İndir',
+        dataExportDesc: 'Hesap verilerinizin bir kopyasını indirin.',
+        dangerZone: 'Tehlikeli Bölge',
+        deleteAccount: 'Hesabımı Sil',
+        deleteAccountWarning: 'Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.',
+        timezone: 'Zaman Dilimi',
+        smsNotifications: 'SMS Bildirimleri',
+        interfaceStyle: 'Arayüz Stili',
+        glassy: 'Cam (Glass)',
+        solid: 'Opak (Solid)',
+        density: 'Sıkılık',
+        compact: 'Kompakt',
+        comfortable: 'Rahat',
+        borderRadius: 'Köşe Yuvarlaklığı',
+        sharp: 'Keskin',
+        rounded: 'Yuvarlak',
+        pill: 'Tam Yuvarlak',
+        jobTitle: 'Ünvan / Meslek',
+        website: 'Web Sitesi',
+        socials: 'Sosyal Medya',
+        coverImage: 'Kapak Resmi URL'
+      },
+      support: {
+        title: 'Destek Merkezi',
+        newTicket: 'Yeni Destek Talebi',
+        myTickets: 'Taleplerim',
+        adminView: 'Yönetici Paneli (Tüm Talepler)',
+        subject: 'Konu',
+        status: 'Durum',
+        date: 'Tarih',
+        actions: 'İşlemler',
+        open: 'Açık',
+        closed: 'Kapalı',
+        answered: 'Yanıtlandı',
+        create: 'Talep Oluştur',
+        placeholder: 'Sorununuzu detaylıca açıklayın...',
+        success: 'Destek talebi oluşturuldu!',
+        noTickets: 'Henüz bir destek talebiniz bulunmuyor.',
+        reply: 'Yanıtla',
+        closeTicket: 'Talebi Kapat',
+        adminOnly: 'Sadece yöneticiler tüm talepleri görebilir.'
       }
     }
   },
@@ -119,12 +333,51 @@ export const translations = {
       services: 'Services',
       projects: 'Projects',
       contact: 'Contact',
+      dashboard: 'Dashboard',
+      logout: 'Logout',
+      settings: 'Settings',
+      support: 'Support',
+      login: 'Login'
+    },
+    auth: {
+      login: {
+        title: 'Login',
+        email: 'Email',
+        pass: 'Password',
+        btn: 'Login',
+        google: 'Sign in with Google',
+        noAccount: "Don't have an account?",
+        regi: 'Register',
+        back: 'Back to Home',
+        loading: 'Logging in...',
+        remember: 'Remember Me',
+        or: 'or',
+        error: 'Failed to login.',
+        googleError: 'Google login failed.'
+      },
+      register: {
+        title: 'Register',
+        name: 'Full Name',
+        email: 'Email',
+        pass: 'Password',
+        btn: 'Register',
+        google: 'Sign up with Google',
+        hasAccount: 'Already have an account?',
+        login: 'Login',
+        back: 'Back to Home',
+        loading: 'Creating Account...',
+        or: 'or',
+        error: 'Failed to create an account.',
+        googleError: 'Google sign up failed.'
+      }
     },
     hero: {
       greeting: 'Hi, I am',
       title: 'Creative Developer & Designer',
       subtitle: 'I design modern and user-friendly web experiences.',
       cta: 'View Work',
+      job: 'Web Developer',
+      location: 'Kocaeli, Turkey'
     },
     about: {
       title: 'About Me',
@@ -163,29 +416,137 @@ export const translations = {
       subjectPlaceholder: 'Subject',
       messagePlaceholder: 'Your Message...',
       send: 'Send',
+      success: 'Message sent successfully!',
+      error: 'An error occurred. Please try again.'
     },
     footer: {
       rights: 'All rights reserved.',
     },
     dashboard: {
       title: 'Client Portal',
-      welcome: 'Welcome,',
+      welcome: 'Welcome',
+      server: {
+        title: 'Server Monitor',
+        subtitle: 'Real-time server metrics via Glances.',
+        configure: 'Server Config',
+        urlLabel: 'Glances API URL',
+        urlPlaceholder: 'https://api.myserver.com:61208',
+        connect: 'Connect',
+        connected: 'Connected',
+        disconnected: 'Disconnected',
+        error: 'Connection Error',
+        cpu: 'CPU Usage',
+        memory: 'RAM',
+        disk: 'Disk',
+        load: 'Load Average',
+        iframeMode: 'Full View',
+        widgetMode: 'Widget View',
+        save: 'Save',
+        cancel: 'Cancel',
+        sslWarning: "Note: HTTPS is recommended for browser security. If using HTTP, you may need to allow insecure content in your browser settings."
+      },
       tabs: {
         overview: 'Overview',
         services: 'My Services',
+        packages: 'Packages',
+        server: 'Server Monitor',
         support: 'Support',
         settings: 'Settings',
+        users: 'Users',
+        admin: 'Admin',
         logout: 'Logout'
+      },
+      admin: {
+        users: {
+          title: 'User Management',
+          subtitle: 'Monitor all registered members and system roles from here.',
+          name: 'Name',
+          email: 'Email',
+          role: 'Role',
+          lastSeen: 'Last Seen',
+          status: 'Status',
+          actions: 'Actions',
+          active: 'Active',
+          neverLogin: 'Never logged in',
+          loading: 'Loading members...'
+        },
+        stats: {
+          totalUsers: 'Total Users',
+          activeNow: 'Active Now',
+          newThisMonth: 'New This Month'
+        }
+      },
+      packages: {
+        title: 'n8n Automation Packages',
+        subtitle: 'Automate your workflows and increase your productivity.',
+        subscribe: 'Select Package',
+        features: 'Features',
+        plans: [
+          {
+            id: 'starter',
+            name: 'Starter',
+            price: '$100',
+            period: '/mo',
+            description: 'Basic automations for small businesses and efficient individuals.',
+            features: [
+              '5 Active Workflows',
+              '1,000 Executions/month',
+              'Basic Integrations (Gmail, Sheets)',
+              'Email Support',
+              'Daily Backups'
+            ]
+          },
+          {
+            id: 'pro',
+            name: 'Professional',
+            price: '$200',
+            period: '/mo',
+            popular: true,
+            description: 'Advanced automation solutions for growing teams.',
+            features: [
+              '20 Active Workflows',
+              '10,000 Executions/month',
+              'All n8n Integrations',
+              'Webhook Support',
+              'Priority Support',
+              'Database Integration'
+            ]
+          },
+          {
+            id: 'enterprise',
+            name: 'Enterprise',
+            price: 'Contact Us',
+            period: '',
+            description: 'Unlimited power for large-scale operations.',
+            features: [
+              'Unlimited Workflows',
+              'High Volume Executions',
+              'Dedicated Server Setup',
+              '24/7 Live Support',
+              'Custom Integration Development',
+              'SLA Guarantee'
+            ]
+          }
+        ]
       },
       overview: {
         activeServices: 'Active Services',
         openTickets: 'Open Tickets',
-        totalInvoices: 'Total Invoices',
+        accountSecurity: 'Account Security',
+        systemOperational: 'System Operational',
+        welcome: 'Welcome',
         recentActivity: 'Recent Activity',
         noActivity: 'No recent activity.',
         quickActions: 'Quick Actions',
         newTicket: 'Create Support Ticket',
-        browseServices: 'Browse Services'
+        browseServices: 'Browse Services',
+        activeServices: 'Active Services',
+        supportTickets: 'Support Tickets',
+        accountSecurity: 'Account Security',
+        strong: 'Strong',
+        safe: 'Safe',
+        currentServices: 'Current Services',
+        newService: 'New Service'
       },
       services: {
         title: 'My Services',
@@ -197,32 +558,92 @@ export const translations = {
         pending: 'Pending',
         expired: 'Expired',
         manage: 'Manage',
-        noServices: 'You have no active services.'
+        noServices: 'You have no active services.',
+        newService: 'Buy New Service',
+        available: 'Available',
+        activate: 'Activate'
+      },
+      servicesList: {
+        webHosting: { name: 'Web Hosting', desc: 'High-performance cloud hosting with 99.9% uptime and global CDN.' },
+        domain: { name: 'Domain Name', desc: 'Premium .com domain with privacy protection and DNS management.' },
+        ssl: { name: 'SSL Certificate', desc: '256-bit encryption with automated renewal and site seal.' },
+        email: { name: 'Email Hosting', desc: 'Professional business email with 50GB storage and sync.' }
       },
       support: {
-        title: 'Support Tickets',
-        createTicket: 'New Ticket',
+        title: 'Support Center',
+        newTicket: 'New Support Ticket',
+        myTickets: 'My Tickets',
+        adminView: 'Admin Panel (All Tickets)',
         subject: 'Subject',
         status: 'Status',
-        lastUpdate: 'Last Update',
+        date: 'Date',
+        actions: 'Actions',
         open: 'Open',
         closed: 'Closed',
         answered: 'Answered',
-        noTickets: 'No support tickets found.'
+        create: 'Create Ticket',
+        placeholder: 'Describe your issue in detail...',
+        success: 'Support ticket created!',
+        noTickets: 'You have no support tickets yet.',
+        reply: 'Reply',
+        closeTicket: 'Close Ticket',
+        adminOnly: 'Only admins can view all tickets.'
       },
       settings: {
         title: 'Account Settings',
         profile: 'Profile Information',
         security: 'Security',
+        appearance: 'Appearance',
+        notifications: 'Notifications',
+        preferences: 'Preferences',
         displayName: 'Display Name',
         email: 'Email',
+        phone: 'Phone Number',
+        bio: 'About / Bio',
         updateProfile: 'Update Profile',
         changePassword: 'Change Password',
         passwordResetTo: 'Password reset link will be sent to:',
         sendResetLink: 'Send Reset Link',
+        accentColor: 'Accent Color',
+        theme: 'Theme',
+        language: 'Language',
+        emailNotifications: 'Email Notifications',
+        browserNotifications: 'Browser Notifications',
+        marketingEmails: 'Marketing Emails',
+        savePreferences: 'Save Preferences',
         success: 'Successfully updated!',
-        error: 'An error occurred.'
+        error: 'An error occurred.',
+        member: 'Member',
+        admin: 'Admin',
+        darkMode: 'Dark Mode',
+        lightMode: 'Light Mode',
+        languageInfo: 'Turkish / English',
+        twoFactor: 'Two-Factor Authentication (2FA)',
+        twoFactorDesc: 'Protect your account with an extra layer of security.',
+        sessions: 'Session Management',
+        logoutAll: 'Log Out All Devices',
+        dataExport: 'Download My Data',
+        dataExportDesc: 'Download a copy of your account data.',
+        dangerZone: 'Danger Zone',
+        deleteAccount: 'Delete My Account',
+        deleteAccountWarning: 'This action cannot be undone. All your data will be permanently deleted.',
+        timezone: 'Timezone',
+        smsNotifications: 'SMS Notifications',
+        interfaceStyle: 'Interface Style',
+        glassy: 'Glassy',
+        solid: 'Solid',
+        density: 'Density',
+        compact: 'Compact',
+        comfortable: 'Comfortable',
+        borderRadius: 'Border Radius',
+        sharp: 'Sharp',
+        rounded: 'Rounded',
+        pill: 'Pill',
+        jobTitle: 'Job Title',
+        website: 'Website',
+        socials: 'Social Media',
+        coverImage: 'Cover Image URL'
       }
     }
-  },
+  }
 };

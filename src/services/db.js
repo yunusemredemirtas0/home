@@ -19,27 +19,44 @@ export const syncUserProfile = async (user) => {
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
 
+    const isAdminEmail = user.email.toLowerCase() === 'yunusemredmrts61@gmail.com';
     const userData = {
         email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        lastLogin: serverTimestamp(),
+        lastLogin: new Date(),
+        // Only update role if it's an admin email, otherwise keep existing role or default to user
+        role: isAdminEmail ? 'admin' : (userSnap.exists() ? userSnap.data().role : 'user')
     };
 
     if (!userSnap.exists()) {
-        // New user
-        // Check for specific admin email
-        const isAdmin = user.email === 'yunusemredmrts61@gmail.com';
-
         await setDoc(userRef, {
             ...userData,
-            role: isAdmin ? 'admin' : 'user',
-            createdAt: serverTimestamp()
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            createdAt: new Date()
         });
     } else {
-        // Update existing user
-        await setDoc(userRef, userData, { merge: true });
+        // Sync basic auth data but don't overwrite profile if custom data exists
+        // We only forcefully update email, lastLogin, and role
+        // DisplayName and PhotoURL should be managed by the profile settings if they exist in DB
+        const currentData = userSnap.data();
+        const updates = { ...userData };
+
+        // If DB doesn't have displayName but Auth does, add it. 
+        // If DB has it, we assume the DB version is the source of truth (handled by profile settings)
+        if (!currentData.displayName && user.displayName) updates.displayName = user.displayName;
+        if (!currentData.photoURL && user.photoURL) updates.photoURL = user.photoURL;
+
+        await setDoc(userRef, updates, { merge: true });
     }
+};
+
+// Update extended profile data
+export const updateUserProfileData = async (uid, data) => {
+    const userRef = doc(db, 'users', uid);
+    await setDoc(userRef, {
+        ...data,
+        updatedAt: new Date()
+    }, { merge: true });
 };
 
 export const getUserRole = async (uid) => {
@@ -51,10 +68,16 @@ export const getUserRole = async (uid) => {
     return 'user';
 };
 
+export const getUserData = async (uid) => {
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    return userSnap.exists() ? userSnap.data() : null;
+};
+
 export const getAllUsers = async () => {
     const q = query(collection(db, 'users'), orderBy('lastLogin', 'desc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 // Ticket Operations
@@ -65,8 +88,8 @@ export const createTicket = async (userId, userEmail, subject, content) => {
         subject,
         content,
         status: 'open',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        createdAt: new Date(),
+        updatedAt: new Date()
     });
 };
 
@@ -77,11 +100,11 @@ export const getUserTickets = async (userId) => {
         orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
 export const getAllTickets = async () => {
     const q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 };

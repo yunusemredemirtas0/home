@@ -35,7 +35,7 @@ export default function Projects() {
 
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                     gap: '2rem',
                     justifyItems: 'center' // Center items if they don't fill width
                 }}>
