@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     FiUser, FiLock, FiBell, FiMonitor, FiShield, FiGlobe, FiSmartphone,
     FiTrash2, FiDownload, FiCheckCircle, FiLayout, FiLinkedin, FiGithub, FiTwitter,
-    FiUpload, FiImage
+    FiUpload, FiImage, FiCreditCard, FiLink, FiList, FiCode, FiActivity, FiKey
 } from 'react-icons/fi';
 import { revokeSessions, getUserDataForExport } from '../../services/db';
 import ImageEditorModal from '../common/ImageEditorModal';
@@ -20,10 +20,41 @@ const SettingsContent = ({
 }) => {
     const { language } = useLanguage();
 
-    // Mock states for new features (visual only for now)
+    // Mock states for new features
     const [twoFactor, setTwoFactor] = useState(false);
     const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [privacy, setPrivacy] = useState({ publicProfile: true, onlineStatus: true });
+
+    // Skills (Mock)
+    const [skills, setSkills] = useState(['React', 'Node.js', 'UI/UX']);
+    const [newSkill, setNewSkill] = useState('');
+
+    // Advanced Settings Mock Data
+    const [apiKeys, setApiKeys] = useState([
+        { id: 1, key: 'sk_live_51Mz...', name: 'Production' },
+        { id: 2, key: 'sk_test_48Xy...', name: 'Development' }
+    ]);
+    const [connectedAccounts, setConnectedAccounts] = useState({
+        google: true,
+        github: true,
+        twitter: false
+    });
+    const [invoices] = useState([
+        { id: 'INV-2024-001', date: '2024-01-01', amount: '₺5.000', status: 'paid' },
+        { id: 'INV-2023-128', date: '2023-12-01', amount: '₺5.000', status: 'paid' },
+        { id: 'INV-2023-115', date: '2023-11-01', amount: '₺2.500', status: 'paid' },
+    ]);
+    const [auditLogs] = useState([
+        { id: 1, action: 'Login Successful', ip: '192.168.1.1', date: 'Just now' },
+        { id: 2, action: 'Profile Updated', ip: '192.168.1.1', date: '2 hours ago' },
+        { id: 3, action: 'API Key Created', ip: '192.168.1.1', date: 'Yesterday' },
+        { id: 4, action: 'Password Changed', ip: '192.168.1.55', date: '3 days ago' },
+    ]);
+
+    // Visual Settings
+    const [fontSize, setFontSize] = useState('medium'); // small, medium, large
+    const [reducedMotion, setReducedMotion] = useState(false);
 
     // Editor State
     const [editingImage, setEditingImage] = useState(null);
@@ -32,9 +63,50 @@ const SettingsContent = ({
     useEffect(() => {
         const savedRadius = localStorage.getItem('dash-radius');
         const savedGap = localStorage.getItem('dash-gap');
+        const savedFontSize = localStorage.getItem('dash-font-size');
+        const savedMotion = localStorage.getItem('dash-reduced-motion');
+
         if (savedRadius) document.documentElement.style.setProperty('--dash-radius', savedRadius);
         if (savedGap) document.documentElement.style.setProperty('--dash-gap', savedGap);
+
+        if (savedFontSize) {
+            setFontSize(savedFontSize);
+            document.documentElement.style.fontSize = savedFontSize === 'small' ? '14px' : savedFontSize === 'large' ? '18px' : '16px';
+        }
+
+        if (savedMotion === 'true') {
+            setReducedMotion(true);
+            document.documentElement.classList.add('reduce-motion');
+        }
     }, []);
+
+    const updateFontSize = (size) => {
+        setFontSize(size);
+        localStorage.setItem('dash-font-size', size);
+        document.documentElement.style.fontSize = size === 'small' ? '14px' : size === 'large' ? '18px' : '16px';
+    };
+
+    const toggleReducedMotion = () => {
+        const newVal = !reducedMotion;
+        setReducedMotion(newVal);
+        localStorage.setItem('dash-reduced-motion', newVal);
+        if (newVal) document.documentElement.classList.add('reduce-motion');
+        else document.documentElement.classList.remove('reduce-motion');
+    };
+
+    const handleAddSkill = (e) => {
+        if (e.key === 'Enter' && newSkill.trim()) {
+            e.preventDefault();
+            if (!skills.includes(newSkill.trim())) {
+                setSkills([...skills, newSkill.trim()]);
+            }
+            setNewSkill('');
+        }
+    };
+
+    const removeSkill = (skill) => {
+        setSkills(skills.filter(s => s !== skill));
+    };
 
     // Cleanup preview URL
     useEffect(() => {
@@ -121,7 +193,11 @@ const SettingsContent = ({
         { id: 'profile', label: translations.dashboard.settings.profile, icon: FiUser },
         { id: 'appearance', label: translations.dashboard.settings.appearance, icon: FiMonitor },
         { id: 'notifications', label: translations.dashboard.settings.notifications, icon: FiBell },
-        { id: 'security', label: translations.dashboard.settings.security, icon: FiShield }
+        { id: 'security', label: translations.dashboard.settings.security, icon: FiShield },
+        { id: 'billing', label: translations.dashboard.settings.billing, icon: FiCreditCard },
+        { id: 'integrations', label: translations.dashboard.settings.integrations, icon: FiLink },
+        { id: 'logs', label: translations.dashboard.settings.logs, icon: FiActivity },
+        { id: 'developer', label: translations.dashboard.settings.developer, icon: FiCode }
     ];
 
     const TabButton = ({ id, label, Icon }) => (
@@ -240,9 +316,29 @@ const SettingsContent = ({
                             </div>
                         </div>
 
-                        <div>
+                        <div className="form-group">
                             <label className="form-label">{translations.dashboard.settings.bio}</label>
                             <textarea rows={4} value={bio} onChange={(e) => setBio(e.target.value)} className="form-input form-textarea" />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">{translations.dashboard.settings.skills_label}</label>
+                            <div className="skills-input-container">
+                                {skills.map(skill => (
+                                    <span key={skill} className="skill-tag">
+                                        {skill}
+                                        <span className="skill-tag-remove" onClick={() => removeSkill(skill)}>×</span>
+                                    </span>
+                                ))}
+                                <input
+                                    type="text"
+                                    value={newSkill}
+                                    onChange={(e) => setNewSkill(e.target.value)}
+                                    onKeyDown={handleAddSkill}
+                                    placeholder="+ Add skill"
+                                    style={{ border: 'none', background: 'transparent', outline: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', flex: 1, minWidth: '80px' }}
+                                />
+                            </div>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
@@ -353,7 +449,7 @@ const SettingsContent = ({
                                 <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: accentColor }}></div> {translations.dashboard.settings.accentColor}
                             </h3>
                             <div className="accent-color-grid">
-                                {['#7c3aed', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'].map(col => (
+                                {['#7c3aed', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#14b8a6', '#f97316', '#8b5cf6'].map(col => (
                                     <button
                                         key={col}
                                         onClick={() => setAccentColor(col)}
@@ -369,7 +465,7 @@ const SettingsContent = ({
                             <h3><FiLayout /> {translations.dashboard.settings.interfaceStyle}</h3>
 
                             {/* Border Radius */}
-                            <div style={{ marginBottom: '2rem' }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
                                 <label className="form-label" style={{ marginBottom: '0.8rem' }}>
                                     {translations.dashboard.settings.borderRadius}
                                 </label>
@@ -390,15 +486,51 @@ const SettingsContent = ({
                                 </div>
                             </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
+                            {/* Font Size */}
+                            <div style={{ marginBottom: '1.5rem' }}>
                                 <label className="form-label" style={{ marginBottom: '0.8rem' }}>
-                                    {translations.dashboard.settings.density}
+                                    {translations.dashboard.settings.fontSize}
                                 </label>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <button onClick={() => updateGap('1rem')} className="radius-btn" style={{ border: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>{translations.dashboard.settings.compact}</button>
-                                    <button onClick={() => updateGap('2rem')} className="radius-btn" style={{ border: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>{translations.dashboard.settings.comfortable}</button>
+                                <div className="radius-group">
+                                    {[
+                                        { val: 'small', label: translations.dashboard.settings.small },
+                                        { val: 'medium', label: translations.dashboard.settings.medium },
+                                        { val: 'large', label: translations.dashboard.settings.large }
+                                    ].map(opt => (
+                                        <button
+                                            key={opt.val}
+                                            onClick={() => updateFontSize(opt.val)}
+                                            className="radius-btn"
+                                            style={{ fontWeight: fontSize === opt.val ? 'bold' : 'normal', background: fontSize === opt.val ? 'var(--bg-primary)' : 'transparent' }}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
+
+                            {/* Density & Motion */}
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <div style={{ flex: 1, minWidth: '120px' }}>
+                                    <label className="form-label" style={{ marginBottom: '0.5rem' }}>{translations.dashboard.settings.density}</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button onClick={() => updateGap('1rem')} className="radius-btn" style={{ border: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>{translations.dashboard.settings.compact}</button>
+                                        <button onClick={() => updateGap('2rem')} className="radius-btn" style={{ border: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>{translations.dashboard.settings.comfortable}</button>
+                                    </div>
+                                </div>
+                                <div style={{ flex: 1, minWidth: '120px' }}>
+                                    <label className="form-label" style={{ marginBottom: '0.5rem' }}>{translations.dashboard.settings.reducedMotion}</label>
+                                    <label className="switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={reducedMotion}
+                                            onChange={toggleReducedMotion}
+                                        />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -413,19 +545,36 @@ const SettingsContent = ({
                             { id: 'sms', label: translations.dashboard.settings.smsNotifications, icon: FiSmartphone },
                             { id: 'marketing', label: translations.dashboard.settings.marketingEmails, icon: FiGlobe }
                         ].map(item => (
-                            <div key={item.id} className="notification-item">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div key={item.id} className="notification-item" style={{ alignItems: 'flex-start' }}>
+                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '200px' }}>
                                     <div className="notification-icon-wrapper"><item.icon size={20} /></div>
-                                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>{item.label}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ fontWeight: '600', fontSize: '1rem' }}>{item.label}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Receive updates via {item.label.toLowerCase()}.</span>
+                                    </div>
                                 </div>
-                                <label className="switch">
-                                    <input
-                                        type="checkbox"
-                                        checked={notifications?.[item.id] || false}
-                                        onChange={(e) => setNotifications({ ...notifications, [item.id]: e.target.checked })}
-                                    />
-                                    <span className="slider round"></span>
-                                </label>
+
+                                {/* Granular Channels */}
+                                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <span style={{ fontSize: '0.8rem' }}>{translations.dashboard.settings.push}</span>
+                                        <label className="switch" style={{ transform: 'scale(0.8)' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={notifications?.[item.id] || false}
+                                                onChange={(e) => setNotifications({ ...notifications, [item.id]: e.target.checked })}
+                                            />
+                                            <span className="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <span style={{ fontSize: '0.8rem' }}>{translations.dashboard.settings.email}</span>
+                                        <label className="switch" style={{ transform: 'scale(0.8)' }}>
+                                            <input type="checkbox" checked={true} disabled />
+                                            <span className="slider round" style={{ opacity: 0.5 }}></span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -434,6 +583,62 @@ const SettingsContent = ({
                 {/* SECURITY & DATA SETTINGS */}
                 {settingsTab === 'security' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+                        {/* Privacy Settings */}
+                        <div className="settings-card">
+                            <h3><FiShield /> {translations.dashboard.settings.privacy}</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span>{translations.dashboard.settings.publicProfile}</span>
+                                    <label className="switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={privacy.publicProfile}
+                                            onChange={(e) => setPrivacy({ ...privacy, publicProfile: e.target.checked })}
+                                        />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span>{translations.dashboard.settings.onlineStatus}</span>
+                                    <label className="switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={privacy.onlineStatus}
+                                            onChange={(e) => setPrivacy({ ...privacy, onlineStatus: e.target.checked })}
+                                        />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Login Activity */}
+                        <div className="settings-card">
+                            <h3 style={{ marginBottom: '1rem' }}><FiMonitor /> {translations.dashboard.settings.loginActivity}</h3>
+                            <div className="activity-list">
+                                <div className="activity-item">
+                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                        <div className="activity-icon"><FiMonitor /></div>
+                                        <div className="activity-info">
+                                            <h4>Windows 10 - Chrome</h4>
+                                            <p>Istanbul, TR • 192.168.1.1</p>
+                                        </div>
+                                    </div>
+                                    <span className="tag-active">Active Now</span>
+                                </div>
+                                <div className="activity-item">
+                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                        <div className="activity-icon"><FiSmartphone /></div>
+                                        <div className="activity-info">
+                                            <h4>iPhone 13 - Safari</h4>
+                                            <p>Istanbul, TR • 2 hours ago</p>
+                                        </div>
+                                    </div>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Signed out</span>
+                                </div>
+                            </div>
+                        </div>
 
                         {/* 2FA Section */}
                         <div className="settings-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
@@ -467,8 +672,8 @@ const SettingsContent = ({
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     <FiMonitor size={24} style={{ color: 'var(--text-secondary)' }} />
                                     <div>
-                                        <div style={{ fontWeight: '600' }}>Windows 10 - Chrome</div>
-                                        <div style={{ fontSize: '0.8rem', color: '#10b981' }}>Active Now • Istanbul, TR</div>
+                                        <div style={{ fontWeight: '600' }}>Current Session</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#10b981' }}>Active</div>
                                     </div>
                                 </div>
                                 <button
@@ -502,25 +707,221 @@ const SettingsContent = ({
 
                     </div>
                 )}
+
+                {/* BILLING SETTINGS */}
+                {settingsTab === 'billing' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        {/* Current Plan */}
+                        <div className="settings-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(124, 58, 237, 0.05) 100%)' }}>
+                            <div>
+                                <h3 style={{ marginBottom: '0.5rem' }}>{translations.dashboard.settings.plan}</h3>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>Professional Plan</div>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Billed monthly • Next payment on Feb 1, 2026</p>
+                            </div>
+                            <button className="btn-primary-action" style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+                                {translations.dashboard.settings.upgrade}
+                            </button>
+                        </div>
+
+                        {/* Usage Statistics */}
+                        <div className="settings-card">
+                            <h3 style={{ marginBottom: '1.5rem' }}><FiActivity /> {translations.dashboard.settings.usage}</h3>
+                            <div className="usage-card">
+                                <div className="usage-header">
+                                    <span>{translations.dashboard.settings.storage} (25GB / 50GB)</span>
+                                    <span>50%</span>
+                                </div>
+                                <div className="progress-bar-bg">
+                                    <div className="progress-bar-fill" style={{ width: '50%' }}></div>
+                                </div>
+                            </div>
+                            <div className="usage-card">
+                                <div className="usage-header">
+                                    <span>{translations.dashboard.settings.apiCalls} (8,432 / 10,000)</span>
+                                    <span>84%</span>
+                                </div>
+                                <div className="progress-bar-bg">
+                                    <div className="progress-bar-fill" style={{ width: '84%', background: '#f59e0b' }}></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Invoice History */}
+                        <div className="settings-card">
+                            <h3 style={{ marginBottom: '1rem' }}><FiList /> {translations.dashboard.settings.paymentHistory}</h3>
+                            <table className="invoice-table">
+                                <thead>
+                                    <tr>
+                                        <th>{translations.dashboard.settings.invoice}</th>
+                                        <th>{translations.dashboard.settings.date}</th>
+                                        <th>{translations.dashboard.settings.amount}</th>
+                                        <th>{translations.dashboard.settings.status}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {invoices.map(inv => (
+                                        <tr key={inv.id}>
+                                            <td style={{ fontWeight: '600' }}>#{inv.id}</td>
+                                            <td>{inv.date}</td>
+                                            <td>{inv.amount}</td>
+                                            <td>
+                                                <span className={`status-chip ${inv.status === 'paid' ? 'status-paid' : 'status-pending'}`}>
+                                                    {inv.status === 'paid' ? translations.dashboard.settings.paid : translations.dashboard.settings.pending}
+                                                </span>
+                                            </td>
+                                            <td><FiDownload style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} /></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* INTEGRATIONS SETTINGS */}
+                {settingsTab === 'integrations' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <h3 className="section-header">{translations.dashboard.settings.connectedAccounts}</h3>
+
+                        <div className="integration-item">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ fontSize: '1.5rem' }}><FiGithub /></div>
+                                <div>
+                                    <div style={{ fontWeight: '600' }}>GitHub</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Code repository and auth</div>
+                                </div>
+                            </div>
+                            <button
+                                className={`btn-secondary ${connectedAccounts.github ? '' : 'btn-primary-action'}`}
+                                style={{ width: '120px', justifyContent: 'center' }}
+                            >
+                                {connectedAccounts.github ? translations.dashboard.settings.disconnect : translations.dashboard.settings.connect}
+                            </button>
+                        </div>
+
+                        <div className="integration-item">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ fontSize: '1.5rem' }}><FiGlobe /></div>
+                                <div>
+                                    <div style={{ fontWeight: '600' }}>Google</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Calendar and Mail access</div>
+                                </div>
+                            </div>
+                            <button
+                                className={`btn-secondary ${connectedAccounts.google ? '' : 'btn-primary-action'}`}
+                                style={{ width: '120px', justifyContent: 'center' }}
+                            >
+                                {connectedAccounts.google ? translations.dashboard.settings.disconnect : translations.dashboard.settings.connect}
+                            </button>
+                        </div>
+
+                        <div className="integration-item">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ fontSize: '1.5rem' }}><FiTwitter /></div>
+                                <div>
+                                    <div style={{ fontWeight: '600' }}>Twitter / X</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Social sharing</div>
+                                </div>
+                            </div>
+                            <button
+                                className={`btn-secondary ${connectedAccounts.twitter ? '' : 'btn-primary-action'}`}
+                                style={{ width: '120px', justifyContent: 'center' }}
+                            >
+                                {connectedAccounts.twitter ? translations.dashboard.settings.disconnect : translations.dashboard.settings.connect}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* AUDIT LOGS */}
+                {settingsTab === 'logs' && (
+                    <div className="settings-card">
+                        <h3 style={{ marginBottom: '2rem' }}><FiActivity /> {translations.dashboard.settings.auditLog}</h3>
+                        <div className="log-timeline">
+                            {auditLogs.map(log => (
+                                <div key={log.id} className="log-item">
+                                    <div className="log-header">
+                                        <span style={{ fontWeight: '600' }}>{log.action}</span>
+                                        <span className="log-timestamp">{log.date}</span>
+                                    </div>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                        {translations.dashboard.settings.ipBefore}: {log.ip}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* DEVELOPER SETTINGS */}
+                {settingsTab === 'developer' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        <div className="settings-card">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3><FiKey /> {translations.dashboard.settings.apiKeys}</h3>
+                                <button className="btn-primary-action" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
+                                    <span style={{ fontSize: '1.2rem', marginRight: '0.3rem' }}>+</span> {translations.dashboard.settings.generateKey}
+                                </button>
+                            </div>
+
+                            {apiKeys.map(key => (
+                                <div key={key.id} style={{ marginBottom: '1.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '0.3rem' }}>
+                                        <span style={{ fontWeight: '600' }}>{key.name}</span>
+                                        <span style={{ color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}>{translations.dashboard.settings.revoke}</span>
+                                    </div>
+                                    <div className="api-key-box">
+                                        <input type="text" value={key.key} readOnly className="api-input" />
+                                        <button className="btn-secondary" style={{ padding: '0.5rem 1rem' }} title={translations.dashboard.settings.copy}>
+                                            <FiCheckCircle size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="settings-card">
+                            <h3><FiLink /> Webhooks</h3>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                                Receive real-time events to your external server.
+                            </p>
+                            <label className="form-label">{translations.dashboard.settings.webhookUrl}</label>
+                            <input
+                                type="url"
+                                placeholder="https://api.yoursite.com/webhooks"
+                                className="form-input"
+                            />
+                            <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+                                <button className="btn-secondary">Test Ping</button>
+                                <button className="btn-primary-action">Save URL</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Editor Modal Overlay */}
-            {editingImage && (
-                <ImageEditorModal
-                    imageSrc={editingImage}
-                    onCancel={() => setEditingImage(null)}
-                    onSave={handleCropSave}
-                    aspect={1} // Profile photo square aspect
-                    cropShape="round" // Circular stencil
-                />
-            )}
+            {
+                editingImage && (
+                    <ImageEditorModal
+                        imageSrc={editingImage}
+                        onCancel={() => setEditingImage(null)}
+                        onSave={handleCropSave}
+                        aspect={1} // Profile photo square aspect
+                        cropShape="round" // Circular stencil
+                    />
+                )
+            }
 
-            {statusMsg?.msg && (
-                <div className={`status-msg ${statusMsg.type === 'success' ? 'status-success' : 'status-error'}`}>
-                    {statusMsg.msg}
-                </div>
-            )}
-        </div>
+            {
+                statusMsg?.msg && (
+                    <div className={`status-msg ${statusMsg.type === 'success' ? 'status-success' : 'status-error'}`}>
+                        {statusMsg.msg}
+                    </div>
+                )
+            }
+        </div >
     );
 };
 
