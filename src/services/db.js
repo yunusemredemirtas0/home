@@ -1,4 +1,4 @@
-import { db } from '../firebase';
+import { db, firebaseConfig, storage } from '../firebase';
 import {
     doc,
     setDoc,
@@ -13,6 +13,74 @@ import {
     onSnapshot,
     serverTimestamp
 } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { initializeApp, deleteApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+
+export const uploadUserFile = async (uid, folder, file) => {
+    if (!file) return null;
+    const fileRef = ref(storage, `${folder}/${uid}/${Date.now()}_${file.name}`);
+
+    return new Promise((resolve, reject) => {
+        const uploadTask = uploadBytesResumable(fileRef, file);
+
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+            },
+            (error) => {
+                console.error("Upload error:", error);
+                let errorMsg = "Fotoğraf yüklenemedi.";
+                if (error.code === 'storage/unauthorized') errorMsg = "Yetki hatası (Storage Rules).";
+                if (error.code === 'storage/quota-exceeded') errorMsg = "Depolama kotası doldu.";
+                reject(new Error(errorMsg));
+            },
+            async () => {
+                try {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    resolve(downloadURL);
+                } catch (err) {
+                    reject(err);
+                }
+            }
+        );
+    });
+};
+
+export const registerUserFull = async (userData, password) => {
+    // 1. Create a secondary app to avoid logging out the current admin
+    const secondaryApp = initializeApp(firebaseConfig, 'Secondary');
+    const secondaryAuth = getAuth(secondaryApp);
+
+    try {
+        // 2. Create the user in Firebase Auth
+        const { user } = await createUserWithEmailAndPassword(secondaryAuth, userData.email, password);
+
+        // 3. Update Auth Profile (Display Name)
+        if (userData.displayName) {
+            await updateProfile(user, { displayName: userData.displayName });
+        }
+
+        // 4. Create document in Firestore
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+            ...userData,
+            uid: user.uid,
+            createdAt: serverTimestamp(),
+            lastLogin: null,
+            role: userData.role || 'user'
+        });
+
+        // 5. Clean up the secondary app
+        await deleteApp(secondaryApp);
+
+        return user.uid;
+    } catch (error) {
+        if (secondaryApp) await deleteApp(secondaryApp);
+        throw error;
+    }
+}
 
 // User Operations
 export const syncUserProfile = async (user) => {

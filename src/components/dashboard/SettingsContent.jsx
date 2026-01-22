@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
     FiUser, FiLock, FiBell, FiMonitor, FiShield, FiGlobe, FiSmartphone,
-    FiTrash2, FiDownload, FiCheckCircle, FiLayout, FiLinkedin, FiGithub, FiTwitter
+    FiTrash2, FiDownload, FiCheckCircle, FiLayout, FiLinkedin, FiGithub, FiTwitter,
+    FiUpload, FiImage
 } from 'react-icons/fi';
 import { revokeSessions, getUserDataForExport } from '../../services/db';
+import ImageEditorModal from '../common/ImageEditorModal';
 import './SettingsContent.css';
 
 const SettingsContent = ({
     translations, settingsTab, setSettingsTab, currentUser, displayName, setDisplayName,
     phone, setPhone, bio, setBio, jobTitle, setJobTitle, website, setWebsite,
     socials, setSocials, coverImage, setCoverImage,
+    coverImageFile, setCoverImageFile,
     loading, setLoading, handleUpdateProfile, accentColor,
     setAccentColor, onToggleTheme, theme, notifications, setNotifications,
     handlePasswordReset, statusMsg, setStatusMsg
@@ -18,6 +21,10 @@ const SettingsContent = ({
     // Mock states for new features (visual only for now)
     const [twoFactor, setTwoFactor] = useState(false);
     const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const [previewUrl, setPreviewUrl] = useState(null);
+
+    // Editor State
+    const [editingImage, setEditingImage] = useState(null);
 
     // Persist UI settings
     useEffect(() => {
@@ -26,6 +33,36 @@ const SettingsContent = ({
         if (savedRadius) document.documentElement.style.setProperty('--dash-radius', savedRadius);
         if (savedGap) document.documentElement.style.setProperty('--dash-gap', savedGap);
     }, []);
+
+    // Cleanup preview URL
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Instead of setting directly, open editor
+            const url = URL.createObjectURL(file);
+            setEditingImage(url);
+            // reset file input value if needed so same file can be selected again
+            e.target.value = null;
+        }
+    };
+
+    const handleCropSave = (croppedBlob) => {
+        // Create a new File from the blob
+        const newFile = new File([croppedBlob], "cover_cropped.jpg", { type: "image/jpeg" });
+
+        setCoverImageFile(newFile);
+        const url = URL.createObjectURL(croppedBlob);
+        setPreviewUrl(url);
+
+        // Close editor
+        setEditingImage(null);
+    };
 
     const updateRadius = (val) => {
         document.documentElement.style.setProperty('--dash-radius', val);
@@ -208,7 +245,55 @@ const SettingsContent = ({
 
                         <div>
                             <label className="form-label">{translations.dashboard.settings.coverImage}</label>
-                            <input type="text" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://..." className="form-input" />
+                            <div style={{
+                                width: '100%',
+                                minHeight: '180px',
+                                borderRadius: '16px',
+                                background: 'var(--bg-secondary)',
+                                border: '2px dashed var(--border-color)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '1rem',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                transition: 'all 0.3s'
+                            }}>
+                                {(previewUrl || coverImage) && (
+                                    <img
+                                        src={previewUrl || coverImage}
+                                        alt="Cover Preview"
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            opacity: 0.4
+                                        }}
+                                    />
+                                )}
+                                <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '1.5rem' }}>
+                                    <FiImage size={32} style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }} />
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.2rem', fontWeight: '500' }}>
+                                        {coverImageFile ? coverImageFile.name : (translations.dashboard.tabs.server === 'Sunucu İzleme' ? 'Kapak fotoğrafınızı yüklemek için tıklayın' : 'Click to upload your cover image')}
+                                    </p>
+                                    <label
+                                        className="btn-secondary"
+                                        style={{ cursor: 'pointer', display: 'inline-flex', alignSelf: 'center', padding: '0.7rem 1.2rem' }}
+                                    >
+                                        <FiUpload /> {translations.dashboard.tabs.server === 'Sunucu İzleme' ? 'Dosya Seç' : 'Choose File'}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            style={{ display: 'none' }}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '2rem', marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -395,6 +480,16 @@ const SettingsContent = ({
                     </div>
                 )}
             </div>
+
+            {/* Editor Modal Overlay */}
+            {editingImage && (
+                <ImageEditorModal
+                    imageSrc={editingImage}
+                    onCancel={() => setEditingImage(null)}
+                    onSave={handleCropSave}
+                    aspect={16 / 9} // Cover image aspect ratio
+                />
+            )}
 
             {statusMsg?.msg && (
                 <div className={`status-msg ${statusMsg.type === 'success' ? 'status-success' : 'status-error'}`}>

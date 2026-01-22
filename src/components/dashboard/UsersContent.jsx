@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getAllUsers, deleteUserAdmin, updateUserDataAdmin, registerUserManual } from '../../services/db';
+import {
+    getAllUsers,
+    deleteUserAdmin,
+    updateUserDataAdmin,
+    registerUserManual,
+    registerUserFull
+} from '../../services/db';
 import {
     FiUser, FiMail, FiClock, FiShield, FiPlus, FiEdit2, FiTrash2, FiX,
     FiCheck, FiInfo, FiGlobe, FiLinkedin, FiGithub, FiTwitter, FiMessageSquare, FiImage
@@ -20,6 +26,7 @@ const UsersContent = () => {
     const [formData, setFormData] = useState({
         displayName: '',
         email: '',
+        password: '',
         role: 'user',
         phone: '',
         jobTitle: '',
@@ -55,6 +62,7 @@ const UsersContent = () => {
         setFormData({
             displayName: '',
             email: '',
+            password: '',
             role: 'user',
             phone: '',
             jobTitle: '',
@@ -77,6 +85,7 @@ const UsersContent = () => {
         setFormData({
             displayName: user.displayName || '',
             email: user.email || '',
+            password: '',
             role: user.role || 'user',
             phone: user.phone || '',
             jobTitle: user.jobTitle || '',
@@ -113,19 +122,23 @@ const UsersContent = () => {
     const handleSaveUser = async (e) => {
         e.preventDefault();
         setActionLoading(true);
+        setStatusMsg(null);
         try {
             if (modalType === 'edit') {
                 await updateUserDataAdmin(selectedUser.id, formData);
                 setStatusMsg({ type: 'success', msg: 'Kullanıcı güncellendi.' });
             } else {
-                await registerUserManual(formData);
-                setStatusMsg({ type: 'success', msg: 'Kullanıcı kaydı oluşturuldu.' });
+                if (!formData.password) {
+                    throw new Error(language === 'tr' ? 'Şifre gereklidir.' : 'Password is required.');
+                }
+                await registerUserFull(formData, formData.password);
+                setStatusMsg({ type: 'success', msg: 'Kullanıcı kaydı ve hesabı oluşturuldu.' });
             }
             setShowModal(false);
             refreshUsers();
         } catch (err) {
             console.error(err);
-            setStatusMsg({ type: 'error', msg: 'İşlem başarısız.' });
+            setStatusMsg({ type: 'error', msg: err.message || 'İşlem başarısız.' });
         } finally {
             setActionLoading(false);
             setTimeout(() => setStatusMsg(null), 3000);
@@ -287,6 +300,55 @@ const UsersContent = () => {
                         gap: 1.2rem;
                     }
 
+                    @media (max-width: 768px) {
+                        .admin-modal-content {
+                            max-height: 95vh;
+                            border-radius: 20px;
+                        }
+                        .modal-header {
+                            padding: 1.5rem;
+                            flex-direction: column;
+                            gap: 1rem;
+                            text-align: center;
+                        }
+                        .modal-header h3 {
+                            justify-content: center !important;
+                        }
+                        .modal-body {
+                            padding: 1.5rem;
+                        }
+                        .modal-footer {
+                            padding: 1.5rem;
+                            flex-direction: column;
+                        }
+                        .form-grid {
+                            grid-template-columns: 1fr;
+                        }
+                        .modal-section {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            text-align: center;
+                        }
+                        .modal-section-title {
+                            justify-content: center;
+                            width: 100%;
+                        }
+                        .form-label {
+                            text-align: center !important;
+                            width: 100%;
+                        }
+                        .form-input {
+                            text-align: center !important;
+                        }
+                        .form-input.has-icon {
+                            padding-left: 1rem !important; /* Center text more effectively */
+                        }
+                        .form-input-icon {
+                            display: none; /* Hide icons in input for cleaner centered look on mobile */
+                        }
+                    }
+
                     .action-icon-btn {
                         width: 36px;
                         height: 36px;
@@ -408,13 +470,6 @@ const UsersContent = () => {
                         </div>
 
                         <div className="modal-body">
-                            {modalType === 'add' && (
-                                <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '12px', color: '#60a5fa', fontSize: '0.85rem', marginBottom: '1.5rem', display: 'flex', gap: '0.8rem' }}>
-                                    <FiInfo size={20} style={{ flexShrink: 0 }} />
-                                    <span>{language === 'tr' ? 'Not: Buradan eklenen kullanıcıların sisteme girebilmesi için ayrıca Firebase Auth üzerinden kayıt olmaları veya şifre sıfırlama yapmaları gerekir.' : 'Note: Users added here must sign up or reset their password via Firebase Auth to log in.'}</span>
-                                </div>
-                            )}
-
                             <form id="admin-user-form" onSubmit={handleSaveUser}>
                                 {/* SECTION: Account Info */}
                                 <div className="modal-section">
@@ -440,6 +495,19 @@ const UsersContent = () => {
                                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                             />
                                         </div>
+                                        {modalType === 'add' && (
+                                            <div>
+                                                <label className="form-label">{language === 'tr' ? 'Şifre' : 'Password'}</label>
+                                                <input
+                                                    type="password"
+                                                    required={modalType === 'add'}
+                                                    className="form-input"
+                                                    placeholder="••••••••"
+                                                    value={formData.password}
+                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                />
+                                            </div>
+                                        )}
                                         <div>
                                             <label className="form-label">{t.dashboard.admin.users.role}</label>
                                             <select

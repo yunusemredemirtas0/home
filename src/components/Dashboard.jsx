@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fi';
 import { updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
-import { createTicket, getUserTickets, getAllUsers, getAllTickets, updateUserProfileData, getUserData } from '../services/db';
+import { createTicket, getUserTickets, getAllUsers, getAllTickets, updateUserProfileData, getUserData, uploadUserFile } from '../services/db';
 import { translations } from '../data/translations';
 
 import SidebarItem from './dashboard/SidebarItem';
@@ -54,6 +54,7 @@ export default function Dashboard() {
     const [website, setWebsite] = useState('');
     const [socials, setSocials] = useState({ twitter: '', github: '', linkedin: '' });
     const [coverImage, setCoverImage] = useState('');
+    const [coverImageFile, setCoverImageFile] = useState(null);
 
     const [notifications, setNotifications] = useState({ email: true, browser: true, marketing: false });
     const [statusMsg, setStatusMsg] = useState(null);
@@ -98,17 +99,26 @@ export default function Dashboard() {
         setStatusMsg(null);
 
         try {
-            // 1. Update Firebase Auth Profile (if changed)
+            let finalCoverImageUrl = coverImage;
+
+            // 1. Handle File Upload if exists
+            if (coverImageFile) {
+                console.log("Uploading cover image...");
+                finalCoverImageUrl = await uploadUserFile(currentUser.uid, 'covers', coverImageFile);
+                setCoverImage(finalCoverImageUrl);
+                setCoverImageFile(null); // Clear file after upload
+            }
+
+            // 2. Update Firebase Auth Profile (if changed)
             if (auth.currentUser && displayName !== currentUser.displayName) {
                 console.log("Updating Auth Profile...");
-                // setStatusMsg({ type: 'info', msg: 'Updating base profile...' }); // Optional UI feedback
                 await updateProfile(auth.currentUser, { displayName });
             }
 
-            // 2. Prepare and sanitize data for Firestore
+            // 3. Prepare and sanitize data for Firestore
             console.log("Preparing data...");
             const profileData = {
-                displayName: displayName || '', // Ensure string
+                displayName: displayName || '',
                 phone: phone || '',
                 bio: bio || '',
                 jobTitle: jobTitle || '',
@@ -118,19 +128,18 @@ export default function Dashboard() {
                     github: socials?.github || '',
                     linkedin: socials?.linkedin || ''
                 },
-                coverImage: coverImage || ''
+                coverImage: finalCoverImageUrl || ''
             };
 
-            // Remove any undefined keys just in case (though defaults above handle most)
+            // Remove any undefined keys
             Object.keys(profileData).forEach(key => profileData[key] === undefined && delete profileData[key]);
 
-            // 3. Update Firestore with Timeout
+            // 4. Update Firestore with Timeout
             console.log("Saving to Firestore...", currentUser.uid, profileData);
-            // setStatusMsg({ type: 'info', msg: 'Saving to database...' });
 
-            // Create a timeout promise that rejects after 10 seconds
+            // Create a timeout promise that rejects after 15 seconds (more for uploads)
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Request timed out. Please check your internet connection.")), 10000)
+                setTimeout(() => reject(new Error("Request timed out. Please check your internet connection.")), 15000)
             );
 
             // Race the update against the timeout
@@ -467,6 +476,7 @@ export default function Dashboard() {
                                 website={website} setWebsite={setWebsite}
                                 socials={socials} setSocials={setSocials}
                                 coverImage={coverImage} setCoverImage={setCoverImage}
+                                coverImageFile={coverImageFile} setCoverImageFile={setCoverImageFile}
                                 loading={loading} setLoading={setLoading}
                                 handleUpdateProfile={handleUpdateProfile}
                                 accentColor={accentColor} setAccentColor={setAccentColor}
@@ -496,6 +506,33 @@ export default function Dashboard() {
                     }
                     .main-content {
                         margin-left: 0 !important;
+                        padding-top: 1rem !important;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .dashboard-layout {
+                        padding: 1rem !important;
+                    }
+                    header {
+                        flex-direction: column;
+                        gap: 1.5rem;
+                        text-align: center;
+                        align-items: center !important;
+                    }
+                    header h1 {
+                        font-size: 1.8rem !important;
+                    }
+                    .dashboard-content-grid {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    }
+                    section h2 {
+                        text-align: center;
+                    }
+                    section div {
+                        justify-content: center !important;
                     }
                 }
                 
