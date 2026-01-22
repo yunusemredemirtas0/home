@@ -25,7 +25,7 @@ import PackagesContent from './dashboard/PackagesContent';
 import ServerContent from './dashboard/ServerContent';
 
 export default function Dashboard() {
-    const { t, toggleLanguage } = useLanguage();
+    const { t, toggleLanguage, language } = useLanguage();
     const { currentUser, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -104,6 +104,7 @@ export default function Dashboard() {
             // 1. Handle File Upload if exists
             if (coverImageFile) {
                 console.log("Uploading cover image...");
+                setStatusMsg({ type: 'info', msg: translations[language].dashboard.settings.uploading || "Fotoğraf yükleniyor..." });
                 finalCoverImageUrl = await uploadUserFile(currentUser.uid, 'covers', coverImageFile);
                 setCoverImage(finalCoverImageUrl);
                 setCoverImageFile(null); // Clear file after upload
@@ -117,6 +118,8 @@ export default function Dashboard() {
 
             // 3. Prepare and sanitize data for Firestore
             console.log("Preparing data...");
+            setStatusMsg({ type: 'info', msg: translations[language].dashboard.settings.saving || "Profil kaydediliyor..." });
+
             const profileData = {
                 displayName: displayName || '',
                 phone: phone || '',

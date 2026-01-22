@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import { revokeSessions, getUserDataForExport } from '../../services/db';
 import ImageEditorModal from '../common/ImageEditorModal';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './SettingsContent.css';
 
 const SettingsContent = ({
@@ -17,6 +18,7 @@ const SettingsContent = ({
     setAccentColor, onToggleTheme, theme, notifications, setNotifications,
     handlePasswordReset, statusMsg, setStatusMsg
 }) => {
+    const { language } = useLanguage();
 
     // Mock states for new features (visual only for now)
     const [twoFactor, setTwoFactor] = useState(false);
@@ -243,27 +245,29 @@ const SettingsContent = ({
                             <textarea rows={4} value={bio} onChange={(e) => setBio(e.target.value)} className="form-input form-textarea" />
                         </div>
 
-                        <div>
-                            <label className="form-label">{translations.dashboard.settings.coverImage}</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
+                            <label className="form-label" style={{ alignSelf: 'center', marginBottom: '1rem' }}>
+                                {language === 'tr' ? 'Profil Fotoğrafı' : 'Profile Photo'}
+                            </label>
                             <div style={{
-                                width: '100%',
-                                minHeight: '180px',
-                                borderRadius: '16px',
+                                width: '150px',
+                                height: '150px',
+                                borderRadius: '50%',
                                 background: 'var(--bg-secondary)',
                                 border: '2px dashed var(--border-color)',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                gap: '1rem',
                                 position: 'relative',
                                 overflow: 'hidden',
-                                transition: 'all 0.3s'
+                                transition: 'all 0.3s',
+                                cursor: 'pointer'
                             }}>
                                 {(previewUrl || coverImage) && (
                                     <img
                                         src={previewUrl || coverImage}
-                                        alt="Cover Preview"
+                                        alt="Profile Preview"
                                         style={{
                                             position: 'absolute',
                                             top: 0,
@@ -271,20 +275,39 @@ const SettingsContent = ({
                                             width: '100%',
                                             height: '100%',
                                             objectFit: 'cover',
-                                            opacity: 0.4
                                         }}
                                     />
                                 )}
-                                <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '1.5rem' }}>
-                                    <FiImage size={32} style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }} />
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.2rem', fontWeight: '500' }}>
-                                        {coverImageFile ? coverImageFile.name : (translations.dashboard.tabs.server === 'Sunucu İzleme' ? 'Kapak fotoğrafınızı yüklemek için tıklayın' : 'Click to upload your cover image')}
-                                    </p>
+
+                                {/* Overlay / Upload Trigger */}
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        background: (previewUrl || coverImage) ? 'rgba(0,0,0,0.3)' : 'transparent',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        opacity: (previewUrl || coverImage) ? 0 : 1,
+                                        transition: 'opacity 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                                    onMouseLeave={(e) => e.currentTarget.style.opacity = (previewUrl || coverImage) ? 0 : 1}
+                                >
                                     <label
-                                        className="btn-secondary"
-                                        style={{ cursor: 'pointer', display: 'inline-flex', alignSelf: 'center', padding: '0.7rem 1.2rem' }}
+                                        style={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '100%',
+                                            height: '100%',
+                                            color: 'var(--text-primary)'
+                                        }}
                                     >
-                                        <FiUpload /> {translations.dashboard.tabs.server === 'Sunucu İzleme' ? 'Dosya Seç' : 'Choose File'}
+                                        <FiImage size={24} style={{ marginBottom: '0.2rem' }} />
+                                        <span style={{ fontSize: '0.7rem' }}>{translations.dashboard.tabs.server === 'Sunucu İzleme' ? 'Değiştir' : 'Change'}</span>
                                         <input
                                             type="file"
                                             accept="image/*"
@@ -487,7 +510,8 @@ const SettingsContent = ({
                     imageSrc={editingImage}
                     onCancel={() => setEditingImage(null)}
                     onSave={handleCropSave}
-                    aspect={16 / 9} // Cover image aspect ratio
+                    aspect={1} // Profile photo square aspect
+                    cropShape="round" // Circular stencil
                 />
             )}
 

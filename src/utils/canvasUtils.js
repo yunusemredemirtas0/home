@@ -3,11 +3,25 @@ export const createImage = (url) =>
         const image = new Image();
         image.addEventListener('load', () => resolve(image));
         image.addEventListener('error', (error) => reject(error));
-        image.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues on CodeSandbox
+        image.setAttribute('crossOrigin', 'anonymous');
         image.src = url;
     });
 
-export const getCroppedImg = async (imageSrc, pixelCrop) => {
+export function getRadianAngle(degreeValue) {
+    return (degreeValue * Math.PI) / 180;
+}
+
+export function rotateSize(width, height, rotation) {
+    const rotRad = getRadianAngle(rotation);
+    return {
+        width:
+            Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+        height:
+            Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+    };
+}
+
+export const getCroppedImg = async (imageSrc, pixelCrop, rotation = 0, filters = {}) => {
     const image = await createImage(imageSrc);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -16,11 +30,36 @@ export const getCroppedImg = async (imageSrc, pixelCrop) => {
         return null;
     }
 
-    // set canvas size to match the bounding box
-    canvas.width = image.width;
-    canvas.height = image.height;
+    const rotRad = getRadianAngle(rotation);
 
-    // draw image
+    // calculate bounding box of the rotated image
+    const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+        image.width,
+        image.height,
+        rotation
+    );
+
+    // set canvas size to match the bounding box
+    canvas.width = bBoxWidth;
+    canvas.height = bBoxHeight;
+
+    // Apply Filters
+    const filterString = [
+        `brightness(${filters.brightness || 100}%)`,
+        `contrast(${filters.contrast || 100}%)`,
+        `saturate(${filters.saturation || 100}%)`,
+        filters.grayscale ? `grayscale(100%)` : '',
+        filters.sepia ? `sepia(100%)` : ''
+    ].join(' ');
+
+    ctx.filter = filterString.trim();
+
+    // translate canvas context to a central location on image to allow rotating and flipping around the center
+    ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
+    ctx.rotate(rotRad);
+    ctx.translate(-image.width / 2, -image.height / 2);
+
+    // draw rotated image
     ctx.drawImage(image, 0, 0);
 
     // croppedAreaPixels values are bounding box relative
@@ -36,13 +75,17 @@ export const getCroppedImg = async (imageSrc, pixelCrop) => {
     canvas.width = pixelCrop.width;
     canvas.height = pixelCrop.height;
 
-    // paste generated rotate image at the top left corner
+    // paste generated rotate image with correct offsets for x,y crop values.
     ctx.putImageData(data, 0, 0);
 
     // As Blob
     return new Promise((resolve, reject) => {
         canvas.toBlob((file) => {
-            resolve(file);
-        }, 'image/jpeg');
+            if (file) {
+                resolve(file);
+            } else {
+                reject(new Error('Canvas to Blob failed'));
+            }
+        }, 'image/jpeg', 0.8);
     });
 };
