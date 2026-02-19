@@ -23,6 +23,7 @@ import SupportContent from './dashboard/SupportContent';
 
 import PackagesContent from './dashboard/PackagesContent';
 import ServerContent from './dashboard/ServerContent';
+import ChatContent from './dashboard/ChatContent';
 
 export default function Dashboard() {
     const { t, toggleLanguage, language } = useLanguage();
@@ -287,6 +288,7 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
                     <SidebarItem id="overview" icon={<FiHome />} label={t.dashboard.tabs.overview} activeTab={activeTab} navigate={navigate} setMobileMenuOpen={setMobileMenuOpen} />
                     <SidebarItem id="services" icon={<FiLayers />} label={t.dashboard.tabs.services} activeTab={activeTab} navigate={navigate} setMobileMenuOpen={setMobileMenuOpen} />
+                    <SidebarItem id="chat" icon={<FiMessageSquare />} label={t.dashboard.chat.title} activeTab={activeTab} navigate={navigate} setMobileMenuOpen={setMobileMenuOpen} />
                     <SidebarItem id="packages" icon={<FiZap />} label={t.dashboard.tabs.packages} activeTab={activeTab} navigate={navigate} setMobileMenuOpen={setMobileMenuOpen} />
                     <SidebarItem id="server" icon={<FiServer />} label={t.dashboard.tabs.server} activeTab={activeTab} navigate={navigate} setMobileMenuOpen={setMobileMenuOpen} />
                     {isAdmin && (
@@ -450,6 +452,10 @@ export default function Dashboard() {
                                 <ServiceCard key={service.id} service={service} t={t} handleConfigure={() => { }} handleServiceActivation={() => { }} />
                             ))}
                         </div>
+                    )}
+
+                    {activeTab === 'chat' && (
+                        <ChatContent t={t} />
                     )}
 
                     {activeTab === 'packages' && (

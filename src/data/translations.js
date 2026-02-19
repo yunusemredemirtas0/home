@@ -751,7 +751,7 @@ export const translations = {
         noModels: 'No models found or Ollama is not running.',
         error: 'An error occurred.',
         thinking: 'Thinking...'
-      }
+      },
       settings: {
         title: 'Account Settings',
         profile: 'Profile Information',
