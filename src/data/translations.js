@@ -414,6 +414,17 @@ export const translations = {
           { id: 4, q: "Kendi alan adımı kullanabilir miyim?", a: "Evet, Profesyonel planda özel alan adı desteklenmektedir." },
           { id: 5, q: "API limitleri nelerdir?", a: "Ücretsiz plan aylık 1.000, Pro plan ise 10.000 isteğe izin verir." }
         ]
+      },
+      chat: {
+        title: 'Yapay Zeka Sohbet',
+        selectModel: 'Model Seçin',
+        typeMessage: 'Bir mesaj yazın...',
+        send: 'Gönder',
+        assistant: 'Asistan',
+        you: 'Siz',
+        noModels: 'Model bulunamadı veya Ollama çalışmıyor.',
+        error: 'Bir hata oluştu.',
+        thinking: 'Düşünüyor...'
       }
     }
   },
@@ -730,6 +741,17 @@ export const translations = {
           { id: 5, q: "What is the API rate limit?", a: "The free tier allows 1,000 requests per month. Pro allows 10,000." }
         ]
       },
+      chat: {
+        title: 'AI Chat',
+        selectModel: 'Select Model',
+        typeMessage: 'Type a message...',
+        send: 'Send',
+        assistant: 'Assistant',
+        you: 'You',
+        noModels: 'No models found or Ollama is not running.',
+        error: 'An error occurred.',
+        thinking: 'Thinking...'
+      }
       settings: {
         title: 'Account Settings',
         profile: 'Profile Information',
