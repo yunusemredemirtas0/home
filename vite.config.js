@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:11434',
+        target: 'http://ollama:11434',
         changeOrigin: true,
       },
     },
