@@ -27,12 +27,14 @@ export default function Register() {
       
       await updateProfile(user, { displayName: name });
       
-      // Initialize basic user doc (default 'user' role)
+      // Initialize basic user doc (admin for specified email, user for others)
+      const userRole = email === 'yunusemredemirtas.dev@gmail.com' ? 'admin' : 'user';
+      
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
         displayName: name,
-        role: 'user',
+        role: userRole,
         createdAt: new Date().toISOString()
       });
 
