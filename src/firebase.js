@@ -1,10 +1,6 @@
-'use client';
-
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-
-const firebaseConfig = {
+// Firebase Configuration ONLY
+// No top-level SDK imports to prevent Cloudflare Edge Runtime crashes
+export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "dummy-key-for-build",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "dummy-domain.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "dummy-project",
@@ -13,17 +9,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:123:web:123",
 };
 
-let app, auth, db;
+// We will export a lazy initializer for the client
+export const initFirebase = async () => {
+  if (typeof window === "undefined") return null;
 
-// This file is ONLY for client-side consumption
-if (typeof window !== "undefined") {
+  const { initializeApp, getApps, getApp } = await import("firebase/app");
+  const { getAuth } = await import("firebase/auth");
+  const { getFirestore } = await import("firebase/firestore");
+
   try {
-    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    return { app, auth, db };
   } catch (e) {
-    console.error("Firebase client-side init failed:", e);
+    console.error("Lazy Firebase init failed:", e);
+    return null;
   }
-}
-
-export { auth, db, app };
+};

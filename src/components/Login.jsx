@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '../firebase';
 import Link from 'next/link';
 
 export default function Login() {
@@ -12,13 +10,19 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { auth } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!auth) {
+      alert("Sistem henüz yükleniyor, lütfen birkaç saniye bekleyip tekrar deneyin.");
+      return;
+    }
+
     setLoading(true);
     try {
-      if(!auth) throw new Error("Firebase auth not initialized");
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard');
     } catch (err) {
@@ -29,8 +33,9 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
+    if (!auth) return;
     try {
-      if(!auth) throw new Error("Firebase auth not initialized");
+      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       router.push('/dashboard');

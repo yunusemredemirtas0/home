@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
 import Link from 'next/link';
 
 export default function Register() {
@@ -14,20 +11,26 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { auth, db } = useAuth();
   const router = useRouter();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!auth || !db) {
+      alert("Sistem henüz yükleniyor, lütfen birkaç saniye bekleyin.");
+      return;
+    }
+
     setLoading(true);
     try {
-      if(!auth || !db) throw new Error("Firebase not initialized");
-      
+      const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth');
+      const { doc, setDoc } = await import('firebase/firestore');
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
       await updateProfile(user, { displayName: name });
       
-      // Initialize basic user doc (admin for specified email, user for others)
       const userRole = email === 'yunusemredemirtas.dev@gmail.com' ? 'admin' : 'user';
       
       await setDoc(doc(db, 'users', user.uid), {
@@ -41,7 +44,7 @@ export default function Register() {
       router.push('/dashboard');
     } catch (err) {
       console.error(err);
-      setError('Kayıt başarısız. Şifrenizin yeterince güçlü olduğundan emin olun.');
+      setError('Kayıt başarısız. Bilgilerinizi kontrol edin.');
     } finally {
       setLoading(false);
     }
