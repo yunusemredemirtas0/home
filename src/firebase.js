@@ -13,10 +13,14 @@ const firebaseConfig = {
 
 // Initialize Firebase safely for SSR (Next.js server-side)
 let app;
-try {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-} catch (e) {
-  console.warn("Firebase init failed:", e);
+const isBrowser = typeof window !== "undefined";
+
+if (isBrowser) {
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  } catch (e) {
+    console.error("Firebase init failed:", e);
+  }
 }
 
 export const auth = app ? getAuth(app) : null;

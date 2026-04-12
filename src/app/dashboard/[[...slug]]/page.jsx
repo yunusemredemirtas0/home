@@ -1,6 +1,6 @@
 export const runtime = 'edge';
 
-import DashboardClient from '../../../components/DashboardClient';
+import DashboardWrapper from '../../../components/DashboardWrapper';
 
 export const metadata = {
   title: 'Müşteri Paneli | Yunus Emre DEMİRTAŞ',
@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function DashboardPage() {
-  return <DashboardClient />;
+  return <DashboardWrapper />;
 }
