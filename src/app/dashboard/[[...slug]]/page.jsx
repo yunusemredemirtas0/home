@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import DashboardWrapper from '../../../components/DashboardWrapper';
 
 export const metadata = {
