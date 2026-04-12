@@ -13,17 +13,27 @@ export default function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      alert("Hata: Değişkenler yüklenemedi. Lütfen Cloudflare panelinden Environment Variables ayarlarını kontrol edin ve tekrar build edin.");
+      return;
+    }
+
     setLoading(true);
     
     emailjs.send(
-      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-      process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+      serviceId,
+      templateId,
       {
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
       },
-      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      publicKey
     )
     .then((result) => {
       setSuccess(true);
@@ -31,9 +41,9 @@ export default function Contact() {
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSuccess(false), 5000);
     }, (error) => {
-      console.error(error.text);
+      console.error("EmailJS Error:", error);
       setLoading(false);
-      alert("Mesaj gönderilirken bir hata oluştu. EmailJS yapılandırmasını kontrol edin.");
+      alert(`Mesaj gönderilemedi. Hata detayı: ${error?.text || 'Bilinmeyen hata'}`);
     });
   };
 
