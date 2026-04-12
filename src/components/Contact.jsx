@@ -15,14 +15,26 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     
-    // Simplified Mock Email logic until env keys are verified
-    // User generally configures this via env
-    setTimeout(() => {
+    emailjs.send(
+      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+      process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+      {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+      },
+      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    )
+    .then((result) => {
       setSuccess(true);
       setLoading(false);
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSuccess(false), 5000);
-    }, 1500);
+    }, (error) => {
+      console.error(error.text);
+      setLoading(false);
+      alert("Mesaj gönderilirken bir hata oluştu. EmailJS yapılandırmasını kontrol edin.");
+    });
   };
 
   return (
