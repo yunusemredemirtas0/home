@@ -11,8 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (!auth) {
       setLoading(false);
       return;
@@ -23,15 +25,13 @@ export const AuthProvider = ({ children }) => {
       
       if (user) {
         try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists() && docSnap.data().role === 'admin') {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
+          if (db) {
+            const userDocRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(userDocRef);
+            setIsAdmin(docSnap.exists() && docSnap.data().role === 'admin');
           }
         } catch (e) {
-          console.error("Firestore user fetch error:", e);
+          console.error("Auth role fetch error:", e);
           setIsAdmin(false);
         }
       } else {
@@ -44,11 +44,11 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  const logout = () => signOut(auth);
+  const logout = () => auth && signOut(auth);
 
   return (
     <AuthContext.Provider value={{ currentUser, isAdmin, logout, loading }}>
-      {!loading && children}
+      {mounted ? children : null}
     </AuthContext.Provider>
   );
 };

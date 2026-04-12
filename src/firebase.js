@@ -1,3 +1,5 @@
+'use client';
+
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -11,20 +13,17 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:123:web:123",
 };
 
-// Initialize Firebase safely for SSR (Next.js server-side)
-let app;
-let auth = null;
-let db = null;
+let app, auth, db;
 
+// This file is ONLY for client-side consumption
 if (typeof window !== "undefined") {
   try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
   } catch (e) {
-    console.error("Firebase init failed:", e);
+    console.error("Firebase client-side init failed:", e);
   }
 }
 
-export { auth, db };
-export default app;
+export { auth, db, app };
