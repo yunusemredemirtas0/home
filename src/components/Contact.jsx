@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useState } from 'react';
 import { FiMail, FiMapPin, FiSend } from 'react-icons/fi';
 import emailjs from '@emailjs/browser';
+import { CONFIG } from '../lib/config';
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -14,14 +15,9 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-
-    if (!serviceId || !templateId || !publicKey) {
-      alert("Hata: Değişkenler yüklenemedi. Lütfen Cloudflare panelinden Environment Variables ayarlarını kontrol edin ve tekrar build edin.");
-      return;
-    }
+    const serviceId = CONFIG.EMAILJS.SERVICE_ID;
+    const templateId = CONFIG.EMAILJS.TEMPLATE_ID;
+    const publicKey = CONFIG.EMAILJS.PUBLIC_KEY;
 
     setLoading(true);
     
