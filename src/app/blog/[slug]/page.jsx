@@ -14,7 +14,7 @@ export default function BlogPostDetail({ params }) {
   useEffect(() => {
     async function fetchPost() {
       try {
-        const record = await pb.collection('posts').getFirstListItem(`slug="${slug}"`, {
+        const record = await pb.collection('posts').getFirstListItem(`slug="${slug}" && status="published"`, {
           expand: 'author'
         });
         setPost(record);

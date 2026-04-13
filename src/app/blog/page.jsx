@@ -14,6 +14,7 @@ export default function BlogPage() {
       try {
         const records = await pb.collection('posts').getFullList({
           sort: '-created',
+          filter: 'status = "published"'
         });
         setPosts(records);
       } catch (error) {

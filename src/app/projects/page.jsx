@@ -15,6 +15,7 @@ export default function ProjectsPage() {
       try {
         const records = await pb.collection('projects').getFullList({
           sort: '-created',
+          filter: 'status = "published"'
         });
         setProjects(records);
       } catch (error) {
