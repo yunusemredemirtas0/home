@@ -1,12 +1,12 @@
 'use client';
 import { useLanguage } from '../contexts/LanguageContext';
-import { FiMonitor, FiTrendingUp, FiCode } from 'react-icons/fi';
+import { FiMonitor, FiSmartphone, FiCode } from 'react-icons/fi';
 
 export default function Services() {
   const { t } = useLanguage();
   const servicesList = [
     { id: 'web', icon: <FiMonitor size={36} />, title: t?.services?.web, desc: t?.services?.webDesc, gradient: 'linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%)' },
-    { id: 'seo', icon: <FiTrendingUp size={36} />, title: t?.services?.seo, desc: t?.services?.seoDesc, gradient: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)' },
+    { id: 'mobile', icon: <FiSmartphone size={36} />, title: t?.services?.mobile, desc: t?.services?.mobileDesc, gradient: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)' },
     { id: 'custom', icon: <FiCode size={36} />, title: t?.services?.custom, desc: t?.services?.customDesc, gradient: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)' }
   ];
   return (
