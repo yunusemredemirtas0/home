@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiTrendingUp, FiActivity, FiLayers, FiMail, FiFileText } from 'react-icons/fi';
+import { FiTrendingUp, FiActivity, FiLayers, FiFileText } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import pb from '../../lib/pocketbase';
 
@@ -8,7 +8,6 @@ export default function OverviewContent() {
   const [counts, setCounts] = useState({
     projects: 0,
     posts: 0,
-    messages: 0,
     activeProjects: 0
   });
   const [loading, setLoading] = useState(true);
@@ -25,22 +24,10 @@ export default function OverviewContent() {
         // Fetch Posts Count
         const postsData = await pb.collection('posts').getList(1, 1);
         
-        // Fetch Messages Count (unread)
-        let unreadMessages = 0;
-        try {
-            const messagesData = await pb.collection('messages').getList(1, 1, {
-                filter: 'status = "unread"'
-            });
-            unreadMessages = messagesData.totalItems;
-        } catch (e) {
-            console.log('Messages collection might not exist yet');
-        }
-
         setCounts({
           projects: totalProjects.totalItems,
           activeProjects: projectsData.totalItems,
-          posts: postsData.totalItems,
-          messages: unreadMessages
+          posts: postsData.totalItems
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -55,7 +42,7 @@ export default function OverviewContent() {
   const stats = [
     { label: 'Aktif Projeler', value: counts.activeProjects, icon: <FiLayers />, color: '#3b82f6' },
     { label: 'Blog Yazıları', value: counts.posts, icon: <FiFileText />, color: '#10b981' },
-    { label: 'Bekleyen Mesajlar', value: counts.messages, icon: <FiMail />, color: '#f59e0b' },
+    { label: 'Toplam Proje', value: counts.projects, icon: <FiTrendingUp />, color: '#8b5cf6' },
   ];
 
   return (
@@ -84,7 +71,7 @@ export default function OverviewContent() {
             <div style={{ fontSize: '4rem', marginBottom: '1.5rem', filter: 'drop-shadow(0 0 20px var(--accent))' }}>🚀</div>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>Operasyona Hazırsın!</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
-                Yönetim panelinden projelerini güncelleyebilir, yeni blog yazıları paylaşabilir veya gelen mesajları kontrol edebilirsin.
+                Yönetim panelinden projelerini güncelleyebilir veya yeni blog yazıları paylaşabilirsin.
             </p>
          </div>
       </div>

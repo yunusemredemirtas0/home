@@ -8,7 +8,6 @@ import dynamic from 'next/dynamic';
 const OverviewContent = dynamic(() => import('./dashboard/OverviewContent'), { ssr: false });
 const BlogManager = dynamic(() => import('./dashboard/BlogManager'), { ssr: false });
 const ProjectManager = dynamic(() => import('./dashboard/ProjectManager'), { ssr: false });
-const MessageManager = dynamic(() => import('./dashboard/MessageManager'), { ssr: false });
 
 export default function DashboardClient() {
   const { currentUser, loading, logout } = useAuth();
@@ -37,7 +36,6 @@ export default function DashboardClient() {
     { id: 'overview', label: 'Genel Bakış', icon: <FiGrid />, adminOnly: false },
     { id: 'blogs', label: 'Blog Yönetimi', icon: <FiFileText />, adminOnly: true },
     { id: 'projects', label: 'Proje Yönetimi', icon: <FiLayout />, adminOnly: true },
-    { id: 'messages', label: 'Mesajlar', icon: <FiMail />, adminOnly: true },
   ];
 
   const sidebarWidth = isCollapsed ? 80 : 320;
@@ -140,7 +138,7 @@ export default function DashboardClient() {
          {activeTab === 'overview' && <OverviewContent />}
          {activeTab === 'blogs' && <BlogManager />}
          {activeTab === 'projects' && <ProjectManager />}
-         {activeTab === 'messages' && <MessageManager />}
+         {activeTab === 'projects' && <ProjectManager />}
       </main>
     </div>
   );

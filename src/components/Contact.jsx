@@ -17,19 +17,7 @@ export default function Contact() {
     setLoading(true);
     
     try {
-      // 1. Save to PocketBase
-      try {
-        await pb.collection('messages').create({
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          status: 'unread'
-        });
-      } catch (pbError) {
-        console.error('PocketBase save error (potential collection missing):', pbError);
-      }
-
-      // 2. Send via EmailJS
+      // Send via EmailJS
       await emailjs.send(
         CONFIG.EMAILJS.SERVICE_ID, 
         CONFIG.EMAILJS.TEMPLATE_ID, 
