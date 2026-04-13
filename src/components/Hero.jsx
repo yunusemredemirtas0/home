@@ -17,8 +17,8 @@ export default function Hero() {
       </div>
       <div className="glass animate-fade" style={{ position: 'relative', zIndex: 1, borderRadius: 36, padding: 'clamp(2.5rem, 6vw, 4rem)', maxWidth: 650, width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.75rem' }}>
         <div style={{ position: 'relative', width: 140, height: 140, borderRadius: '50%', padding: 4, background: 'var(--accent-gradient)', boxShadow: '0 0 40px rgba(124,58,237,0.4)', animation: 'pulseGlow 3s ease-in-out infinite' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#111' }}>
-             <img src="https://ui-avatars.com/api/?name=YD&background=7c3aed&color=fff&size=200" alt="Yunus Emre" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#111', border: '2px solid rgba(255,255,255,0.1)' }}>
+             <img src="/profile.png" alt="Yunus Emre" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         </div>
         <div>
