@@ -28,7 +28,7 @@ export default function ProjectManager() {
       const records = await pb.collection('projects').getFullList({
         sort: '-created'
       });
-      setProjects(records);
+      setProjects(records || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
@@ -36,13 +36,14 @@ export default function ProjectManager() {
   };
 
   const handleEdit = (project) => {
+    if (!project) return;
     setEditingProject(project);
     setFormData({
-      title: project.title,
-      slug: project.slug,
-      description: project.description,
-      tech_stack: project.tech_stack,
-      link: project.link,
+      title: project.title || '',
+      slug: project.slug || '',
+      description: project.description || '',
+      tech_stack: project.tech_stack || '',
+      link: project.link || '',
       image: null,
       gallery: []
     });
@@ -50,10 +51,11 @@ export default function ProjectManager() {
   };
 
   const handleDelete = async (projectId) => {
+    if (!projectId) return;
     if (window.confirm('Bu projeyi silmek istediğinize emin misiniz?')) {
       try {
         await pb.collection('projects').delete(projectId);
-        setProjects(projects.filter(p => p.id !== projectId));
+        setProjects(prev => prev.filter(p => p.id !== projectId));
       } catch (error) {
         alert('Silme işlemi sırasında bir hata oluştu.');
       }
@@ -64,7 +66,9 @@ export default function ProjectManager() {
     e.preventDefault();
     const data = new FormData();
     data.append('title', formData.title);
-    data.append('slug', formData.slug || formData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''));
+    
+    const slug = formData.slug || formData.title.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    data.append('slug', slug);
     data.append('description', formData.description);
     data.append('tech_stack', formData.tech_stack);
     data.append('link', formData.link);
@@ -73,7 +77,7 @@ export default function ProjectManager() {
       data.append('image', formData.image);
     }
     
-    if (formData.gallery.length > 0) {
+    if (formData.gallery && formData.gallery.length > 0) {
       for (let file of formData.gallery) {
         data.append('gallery', file);
       }
@@ -103,7 +107,11 @@ export default function ProjectManager() {
         </div>
         {!isFormOpen && (
           <button 
-            onClick={() => { setIsFormOpen(true); setEditingProject(null); }}
+            onClick={() => { 
+                setEditingProject(null);
+                setFormData({ title: '', slug: '', description: '', tech_stack: '', link: '', image: null, gallery: [] });
+                setIsFormOpen(true); 
+            }}
             style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.5rem', borderRadius: '12px', background: 'var(--accent-gradient)', color: '#fff', fontWeight: 700, boxShadow: '0 10px 20px -5px rgba(59, 130, 246, 0.5)' }}
           >
             <FiPlus /> Yeni Proje Ekle
@@ -119,7 +127,7 @@ export default function ProjectManager() {
               <input 
                 type="text" 
                 value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))}
                 required
                 placeholder="Proje adı..."
                 style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'inherit' }}
@@ -130,7 +138,7 @@ export default function ProjectManager() {
               <input 
                 type="text" 
                 value={formData.tech_stack}
-                onChange={(e) => setFormData({...formData, tech_stack: e.target.value})}
+                onChange={(e) => setFormData(prev => ({...prev, tech_stack: e.target.value}))}
                 placeholder="Örn: Next.js, Tailwind, PocketBase"
                 style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'inherit' }}
               />
@@ -142,7 +150,7 @@ export default function ProjectManager() {
             <input 
               type="url" 
               value={formData.link}
-              onChange={(e) => setFormData({...formData, link: e.target.value})}
+              onChange={(e) => setFormData(prev => ({...prev, link: e.target.value}))}
               placeholder="https://..."
               style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'inherit' }}
             />
@@ -152,7 +160,7 @@ export default function ProjectManager() {
             <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>Açıklama</label>
             <textarea 
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
               required
               rows={4}
               placeholder="Proje hakkında detaylar..."
@@ -165,14 +173,20 @@ export default function ProjectManager() {
               <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>Ana Görsel</label>
               <label style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
                 <FiImage /> {formData.image ? formData.image.name : 'Seç'}
-                <input type="file" hidden onChange={(e) => setFormData({...formData, image: e.target.files[0]})} />
+                <input type="file" hidden onChange={(e) => {
+                    const file = e.target.files ? e.target.files[0] : null;
+                    if (file) setFormData(prev => ({...prev, image: file}));
+                }} />
               </label>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>Galeri Görselleri (Çoklu)</label>
               <label style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-                <FiImage /> {formData.gallery.length > 0 ? `${formData.gallery.length} Dosya Seçildi` : 'Seç'}
-                <input type="file" multiple hidden onChange={(e) => setFormData({...formData, gallery: Array.from(e.target.files)})} />
+                <FiImage /> {formData.gallery && formData.gallery.length > 0 ? `${formData.gallery.length} Dosya Seçildi` : 'Seç'}
+                <input type="file" multiple hidden onChange={(e) => {
+                    const files = e.target.files ? Array.from(e.target.files) : [];
+                    if (files.length > 0) setFormData(prev => ({...prev, gallery: files}));
+                }} />
               </label>
             </div>
           </div>
@@ -200,8 +214,8 @@ export default function ProjectManager() {
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>{project.title}</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{project.description}</p>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                       <button onClick={() => handleEdit(project)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}><FiEdit2 /></button>
-                       <button onClick={() => handleDelete(project.id)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)' }}><FiTrash2 /></button>
+                       <button onClick={() => handleEdit(project)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer' }}><FiEdit2 /></button>
+                       <button onClick={() => handleDelete(project.id)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', cursor: 'pointer' }}><FiTrash2 /></button>
                     </div>
                  </div>
               </div>

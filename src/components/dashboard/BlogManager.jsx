@@ -1,15 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiImage } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 import dynamic from 'next/dynamic';
 
-// Dynamic import to avoid SSR issues with Quill
-const ReactQuill = dynamic(() => import('react-quill'), { 
+// Dynamic import with better error handling and modern library
+const ReactQuill = dynamic(() => import('react-quill-new'), { 
     ssr: false,
     loading: () => <div style={{ height: '300px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Düzenleyici yükleniyor...</div>
 });
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function BlogManager() {
   const [posts, setPosts] = useState([]);
@@ -35,7 +35,7 @@ export default function BlogManager() {
         sort: '-created',
         expand: 'author'
       });
-      setPosts(records);
+      setPosts(records || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
@@ -43,22 +43,24 @@ export default function BlogManager() {
   };
 
   const handleEdit = (post) => {
+    if (!post) return;
     setEditingPost(post);
     setFormData({
-      title: post.title,
-      slug: post.slug,
-      content: post.content,
-      category: post.category,
+      title: post.title || '',
+      slug: post.slug || '',
+      content: post.content || '',
+      category: post.category || '',
       image: null
     });
     setIsFormOpen(true);
   };
 
   const handleDelete = async (postId) => {
+    if (!postId) return;
     if (window.confirm('Bu yazıyı silmek istediğinize emin misiniz?')) {
       try {
         await pb.collection('posts').delete(postId);
-        setPosts(posts.filter(p => p.id !== postId));
+        setPosts(prev => prev.filter(p => p.id !== postId));
       } catch (error) {
         alert('Silme işlemi sırasında bir hata oluştu.');
       }
@@ -67,12 +69,19 @@ export default function BlogManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!pb.authStore.model) {
+      alert('Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.');
+      return;
+    }
+
     const data = new FormData();
     data.append('title', formData.title);
-    data.append('slug', formData.slug || formData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''));
+    data.append('slug', formData.slug || formData.title.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, ''));
     data.append('content', formData.content);
     data.append('category', formData.category);
     data.append('author', pb.authStore.model.id);
+    
     if (formData.image) {
       data.append('image', formData.image);
     }
@@ -101,7 +110,11 @@ export default function BlogManager() {
         </div>
         {!isFormOpen && (
           <button 
-            onClick={() => { setIsFormOpen(true); setEditingPost(null); }}
+            onClick={() => { 
+                setEditingPost(null);
+                setFormData({ title: '', slug: '', content: '', category: '', image: null });
+                setIsFormOpen(true); 
+            }}
             style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.5rem', borderRadius: '12px', background: 'var(--accent-gradient)', color: '#fff', fontWeight: 700, boxShadow: '0 10px 20px -5px rgba(59, 130, 246, 0.5)' }}
           >
             <FiPlus /> Yeni Yazı Ekle
@@ -117,7 +130,7 @@ export default function BlogManager() {
               <input 
                 type="text" 
                 value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))}
                 required
                 placeholder="Yazı başlığı..."
                 style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'inherit' }}
@@ -128,7 +141,7 @@ export default function BlogManager() {
               <input 
                 type="text" 
                 value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))}
                 placeholder="Örn: Teknoloji, SEO"
                 style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'inherit' }}
               />
@@ -140,7 +153,10 @@ export default function BlogManager() {
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <label style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', cursor: 'pointer', flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
                 <FiImage /> {formData.image ? formData.image.name : 'Görsel Seç'}
-                <input type="file" hidden onChange={(e) => setFormData({...formData, image: e.target.files[0]})} />
+                <input type="file" hidden onChange={(e) => {
+                    const file = e.target.files ? e.target.files[0] : null;
+                    if (file) setFormData(prev => ({...prev, image: file}));
+                }} />
               </label>
               {editingPost?.image && !formData.image && (
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Mevcut görsel korunacak.</div>
@@ -151,12 +167,14 @@ export default function BlogManager() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '3rem' }}>
             <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>İçerik</label>
             <div className="rich-editor" style={{ color: '#000' }}>
-               <ReactQuill 
-                theme="snow" 
-                value={formData.content} 
-                onChange={(val) => setFormData({...formData, content: val})}
-                style={{ height: '300px', marginBottom: '50px', background: '#fff', borderRadius: '10px', overflow: 'hidden' }}
-               />
+               <Suspense fallback={<div>Düzenleyici yükleniyor...</div>}>
+                  <ReactQuill 
+                    theme="snow" 
+                    value={formData.content} 
+                    onChange={(val) => setFormData(prev => ({...prev, content: val}))}
+                    style={{ height: '300px', marginBottom: '50px', background: '#fff', borderRadius: '10px', overflow: 'hidden' }}
+                  />
+               </Suspense>
             </div>
           </div>
 
@@ -180,16 +198,21 @@ export default function BlogManager() {
               <div key={post.id} className="glass card-hover" style={{ padding: '1.5rem 2rem', borderRadius: 'var(--radius-lg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                   {post.image && (
-                    <img src={pb.files.getURL(post, post.image)} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: '8px' }} />
+                    <img 
+                        src={pb.files.getURL(post, post.image)} 
+                        alt="" 
+                        style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: '8px' }} 
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                    />
                   )}
                   <div>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{post.title}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{post.category} • {new Date(post.created).toLocaleDateString('tr-TR')}</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{post.category} • {post.created ? new Date(post.created).toLocaleDateString('tr-TR') : ''}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => handleEdit(post)} style={{ pdding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}><FiEdit2 /></button>
-                  <button onClick={() => handleDelete(post.id)} style={{ pdding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)' }}><FiTrash2 /></button>
+                  <button onClick={() => handleEdit(post)} style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer' }}><FiEdit2 /></button>
+                  <button onClick={() => handleDelete(post.id)} style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', cursor: 'pointer' }}><FiTrash2 /></button>
                 </div>
               </div>
             ))
