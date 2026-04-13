@@ -10,6 +10,8 @@ export const ThemeProvider = ({ children }) => {
     if (saved) {
       setTheme(saved);
       document.documentElement.setAttribute('data-theme', saved);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, []);
   const toggleTheme = () => {

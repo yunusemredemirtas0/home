@@ -8,20 +8,85 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
+  metadataBase: new URL('https://yunusemredemirtas.com'),
+  title: {
+    default: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
+    template: '%s | Yunus Emre DEMİRTAŞ'
+  },
   description: 'Modern, hızlı ve SEO uyumlu web deneyimleri oluşturuyoruz. İşletmenizi bir üst seviyeye taşımak için buradayım.',
+  keywords: ['Yunus Emre DEMİRTAŞ', 'Web Geliştirici', 'SEO Uzmanı', 'Next.js Geliştirici', 'Full Stack Developer', 'Freelance Web Tasarım'],
+  authors: [{ name: 'Yunus Emre DEMİRTAŞ' }],
+  creator: 'Yunus Emre DEMİRTAŞ',
+  openGraph: {
+    type: 'website',
+    locale: 'tr_TR',
+    url: 'https://yunusemredemirtas.com',
+    siteName: 'Yunus Emre DEMİRTAŞ',
+    title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
+    description: 'Modern ve SEO uyumlu dijital çözümler.',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Yunus Emre DEMİRTAŞ' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici',
+    description: 'Modern web deneyimleri.',
+    creator: '@yunusemredemirtas',
+    images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'google-site-verification-id',
+  },
 };
 
 export default function RootLayout({ children }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Yunus Emre DEMİRTAŞ",
+    "image": "https://yunusemredemirtas.com/og-image.jpg",
+    "description": "Modern, hızlı ve SEO uyumlu web deneyimleri oluşturan web geliştirici ve SEO uzmanı.",
+    "url": "https://yunusemredemirtas.com",
+    "telephone": "",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Trabzon",
+      "addressCountry": "TR"
+    },
+    "sameAs": [
+      "https://github.com/yunusemredemirtas0",
+      "https://www.linkedin.com/in/yunusemredemirtas0/",
+      "https://www.instagram.com/yunuus.ed61/"
+    ]
+  };
+
   return (
     <html lang="tr">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
               <Header />
-              <main>{children}</main>
-              <Footer />
+              <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <main style={{ flex: 1 }}>{children}</main>
+                <Footer />
+              </div>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
