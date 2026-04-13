@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { initFirebase } from '../firebase';
+import pb from '../lib/pocketbase';
 
 const AuthContext = createContext();
 
@@ -10,61 +10,35 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const [firebase, setFirebase] = useState({ auth: null, db: null });
 
   useEffect(() => {
     setMounted(true);
     
-    // Lazy load Firebase SDKs only in the browser
-    const setup = async () => {
-      const fb = await initFirebase();
-      if (!fb) {
-        setLoading(false);
-        return;
-      }
-      
-      const { auth, db } = fb;
-      setFirebase({ auth, db });
+    // Check initial auth state
+    const user = pb.authStore.model;
+    setCurrentUser(user);
+    setIsAdmin(user?.email === 'yunusemredemirtas.dev@gmail.com' || user?.role === 'admin');
+    setLoading(false);
 
-      const { onAuthStateChanged } = await import('firebase/auth');
-      const { doc, getDoc } = await import('firebase/firestore');
+    // Subscribe to auth changes
+    const removeListener = pb.authStore.onChange((token, model) => {
+      setCurrentUser(model);
+      setIsAdmin(model?.email === 'yunusemredemirtas.dev@gmail.com' || model?.role === 'admin');
+    });
 
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        setCurrentUser(user);
-        
-        if (user && db) {
-          try {
-            const userDocRef = doc(db, 'users', user.uid);
-            const docSnap = await getDoc(userDocRef);
-            setIsAdmin(docSnap.exists() && docSnap.data().role === 'admin');
-          } catch (e) {
-            console.error("Auth role fetch error:", e);
-            setIsAdmin(false);
-          }
-        } else {
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      });
-
-      return unsubscribe;
+    return () => {
+      removeListener();
     };
-
-    let unsub;
-    setup().then(u => { unsub = u; });
-
-    return () => { if (unsub) unsub(); };
   }, []);
 
-  const logout = async () => {
-    if (firebase.auth) {
-      const { signOut } = await import('firebase/auth');
-      await signOut(firebase.auth);
-    }
+  const logout = () => {
+    pb.authStore.clear();
+    setCurrentUser(null);
+    setIsAdmin(false);
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAdmin, logout, loading, auth: firebase.auth, db: firebase.db }}>
+    <AuthContext.Provider value={{ currentUser, isAdmin, logout, loading, pb }}>
       {mounted ? children : null}
     </AuthContext.Provider>
   );

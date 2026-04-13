@@ -1,12 +1,8 @@
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import pb from '../lib/pocketbase';
 
-export const getUserData = async (uid) => {
-    if (!db) return null;
+export const getUserData = async (id) => {
     try {
-        const docRef = doc(db, 'users', uid);
-        const docSnap = await getDoc(docRef);
-        return docSnap.exists() ? docSnap.data() : null;
+        return await pb.collection('users').getOne(id);
     } catch (e) {
         console.error("Error getting user data", e);
         return null;

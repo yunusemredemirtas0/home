@@ -10,20 +10,14 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { auth } = useAuth();
+  const { pb } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!auth) {
-      alert("Sistem henüz yükleniyor, lütfen birkaç saniye bekleyip tekrar deneyin.");
-      return;
-    }
-
     setLoading(true);
     try {
-      const { signInWithEmailAndPassword } = await import('firebase/auth');
-      await signInWithEmailAndPassword(auth, email, password);
+      await pb.collection('users').authWithPassword(email, password);
       router.push('/dashboard');
     } catch (err) {
       setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
@@ -33,11 +27,8 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
-    if (!auth) return;
     try {
-      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await pb.collection('users').authWithOAuth2({ provider: 'google' });
       router.push('/dashboard');
     } catch (err) {
       setError('Google ile giriş iptal edildi veya başarısız oldu.');

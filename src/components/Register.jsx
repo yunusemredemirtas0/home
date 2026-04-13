@@ -11,35 +11,27 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { auth, db } = useAuth();
+  const { pb } = useAuth();
   const router = useRouter();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!auth || !db) {
-      alert("Sistem henüz yükleniyor, lütfen birkaç saniye bekleyin.");
-      return;
-    }
-
     setLoading(true);
     try {
-      const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth');
-      const { doc, setDoc } = await import('firebase/firestore');
-
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
-      await updateProfile(user, { displayName: name });
-      
       const userRole = email === 'yunusemredemirtas.dev@gmail.com' ? 'admin' : 'user';
       
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName: name,
+      const data = {
+        email: email,
+        emailVisibility: true,
+        password: password,
+        passwordConfirm: password,
+        name: name,
         role: userRole,
-        createdAt: new Date().toISOString()
-      });
+      };
+
+      await pb.collection('users').create(data);
+      // Automatically log in after registration
+      await pb.collection('users').authWithPassword(email, password);
 
       router.push('/dashboard');
     } catch (err) {

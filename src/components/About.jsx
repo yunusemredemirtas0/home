@@ -10,7 +10,7 @@ export default function About() {
     { name: 'Frontend', icon: <FiLayout />, desc: 'React, Next.js, HTML/CSS, Vanilla JS' },
     { name: 'Backend', icon: <FiServer />, desc: 'Node.js, Express, REST APIs' },
     { name: 'Mimari', icon: <FiCode />, desc: 'Edge Computing, Clean Code, SSR' },
-    { name: 'Veritabanı', icon: <FiDatabase />, desc: 'Firebase, Firestore, MongoDB' },
+    { name: 'Veritabanı', icon: <FiDatabase />, desc: 'PocketBase, MongoDB, SQLite' },
   ];
 
   return (
