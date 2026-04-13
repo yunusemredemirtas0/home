@@ -53,8 +53,6 @@ const BlogPostDetailContent = ({ post, language }) => {
 
   return (
     <article style={{ paddingTop: 'calc(var(--nav-height) + 4rem)', paddingBottom: '10rem' }} className="animate-fade">
-      <ShareBar title={post.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
-      
       <div className="bg-blobs">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
@@ -109,8 +107,11 @@ const BlogPostDetailContent = ({ post, language }) => {
            </div>
 
            <div style={{ marginTop: '6rem' }}>
-              <h3 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '2.5rem', color: '#fff', textAlign: 'center' }}>
-                 {language === 'tr' ? 'Yorumlar' : 'Comments'}
+              {/* ShareBar moved here just above comments */}
+              <ShareBar isStatic={true} title={post.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
+
+              <h3 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3.5rem', color: '#fff', textAlign: 'center' }}>
+                 {language === 'tr' ? 'Yazı Hakkında Yorumlar' : 'Comments'}
               </h3>
               <GiscusComments repoId={repoId} categoryId={categoryId} />
            </div>

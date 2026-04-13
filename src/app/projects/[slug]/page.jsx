@@ -39,8 +39,7 @@ const ProjectDetailContent = ({ project, language }) => {
 
   return (
     <div style={{ paddingTop: 'calc(var(--nav-height) + 4rem)', paddingBottom: '12rem' }} className="animate-fade">
-      <ShareBar title={project.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
-      
+      {/* Background Blobs moved inside container or kept absolute */}
       <div className="bg-blobs">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
@@ -84,14 +83,14 @@ const ProjectDetailContent = ({ project, language }) => {
 
          {project.link && (
             <div style={{ textAlign: 'center', marginBottom: '8rem' }}>
-                <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '1.5rem 4rem', fontSize: '1.2rem', gap: '1rem', borderRadius: '20px' }}>
+                <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '1.4rem 4rem', fontSize: '1.1rem', gap: '1rem', borderRadius: '20px' }}>
                     {language === 'tr' ? 'Projeyi Keşfet' : 'Explore Project'} <FiExternalLink />
                 </a>
             </div>
          )}
 
          {gallery.length > 0 && (
-            <div style={{ marginTop: '8rem' }}>
+            <div style={{ marginTop: '8rem', marginBottom: '8rem' }}>
                 <h4 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
                     <FiLayout /> {language === 'tr' ? 'Proje Galerisi' : 'Project Gallery'}
                 </h4>
@@ -106,7 +105,10 @@ const ProjectDetailContent = ({ project, language }) => {
          )}
 
          <div style={{ marginTop: '10rem', paddingTop: '6rem', borderTop: '1px solid var(--glass-border)' }}>
-            <h3 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3rem', textAlign: 'center' }}>
+            {/* ShareBar moved here just above comments */}
+            <ShareBar isStatic={true} title={project.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
+
+            <h3 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '4rem', textAlign: 'center' }}>
                 {language === 'tr' ? 'Proje Hakkında Yorumlar' : 'Project Comments'}
             </h3>
             <GiscusComments repoId={repoId} categoryId={categoryId} />
