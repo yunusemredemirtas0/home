@@ -5,10 +5,10 @@ import { FiCode, FiLayout, FiDatabase, FiServer } from 'react-icons/fi';
 export default function About() {
   const { t } = useLanguage();
   const skills = [
-    { name: 'Frontend', icon: <FiLayout />, desc: 'React 19, Next.js 15, HTML/CSS' },
-    { name: 'Backend', icon: <FiServer />, desc: 'Node.js, Express, REST APIs' },
-    { name: 'Architecture', icon: <FiCode />, desc: 'Edge Computing, Clean Code' },
-    { name: 'Database', icon: <FiDatabase />, desc: 'PocketBase, MongoDB, SQLite' },
+    { name: 'Frontend', icon: <FiLayout />, desc: 'React 19, Next.js 15, responsive web' },
+    { name: 'Backend', icon: <FiServer />, desc: 'Node.js, Express, PocketBase APIs' },
+    { name: 'Mobile', icon: <FiCode />, desc: 'React Native, iOS & Android apps' },
+    { name: 'Architecture', icon: <FiDatabase />, desc: 'Full Stack Design, Clean Code' },
   ];
   return (
     <section id="about" style={{ padding: '8rem 0', background: 'rgba(0,0,0,0.1)' }}>

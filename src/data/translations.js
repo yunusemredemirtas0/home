@@ -1,17 +1,47 @@
 export const translations = {
   tr: {
     nav: { home: 'Ana Sayfa', about: 'Hakkımda', services: 'Hizmetler', blog: 'Blog', projects: 'Projeler', contact: 'İletişim', login: 'Giriş Yap', dashboard: 'Panel' },
-    hero: { job: 'Web Geliştirici & SEO Uzmanı', subtitle: 'Modern, hızlı ve SEO uyumlu web deneyimleri tasarlıyorum. İşletmenizi bir üst seviyeye taşımak için buradayım.', cta: 'Hizmetlerimi Gör' },
-    about: { title: 'Hakkımda', desc: 'Merhaba! Ben Yunus Emre DEMİRTAŞ. Yazılım ve dijital dünyaya tutkuyla bağlı bir web geliştiricisiyim. Estetik tasarımı, güçlü ve ölçeklenebilir kod mimarisi ile buluşturarak profesyonel çözümler üretiyorum.' },
-    services: { title: 'Hizmetlerim', web: 'Web Tasarım & Geliştirme', webDesc: 'Kurumsal, e-ticaret veya kişisel projeleriniz için modern, ışık hızında çalışan ve tamamen responsive (mobil uyumlu) siteler tasarlıyorum.', seo: 'SEO Optimizasyonu', seoDesc: 'Sitenizin Google aramalarında üst sıralara çıkması için teknik SEO, hız optimizasyonu (Core Web Vitals) ve sağlam bir içerik hiyerarşisi kurguluyorum.', custom: 'Özel Paneller & Yazılım', customDesc: 'İhtiyacınıza yönelik güvenli yönetim panelleri (Dashboard), API entegrasyonları ve iş süreçlerini kolaylaştıracak profesyonel araçlar geliştiriyorum.' },
+    hero: { 
+      job: 'Full Stack Web & Mobil Geliştirici', 
+      subtitle: 'Frontend, Backend ve Mobil uygulama dünyasında estetik tasarımları güçlü mühendislik çözümleriyle birleştiriyorum. Dijital vizyonunuzu gerçeğe dönüştürmek için buradayım.', 
+      cta: 'Projelerimi Keşfet' 
+    },
+    about: { 
+      title: 'Hakkımda', 
+      desc: 'Merhaba! Ben Yunus Emre DEMİRTAŞ. Yazılım ve dijital dünyaya tutkuyla bağlı, çok yönlü bir Full Stack geliştiricisiyim. Next.js ve React ile modern "frontend" deneyimleri, Node.js ve PocketBase ile ölçeklenebilir "backend" mimarileri ve React Native ile yüksek performanslı "mobil" uygulamalar inşa ediyorum. Her projemde temiz kod, yüksek performans ve eşsiz kullanıcı deneyimini (UX) hedefliyorum.' 
+    },
+    services: { 
+      title: 'Hizmetlerim', 
+      web: 'Web Uygulama Geliştirme', 
+      webDesc: 'Sadece bir site değil; performans canavarı, SEO uyumlu ve ölçeklenebilir web uygulamaları geliştiriyorum. React ve Next.js gücüyle markanızı dijitalde öne çıkarıyorum.', 
+      mobile: 'Mobil Uygulama Çözümleri',
+      mobileDesc: 'iOS ve Android platformlarında yerel (native) performans sunan, modern ve kullanıcı dostu mobil uygulamalar tasarlayıp geliştiriyorum.',
+      custom: 'Backend & Mimari Tasarım', 
+      customDesc: 'Güvenli API entegrasyonları, büyük veriyi yöneten veritabanı mimarileri ve iş süreçlerinizi otomatize eden özel yönetim panelleri inşa ediyorum.' 
+    },
     contact: { title: 'İletişim', name: 'Adınız', email: 'E-posta Adresiniz', message: 'Mesajınız', send: 'Mesajı Gönder', success: 'Mesajınız başarıyla gönderildi!' },
     footer: { rights: 'Tüm hakları saklıdır.' }
   },
   en: {
     nav: { home: 'Home', about: 'About', services: 'Services', blog: 'Blog', projects: 'Projects', contact: 'Contact', login: 'Login', dashboard: 'Dashboard' },
-    hero: { job: 'Web Developer & SEO Expert', subtitle: 'I design modern, fast, and SEO-friendly web experiences. I am here to take your business to the next level.', cta: 'View My Services' },
-    about: { title: 'About Me', desc: 'Hello! I am Yunus Emre DEMİRTAŞ. A web developer passionate about software and the digital world. I combine aesthetic design with strong, scalable code architecture to deliver professional solutions.' },
-    services: { title: 'My Services', web: 'Web Design & Development', webDesc: 'I design modern, blazing fast, and fully responsive sites for your corporate, e-commerce, or personal projects.', seo: 'SEO Optimization', seoDesc: 'I create technical SEO plans, speed optimizations (Core Web Vitals), and robust content hierarchies to rank your site higher on Google.', custom: 'Custom Dashboards & Software', customDesc: 'I develop custom management panels (Dashboards), API integrations, and professional tools to streamline your business workflow.' },
+    hero: { 
+      job: 'Full Stack Web & Mobile Developer', 
+      subtitle: 'Blending aesthetic designs with robust engineering in the world of Frontend, Backend, and Mobile applications. I am here to turn your digital vision into reality.', 
+      cta: 'Explore My Projects' 
+    },
+    about: { 
+      title: 'About Me', 
+      desc: 'Hello! I am Yunus Emre DEMİRTAŞ. A versatile Full Stack developer passionate about software and the digital world. I build modern frontend experiences with Next.js/React, scalable backend architectures with Node.js/PocketBase, and high-performance mobile apps with React Native. My goal in every project is clean code, high performance, and unique user experience (UX).' 
+    },
+    services: { 
+      title: 'My Services', 
+      web: 'Web Application Development', 
+      webDesc: 'Not just a website; I develop performance monsters, SEO-friendly, and scalable web applications. I bring your brand to the digital forefront with the power of React and Next.js.', 
+      mobile: 'Mobile App Solutions',
+      mobileDesc: 'Designing and developing modern, user-friendly mobile applications that offer native performance on both iOS and Android platforms.',
+      custom: 'Backend & Architecture Design', 
+      customDesc: 'Building secure API integrations, database architectures for big data, and custom management panels to automate your business processes.' 
+    },
     contact: { title: 'Contact', name: 'Your Name', email: 'Your Email', message: 'Your Message', send: 'Send Message', success: 'Your message has been sent successfully!' },
     footer: { rights: 'All rights reserved.' }
   }

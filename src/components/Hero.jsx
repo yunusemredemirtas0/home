@@ -6,7 +6,7 @@ export default function Hero() {
   const { t } = useLanguage();
   const socials = [
     { icon: <FaGithub size={20} />, href: 'https://github.com/yunusemredemirtas0', label: 'GitHub' },
-    { icon: <FaLinkedinIn size={20} />, href: 'https://www.linkedin.com/in/yunusemredemirtas0/', label: 'LinkedIn' },
+    { icon: <FaLinkedinIn size={20} />, href: 'https://tr.linkedin.com/in/yunusemredemirtas0', label: 'LinkedIn' },
     { icon: <FaInstagram size={20} />, href: 'https://www.instagram.com/yunuus.ed61/', label: 'Instagram' },
   ];
 

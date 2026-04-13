@@ -11,11 +11,11 @@ import Script from 'next/script';
 export const metadata = {
   metadataBase: new URL('https://yunusemredemirtas.com'),
   title: {
-    default: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
+    default: 'Yunus Emre DEMİRTAŞ | Full Stack Web & Mobil Geliştirici',
     template: '%s | Yunus Emre DEMİRTAŞ'
   },
-  description: 'Modern, hızlı ve SEO uyumlu web deneyimleri oluşturuyoruz. İşletmenizi bir üst seviyeye taşımak için buradayım.',
-  keywords: ['Yunus Emre DEMİRTAŞ', 'Web Geliştirici', 'SEO Uzmanı', 'Next.js Geliştirici', 'Full Stack Developer', 'Freelance Web Tasarım'],
+  description: 'Modern Web, Mobil Uygulamalar ve Ölçeklenebilir Backend Çözümleri. Dijital vizyonunuzu profesyonel mühendislik ile gerçeğe dönüştürüyorum.',
+  keywords: ['Yunus Emre DEMİRTAŞ', 'Full Stack Developer', 'Mobil Uygulama Geliştirici', 'Next.js Geliştirici', 'React Native Developer', 'Backend Mimarisi'],
   authors: [{ name: 'Yunus Emre DEMİRTAŞ' }],
   creator: 'Yunus Emre DEMİRTAŞ',
   openGraph: {
@@ -23,14 +23,14 @@ export const metadata = {
     locale: 'tr_TR',
     url: 'https://yunusemredemirtas.com',
     siteName: 'Yunus Emre DEMİRTAŞ',
-    title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
-    description: 'Modern ve SEO uyumlu dijital çözümler.',
+    title: 'Yunus Emre DEMİRTAŞ | Full Stack Web & Mobil Geliştirici',
+    description: 'Modern Web ve Mobil Uygulama Çözümleri.',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Yunus Emre DEMİRTAŞ' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici',
-    description: 'Modern web deneyimleri.',
+    title: 'Yunus Emre DEMİRTAŞ | Full Stack Web & Mobil Geliştirici',
+    description: 'Modern web ve mobil deneyimleri.',
     creator: '@yunusemredemirtas',
     images: ['/og-image.jpg'],
   },
@@ -56,7 +56,7 @@ export default function RootLayout({ children }) {
     "@type": "ProfessionalService",
     "name": "Yunus Emre DEMİRTAŞ",
     "image": "https://yunusemredemirtas.com/og-image.jpg",
-    "description": "Modern, hızlı ve SEO uyumlu web deneyimleri oluşturan web geliştirici ve SEO uzmanı.",
+    "description": "Modern Web, Mobil Uygulamalar ve Ölçeklenebilir Backend Çözümleri oluşturan Full Stack Geliştirici.",
     "url": "https://yunusemredemirtas.com",
     "telephone": "",
     "address": {
@@ -66,7 +66,7 @@ export default function RootLayout({ children }) {
     },
     "sameAs": [
       "https://github.com/yunusemredemirtas0",
-      "https://www.linkedin.com/in/yunusemredemirtas0/",
+      "https://tr.linkedin.com/in/yunusemredemirtas0",
       "https://www.instagram.com/yunuus.ed61/"
     ]
   };
