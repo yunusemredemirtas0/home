@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import './globals.css';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
