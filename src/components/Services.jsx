@@ -9,7 +9,6 @@ export default function Services() {
     { id: 'seo', icon: <FiTrendingUp size={32} />, title: t?.services?.seo, desc: t?.services?.seoDesc, gradient: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)', shadow: 'rgba(16, 185, 129, 0.4)' },
     { id: 'custom', icon: <FiCode size={32} />, title: t?.services?.custom, desc: t?.services?.customDesc, gradient: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)', shadow: 'rgba(139, 92, 246, 0.4)' }
   ];
-
   return (
     <section id="services" style={{ padding: '6rem 0' }}>
       <div className="container">

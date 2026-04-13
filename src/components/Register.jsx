@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -12,7 +11,6 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const { pb } = useAuth();
   const router = useRouter();
-
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -27,7 +25,6 @@ export default function Register() {
       setLoading(false);
     }
   };
-
   return (
     <div style={{ minHeight: 'calc(100vh - var(--nav-height))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div className="glass animate-fade" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', width: '100%', maxWidth: 450 }}>

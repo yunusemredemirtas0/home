@@ -4,18 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { FiGrid, FiSettings, FiLogOut } from 'react-icons/fi';
 import OverviewContent from './dashboard/OverviewContent';
-
 export default function DashboardClient() {
   const { currentUser, loading, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
-
   useEffect(() => {
     if (!loading && !currentUser) router.push('/login');
   }, [currentUser, loading, router]);
-
   if (loading || !currentUser) return null;
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-color)', paddingTop: 'var(--nav-height)' }}>
       <aside className="glass" style={{ width: 280, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>

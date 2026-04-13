@@ -10,7 +10,6 @@ export default function About() {
     { name: 'Architecture', icon: <FiCode />, desc: 'Edge Computing, Clean Code' },
     { name: 'Database', icon: <FiDatabase />, desc: 'PocketBase, MongoDB, SQLite' },
   ];
-
   return (
     <section id="about" style={{ padding: '6rem 0', background: 'rgba(0,0,0,0.15)' }}>
       <div className="container">

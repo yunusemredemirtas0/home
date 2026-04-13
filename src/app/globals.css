@@ -12,11 +12,9 @@
   --success:          #22c55e;
   --error:            #ef4444;
   --warning:          #f59e0b;
-
   --glass-bg:         rgba(255, 255, 255, 0.04);
   --glass-border:     rgba(255, 255, 255, 0.09);
   --glass-shadow:     0 8px 32px rgba(0, 0, 0, 0.4);
-
   --radius-xl:        28px;
   --radius-lg:        20px;
   --radius-md:        14px;
@@ -70,9 +68,9 @@ ul, ol { list-style: none; }
 .form-input { 
   width: 100%; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--glass-border); 
   border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font); font-size: 1rem; 
-  transition: border-color var(--transition); outline: none; 
+  transition: border-color var(--transition), box-shadow var(--transition); outline: none; 
 }
-.form-input:focus { border-color: var(--accent); }
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15); }
 .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }

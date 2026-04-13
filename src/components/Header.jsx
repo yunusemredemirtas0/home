@@ -28,6 +28,7 @@ export default function Header() {
     { label: t?.nav?.home, href: '/' },
     { label: t?.nav?.about, href: '/#about' },
     { label: t?.nav?.services, href: '/#services' },
+    { label: t?.nav?.projects, href: '/#projects' },
     { label: t?.nav?.contact, href: '/#contact' },
   ];
 
@@ -46,7 +47,7 @@ export default function Header() {
             : { background: 'transparent', borderBottom: '1px solid transparent' }),
         }}
       >
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'between', gap: '2rem' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2rem' }}>
           <Logo />
           <nav style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1, justifyContent: 'center' }}>
             {navLinks.map((link) => (
@@ -55,20 +56,18 @@ export default function Header() {
                 href={link.href}
                 style={{
                   padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.92rem', fontWeight: 500,
-                  color: 'var(--text-secondary)', transition: 'color var(--transition)'
+                  color: 'var(--text-secondary)', background: 'transparent', transition: 'color var(--transition)'
                 }}
-              >
-                {link.label}
-              </Link>
+              >{link.label}</Link>
             ))}
           </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <button onClick={toggleLanguage} style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 700 }}>{language === 'tr' ? 'EN' : 'TR'}</button>
-            <button onClick={toggleTheme} style={{ fontSize: '1.1rem' }}>{theme === 'dark' ? '☀️' : '🌙'}</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+            <button onClick={toggleLanguage} style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{language === 'tr' ? 'EN' : 'TR'}</button>
+            <button onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', fontSize: '1.1rem', color: 'var(--text-secondary)' }}>{theme === 'dark' ? '☀️' : '🌙'}</button>
             {currentUser ? (
-              <Link href="/dashboard"><div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.8rem' }}>{currentUser.name?.[0]}</div></Link>
+              <Link href="/dashboard"><div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>{currentUser.displayName?.[0]?.toUpperCase() || '?'}</div></Link>
             ) : (
-              <Link href="/login" className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>{t?.nav?.login}</Link>
+              <Link href="/login" className="btn-primary" style={{ padding: '0.5rem 1.2rem', fontSize: '0.88rem' }}>{t?.nav?.login || 'Giriş'}</Link>
             )}
           </div>
         </div>

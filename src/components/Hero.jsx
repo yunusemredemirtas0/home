@@ -4,7 +4,6 @@ import { FaGithub, FaLinkedinIn, FaInstagram } from 'react-icons/fa';
 
 export default function Hero() {
   const { t } = useLanguage();
-
   const socials = [
     { icon: <FaGithub size={20} />, href: 'https://github.com/yunusemredemirtas0', label: 'GitHub' },
     { icon: <FaLinkedinIn size={20} />, href: 'https://www.linkedin.com/in/yunusemredemirtas0/', label: 'LinkedIn' },

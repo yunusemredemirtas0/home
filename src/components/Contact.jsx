@@ -10,7 +10,6 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -18,7 +17,6 @@ export default function Contact() {
     .then(() => { setSuccess(true); setLoading(false); setFormData({ name: '', email: '', message: '' }); setTimeout(() => setSuccess(false), 5000); })
     .catch(() => setLoading(false));
   };
-
   return (
     <section id="contact" style={{ padding: '6rem 0' }}>
       <div className="container" style={{ maxWidth: 800 }}>

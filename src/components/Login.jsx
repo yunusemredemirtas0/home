@@ -11,7 +11,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { pb } = useAuth();
   const router = useRouter();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -24,7 +23,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
   return (
     <div style={{ minHeight: 'calc(100vh - var(--nav-height))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div className="glass animate-fade" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', width: '100%', maxWidth: 450 }}>
