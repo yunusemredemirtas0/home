@@ -10,6 +10,23 @@ import Footer from '../components/Footer';
 export const metadata = {
   title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
   description: 'Modern, hızlı ve SEO uyumlu web deneyimleri oluşturuyoruz. İşletmenizi bir üst seviyeye taşımak için buradayım.',
+  openGraph: {
+    title: 'Yunus Emre DEMİRTAŞ | Web Geliştirici & SEO Uzmanı',
+    description: 'Modern, hızlı ve SEO uyumlu web deneyimleri oluşturuyoruz.',
+    url: 'https://yunusemredemirtas.com',
+    siteName: 'Yunus Emre DEMİRTAŞ',
+    locale: 'tr_TR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Yunus Emre DEMİRTAŞ',
+    description: 'Web Geliştirici & SEO Uzmanı',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
 };
 
 export default function RootLayout({ children }) {

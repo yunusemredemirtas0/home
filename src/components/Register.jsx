@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -18,24 +17,11 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      const userRole = email === 'yunusemredemirtas.dev@gmail.com' ? 'admin' : 'user';
-      
-      const data = {
-        email: email,
-        emailVisibility: true,
-        password: password,
-        passwordConfirm: password,
-        name: name,
-        role: userRole,
-      };
-
+      const data = { email, emailVisibility: true, password, passwordConfirm: password, name, role: 'user' };
       await pb.collection('users').create(data);
-      // Automatically log in after registration
       await pb.collection('users').authWithPassword(email, password);
-
       router.push('/dashboard');
     } catch (err) {
-      console.error(err);
       setError('Kayıt başarısız. Bilgilerinizi kontrol edin.');
     } finally {
       setLoading(false);
@@ -48,23 +34,11 @@ export default function Register() {
         <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '2rem', textAlign: 'center' }}>Kayıt Ol</h1>
         {error && <div style={{ color: 'var(--error)', background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>{error}</div>}
         <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <label className="form-label">Ad Soyad</label>
-            <input required type="text" value={name} onChange={e => setName(e.target.value)} className="form-input" />
-          </div>
-          <div>
-            <label className="form-label">E-posta</label>
-            <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="form-input" />
-          </div>
-          <div>
-            <label className="form-label">Şifre</label>
-            <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="form-input" />
-          </div>
-          <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: '0.5rem' }}>
-            {loading ? 'Hesap Oluşturuluyor...' : 'Hesap Oluştur'}
-          </button>
+          <div><label className="form-label">Ad Soyad</label><input required value={name} onChange={e => setName(e.target.value)} className="form-input" /></div>
+          <div><label className="form-label">E-posta</label><input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="form-input" /></div>
+          <div><label className="form-label">Şifre</label><input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="form-input" /></div>
+          <button type="submit" disabled={loading} className="btn-primary">{loading ? '...' : 'Hesap Oluştur'}</button>
         </form>
-        
         <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.95rem' }}>
           <span style={{ color: 'var(--text-secondary)' }}>Zaten bir hesabınız var mı? </span>
           <Link href="/login" style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>Giriş Yap</Link>

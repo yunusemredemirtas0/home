@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import Register from '../../components/Register';
 
 export const metadata = {

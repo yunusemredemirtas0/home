@@ -1,23 +1,16 @@
 'use client';
-
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('dark'); // Default
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     const saved = localStorage.getItem('site_theme');
     if (saved) {
       setTheme(saved);
       document.documentElement.setAttribute('data-theme', saved);
-    } else {
-      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      if (prefersLight) {
-        setTheme('light');
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
     }
   }, []);
 

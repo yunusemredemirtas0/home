@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import Login from '../../components/Login';
 
 export const metadata = {

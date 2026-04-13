@@ -1,9 +1,3 @@
-/**
- * Site genelinde kullanılan yapılandırma ayarları.
- * Cloudflare deployment'larında environment variable sorunlarını önlemek için 
- * buradaki değerler doğrudan hardcoded olarak tutulmaktadır.
- */
-
 export const CONFIG = {
   POCKETBASE_URL: "https://pb.yunusemredemirtas.com",
   EMAILJS: {

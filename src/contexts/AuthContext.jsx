@@ -1,5 +1,4 @@
 'use client';
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import pb from '../lib/pocketbase';
 
@@ -13,22 +12,17 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     setMounted(true);
-    
-    // Check initial auth state
     const user = pb.authStore.model;
     setCurrentUser(user);
     setIsAdmin(user?.email === 'yunusemredemirtas.dev@gmail.com' || user?.role === 'admin');
     setLoading(false);
 
-    // Subscribe to auth changes
     const removeListener = pb.authStore.onChange((token, model) => {
       setCurrentUser(model);
       setIsAdmin(model?.email === 'yunusemredemirtas.dev@gmail.com' || model?.role === 'admin');
     });
 
-    return () => {
-      removeListener();
-    };
+    return () => removeListener();
   }, []);
 
   const logout = () => {
