@@ -44,6 +44,8 @@ export default function Header() {
   const closeMenu = () => setIsMenuOpen(false);
   const isDashboard = pathname?.startsWith('/dashboard');
 
+  if (isDashboard) return null;
+
   return (
     <>
       <header

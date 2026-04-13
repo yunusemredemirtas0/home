@@ -1,9 +1,14 @@
 'use client';
 import { useLanguage } from '../contexts/LanguageContext';
+import { usePathname } from 'next/navigation';
 import Logo from './Logo';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const pathname = usePathname();
+  
+  if (pathname?.startsWith('/dashboard')) return null;
+
   return (
     <footer style={{ borderTop: '1px solid var(--glass-border)', padding: '4rem 1.5rem', marginTop: '4rem' }}>
       <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', textAlign: 'center' }}>

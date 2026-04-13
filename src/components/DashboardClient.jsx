@@ -43,7 +43,7 @@ export default function DashboardClient() {
   const sidebarWidth = isCollapsed ? 80 : 320;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-color)', paddingTop: 'var(--nav-height)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-color)' }}>
       <aside 
         className="glass" 
         style={{ 
@@ -56,7 +56,7 @@ export default function DashboardClient() {
           position: 'fixed', 
           left: 0, 
           bottom: 0, 
-          top: 'var(--nav-height)',
+          top: 0,
           transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           zIndex: 100,
           overflow: 'hidden'
