@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FiSend } from 'react-icons/fi';
 import emailjs from '@emailjs/browser';
 import { CONFIG } from '../lib/config';
+import pb from '../lib/pocketbase';
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -11,12 +12,39 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    emailjs.send(CONFIG.EMAILJS.SERVICE_ID, CONFIG.EMAILJS.TEMPLATE_ID, { from_name: formData.name, from_email: formData.email, message: formData.message }, CONFIG.EMAILJS.PUBLIC_KEY)
-    .then(() => { setSuccess(true); setLoading(false); setFormData({ name: '', email: '', message: '' }); setTimeout(() => setSuccess(false), 5000); })
-    .catch(() => setLoading(false));
+    
+    try {
+      // 1. Save to PocketBase
+      try {
+        await pb.collection('messages').create({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          status: 'unread'
+        });
+      } catch (pbError) {
+        console.error('PocketBase save error (potential collection missing):', pbError);
+      }
+
+      // 2. Send via EmailJS
+      await emailjs.send(
+        CONFIG.EMAILJS.SERVICE_ID, 
+        CONFIG.EMAILJS.TEMPLATE_ID, 
+        { from_name: formData.name, from_email: formData.email, message: formData.message }, 
+        CONFIG.EMAILJS.PUBLIC_KEY
+      );
+
+      setSuccess(true);
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setSuccess(false), 5000);
+    } catch (error) {
+      console.error('Contact form error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
