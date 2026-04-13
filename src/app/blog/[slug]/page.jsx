@@ -3,12 +3,20 @@ import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { FiArrowLeft, FiCalendar, FiTag, FiUser, FiShare2, FiLinkedin, FiTwitter, FiGithub } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiTag, FiLinkedin, FiTwitter, FiGithub } from 'react-icons/fi';
+import ShareBar from '../../../components/ShareBar';
+import GiscusComments from '../../../components/GiscusComments';
 
 const BlogPostDetailContent = ({ post, language }) => {
   const contentRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+
+  // --- GISCUS CONFIGURATION ---
+  // Buraya gelen ID'leri yapıştıracağız
+  const repoId = ""; 
+  const categoryId = "";
+  // ----------------------------
 
   useEffect(() => {
     setIsMounted(true);
@@ -46,14 +54,14 @@ const BlogPostDetailContent = ({ post, language }) => {
 
   return (
     <article style={{ paddingTop: 'calc(var(--nav-height) + 4rem)', paddingBottom: '10rem' }} className="animate-fade">
-      {/* Premium Background Blobs */}
+      <ShareBar title={post.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
+      
       <div className="bg-blobs">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
         <div className="blob blob-3"></div>
       </div>
 
-      {/* Reading Progress Bar */}
       <div style={{ position: 'fixed', top: 'var(--nav-height)', left: 0, width: `${readingProgress}%`, height: '4px', background: 'var(--accent-gradient)', zIndex: 100, transition: 'width 0.1s ease-out' }} />
 
       <div className="container" style={{ maxWidth: 850 }}>
@@ -84,7 +92,6 @@ const BlogPostDetailContent = ({ post, language }) => {
           dangerouslySetInnerHTML={{ __html: post.content || '' }} 
         />
 
-        {/* Post Footer & Author Card */}
         <footer style={{ marginTop: '8rem', paddingTop: '4rem', borderTop: '1px solid var(--glass-border)' }}>
            <div className="glass" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', display: 'flex', gap: '2.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ width: 100, height: 100, borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--accent)', padding: '4px' }}>
@@ -102,15 +109,11 @@ const BlogPostDetailContent = ({ post, language }) => {
               </div>
            </div>
 
-           {/* Giscus Placeholder */}
            <div style={{ marginTop: '6rem' }}>
               <h3 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '2.5rem', color: '#fff', textAlign: 'center' }}>
                  {language === 'tr' ? 'Yorumlar' : 'Comments'}
               </h3>
-              <div className="glass" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', minHeight: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{language === 'tr' ? 'Bu özellik yakında aktif olacaktır.' : 'This feature will be active soon.'}</p>
-                 <p style={{ fontSize: '0.8rem', opacity: 0.5 }}>{language === 'tr' ? 'GitHub Discussions üzerinden yorum yapabileceksiniz.' : 'You will be able to comment via GitHub Discussions.'}</p>
-              </div>
+              <GiscusComments repoId={repoId} categoryId={categoryId} />
            </div>
         </footer>
       </div>

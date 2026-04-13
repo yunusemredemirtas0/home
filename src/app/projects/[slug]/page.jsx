@@ -4,10 +4,17 @@ import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { FiArrowLeft, FiExternalLink, FiCpu, FiLayout, FiActivity } from 'react-icons/fi';
+import ShareBar from '../../../components/ShareBar';
+import GiscusComments from '../../../components/GiscusComments';
 
 const ProjectDetailContent = ({ project, language }) => {
   const contentRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
+
+  // --- GISCUS CONFIGURATION ---
+  const repoId = ""; 
+  const categoryId = "";
+  // ----------------------------
 
   useEffect(() => {
     setIsMounted(true);
@@ -32,7 +39,8 @@ const ProjectDetailContent = ({ project, language }) => {
 
   return (
     <div style={{ paddingTop: 'calc(var(--nav-height) + 4rem)', paddingBottom: '12rem' }} className="animate-fade">
-      {/* Premium Background Blobs */}
+      <ShareBar title={project.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
+      
       <div className="bg-blobs">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
@@ -50,7 +58,7 @@ const ProjectDetailContent = ({ project, language }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--accent)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '2rem', fontSize: '0.85rem' }}>
                         <FiActivity /> {language === 'tr' ? 'DURUM ÇALIŞMASI' : 'CASE STUDY'}
                     </div>
-                    <h1 style={{ fontSize: 'clamp(3rem, 7vw, 4.5rem)', fontWeight: 950, letterSpacing: '-3px', lineHeight: 1.05, marginBottom: '2rem', color: '#fff' }}>
+                    <h1 style={{ fontSize: 'clamp(3rem, 7vw, 4.5rem)', fontWeight: 950, letterSpacing: '-4px', lineHeight: 1.05, marginBottom: '2rem', color: '#fff' }}>
                         {project.title}
                     </h1>
                 </div>
@@ -106,6 +114,13 @@ const ProjectDetailContent = ({ project, language }) => {
               dangerouslySetInnerHTML={{ __html: project.description || '' }}
               style={{ fontSize: '1.25rem', maxWidth: gallery.length > 0 ? 'none' : '850px', margin: gallery.length > 0 ? '0' : '0 auto' }}
             />
+         </div>
+
+         <div style={{ marginTop: '10rem', paddingTop: '6rem', borderTop: '1px solid var(--glass-border)' }}>
+            <h3 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3rem', textAlign: 'center' }}>
+                {language === 'tr' ? 'Proje Hakkında Yorumlar' : 'Project Comments'}
+            </h3>
+            <GiscusComments repoId={repoId} categoryId={categoryId} />
          </div>
       </div>
 
