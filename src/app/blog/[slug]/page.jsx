@@ -38,7 +38,7 @@ export default function BlogPostDetail({ params }) {
 
         <header style={{ marginBottom: '4rem' }}>
           <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
-             <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiCalendar /> {new Date(post.created).toLocaleDateString()}</span>
+             <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiCalendar /> {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</span>
              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiTag /> {post.category || 'Genel'}</span>
              {post.expand?.author && <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiUser /> {post.expand.author.name}</span>}
           </div>

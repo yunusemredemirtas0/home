@@ -33,7 +33,6 @@ export default function ProjectManager() {
       if (filter === 'archived') filterQuery = 'status = "archived"';
 
       const records = await pb.collection('projects').getFullList({
-        sort: '-created',
         filter: filterQuery
       });
       setProjects(records || []);

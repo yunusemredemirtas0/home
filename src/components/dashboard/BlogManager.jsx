@@ -38,7 +38,6 @@ export default function BlogManager() {
       if (filter === 'archived') filterQuery = 'status = "archived"';
 
       const records = await pb.collection('posts').getFullList({
-        sort: '-created',
         expand: 'author',
         filter: filterQuery
       });
@@ -224,7 +223,7 @@ export default function BlogManager() {
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>{post.title}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{post.category || 'Genel'} • {new Date(post.created).toLocaleDateString()}</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{post.category || 'Genel'} • {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
