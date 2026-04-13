@@ -51,22 +51,22 @@ export default function ProjectsPage() {
               </p>
             ) : (
               projects.map(project => (
-                <Link key={project.id} href={`/projects/${project.slug}`} className="glass card-hover" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', display: 'block', textDecoration: 'none', color: 'inherit' }}>
-                  <div style={{ height: 240, overflow: 'hidden', position: 'relative' }}>
+                <Link key={project.id} href={`/projects/${project.slug}`} className="glass card-hover" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', display: 'flex', flexDirection: 'column', textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ height: 260, overflow: 'hidden', position: 'relative' }}>
                     {project.image ? (
                       <img src={pb.files.getURL(project, project.image)} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', background: 'var(--accent-gradient)', opacity: 0.1 }} />
                     )}
-                    <div style={{ position: 'absolute', bottom: '1.5rem', right: '1.5rem', background: 'var(--accent)', color: '#fff', padding: '0.5rem 1rem', borderRadius: '30px', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <div style={{ position: 'absolute', bottom: '1.5rem', right: '1.5rem', background: 'var(--accent)', color: '#fff', padding: '0.5rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
                         {project.tech_stack?.split(',')[0]}
                     </div>
                   </div>
-                  <div style={{ padding: '2.5rem' }}>
+                  <div style={{ padding: '2.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <h3 style={{ fontSize: '1.75rem', fontWeight: 850, marginBottom: '1rem', lineHeight: 1.2 }}>{project.title}</h3>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: project.description }} />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
-                        <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--accent)', letterSpacing: '1px' }}>DETAYLARI GÖR →</span>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }} dangerouslySetInnerHTML={{ __html: project.description }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)', marginTop: 'auto' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--accent)', letterSpacing: '1px' }}>DETAYLARI GÖR →</span>
                         <FiExternalLink style={{ opacity: 0.3 }} />
                     </div>
                   </div>
