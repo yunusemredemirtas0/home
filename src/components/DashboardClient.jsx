@@ -3,20 +3,31 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { FiGrid, FiSettings, FiLogOut, FiPlusCircle, FiFileText, FiLayout } from 'react-icons/fi';
-import OverviewContent from './dashboard/OverviewContent';
-import BlogManager from './dashboard/BlogManager';
-import ProjectManager from './dashboard/ProjectManager';
+import dynamic from 'next/dynamic';
+
+const OverviewContent = dynamic(() => import('./dashboard/OverviewContent'), { ssr: false });
+const BlogManager = dynamic(() => import('./dashboard/BlogManager'), { ssr: false });
+const ProjectManager = dynamic(() => import('./dashboard/ProjectManager'), { ssr: false });
 
 export default function DashboardClient() {
   const { currentUser, loading, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !currentUser) router.push('/login');
   }, [currentUser, loading, router]);
 
-  if (loading || !currentUser) return null;
+  if (!isMounted || loading || !currentUser) return (
+     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Yükleniyor...</p>
+     </div>
+  );
 
   const isAdmin = currentUser.role === 'admin' || currentUser.email === 'yunusemredemirtas.dev@gmail.com';
 
@@ -28,7 +39,6 @@ export default function DashboardClient() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-color)', paddingTop: 'var(--nav-height)' }}>
-      {/* Sidebar */}
       <aside className="glass" style={{ width: 320, padding: '2.5rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem', borderRight: '1px solid var(--glass-border)', position: 'fixed', left: 0, bottom: 0, top: 'var(--nav-height)' }}>
         <div>
            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.5px' }}>
@@ -64,12 +74,6 @@ export default function DashboardClient() {
               </button>
             );
           })}
-          
-          {!isAdmin && (
-            <button style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', color: 'var(--text-secondary)', fontWeight: 600, opacity: 0.5, border: 'none', cursor: 'not-allowed' }}>
-               <FiPlusCircle /> Yeni Talep
-            </button>
-          )}
         </nav>
 
         <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', color: 'var(--error)', fontWeight: 700, border: '1px solid rgba(239, 68, 68, 0.1)', background: 'transparent', cursor: 'pointer' }}>
@@ -77,7 +81,6 @@ export default function DashboardClient() {
         </button>
       </aside>
 
-      {/* Main Content */}
       <main style={{ flex: 1, padding: '4rem', marginLeft: 320 }}>
          {activeTab === 'overview' && <OverviewContent />}
          {activeTab === 'blogs' && <BlogManager />}

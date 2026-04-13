@@ -4,55 +4,39 @@ import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { FiArrowLeft, FiCalendar, FiTag, FiUser, FiShare2, FiClock } from 'react-icons/fi';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/github-dark.css';
+import dynamic from 'next/dynamic';
 
-export default function BlogPostDetail({ params }) {
-  const { slug } = use(params);
-  const { language } = useLanguage();
-  const [post, setPost] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Import highlight.js dynamically to avoid SSR issues
+const BlogPostDetailContent = ({ post, language }) => {
   const contentRef = useRef(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    async function fetchPost() {
-      try {
-        const record = await pb.collection('posts').getFirstListItem(`slug="${slug}" && status="published"`, {
-          expand: 'author'
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && post && contentRef.current) {
+      import('highlight.js').then((hljs) => {
+        import('highlight.js/styles/github-dark.css');
+        contentRef.current.querySelectorAll('pre').forEach((block) => {
+          hljs.default.highlightElement(block);
         });
-        setPost(record);
-      } catch (error) {
-        console.error('Error fetching post:', error);
-      }
-      setIsLoading(false);
-    }
-    fetchPost();
-  }, [slug]);
-
-  useEffect(() => {
-    if (post && contentRef.current) {
-      contentRef.current.querySelectorAll('pre').forEach((block) => {
-        hljs.highlightElement(block);
       });
     }
-  }, [post]);
+  }, [isMounted, post]);
 
-  if (isLoading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="animate-pulse" style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--accent)' }}>Yükleniyor...</div>
-    </div>
-  );
-
-  if (!post) return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-      <h2 style={{ fontSize: '2rem', fontWeight: 900 }}>Yazı bulunamadı.</h2>
-      <Link href="/blog" className="btn-primary">Blog'a Geri Dön</Link>
-    </div>
-  );
+  const formatDate = (dateStr) => {
+    if (!isMounted || !dateStr) return '';
+    try {
+      return new Date(dateStr.substring(0, 10)).toLocaleDateString();
+    } catch (e) {
+      return '';
+    }
+  };
 
   return (
     <article style={{ paddingTop: 'calc(var(--nav-height) + 2rem)', paddingBottom: '10rem' }} className="animate-fade">
-      {/* Background Glow */}
       <div style={{ position: 'fixed', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '80%', height: '60%', background: 'var(--accent)', filter: 'blur(150px)', opacity: 0.05, pointerEvents: 'none', zIndex: -1 }}></div>
 
       <div className="container" style={{ maxWidth: 900 }}>
@@ -62,7 +46,7 @@ export default function BlogPostDetail({ params }) {
           </Link>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginBottom: '2.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>
-             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiCalendar style={{ color: 'var(--accent)' }} /> {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</span>
+             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiCalendar style={{ color: 'var(--accent)' }} /> {formatDate(post.created)}</span>
              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiTag style={{ color: 'var(--accent)' }} /> {post.category || 'Genel'}</span>
              {post.expand?.author && <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiUser style={{ color: 'var(--accent)' }} /> {post.expand.author.name}</span>}
           </div>
@@ -92,14 +76,6 @@ export default function BlogPostDetail({ params }) {
                     <FiShare2 /> {language === 'tr' ? 'Paylaş' : 'Share'}
                  </button>
               </div>
-              
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                 {post.category && (
-                   <span style={{ padding: '0.5rem 1rem', borderRadius: '30px', background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>
-                     #{post.category}
-                   </span>
-                 )}
-              </div>
            </div>
 
            <div className="glass" style={{ marginTop: '5rem', padding: '4rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -109,12 +85,39 @@ export default function BlogPostDetail({ params }) {
               <Link href="/#contact" className="btn-primary" style={{ padding: '1rem 3rem' }}>{language === 'tr' ? 'Benimle İletişime Geç' : 'Get in Touch'}</Link>
            </div>
         </footer>
-      </div>
 
-      <style jsx global>{`
-        .hover-accent:hover { color: var(--accent) !important; transform: translateX(-5px); }
-        .premium-rich-text pre code { padding: 0 !important; background: transparent !important; }
-      `}</style>
+        <style jsx global>{`
+          .hover-accent:hover { color: var(--accent) !important; transform: translateX(-5px); }
+          .premium-rich-text pre code { padding: 0 !important; background: transparent !important; }
+        `}</style>
+      </div>
     </article>
   );
+};
+
+export default function BlogPostDetail({ params }) {
+  const { slug } = use(params);
+  const { language } = useLanguage();
+  const [post, setPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPost() {
+      try {
+        const record = await pb.collection('posts').getFirstListItem(`slug="${slug}" && status="published"`, {
+          expand: 'author'
+        });
+        setPost(record);
+      } catch (error) {
+        console.error('Error fetching post:', error);
+      }
+      setIsLoading(false);
+    }
+    fetchPost();
+  }, [slug]);
+
+  if (isLoading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p>Yükleniyor...</p></div>;
+  if (!post) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p>Yazı bulunamadı.</p></div>;
+
+  return <BlogPostDetailContent post={post} language={language} />;
 }

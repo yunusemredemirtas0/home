@@ -3,50 +3,26 @@ import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { FiArrowLeft, FiExternalLink, FiCpu, FiLayout, FiMaximize2 } from 'react-icons/fi';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/github-dark.css';
+import { FiArrowLeft, FiExternalLink, FiCpu } from 'react-icons/fi';
 
-export default function ProjectDetail({ params }) {
-  const { slug } = use(params);
-  const { language } = useLanguage();
-  const [project, setProject] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+const ProjectDetailContent = ({ project, language }) => {
   const contentRef = useRef(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    async function fetchProject() {
-      try {
-        const record = await pb.collection('projects').getFirstListItem(`slug="${slug}" && status="published"`);
-        setProject(record);
-      } catch (error) {
-        console.error('Error fetching project:', error);
-      }
-      setIsLoading(false);
-    }
-    fetchProject();
-  }, [slug]);
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
-    if (project && contentRef.current) {
-      contentRef.current.querySelectorAll('pre').forEach((block) => {
-        hljs.highlightElement(block);
-      });
+    if (isMounted && project && contentRef.current) {
+        import('highlight.js').then((hljs) => {
+            import('highlight.js/styles/github-dark.css');
+            contentRef.current.querySelectorAll('pre').forEach((block) => {
+                hljs.default.highlightElement(block);
+            });
+        });
     }
-  }, [project]);
-
-  if (isLoading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="animate-pulse" style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--accent)' }}>Yükleniyor...</div>
-    </div>
-  );
-
-  if (!project) return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-      <h2 style={{ fontSize: '2rem', fontWeight: 900 }}>Proje bulunamadı.</h2>
-      <Link href="/projects" className="btn-primary">Projelere Geri Dön</Link>
-    </div>
-  );
+  }, [isMounted, project]);
 
   return (
     <div style={{ paddingTop: 'calc(var(--nav-height) + 2rem)', paddingBottom: '10rem' }} className="animate-fade">
@@ -122,4 +98,29 @@ export default function ProjectDetail({ params }) {
       `}</style>
     </div>
   );
+};
+
+export default function ProjectDetail({ params }) {
+  const { slug } = use(params);
+  const { language } = useLanguage();
+  const [project, setProject] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        const record = await pb.collection('projects').getFirstListItem(`slug="${slug}" && status="published"`);
+        setProject(record);
+      } catch (error) {
+        console.error('Error fetching project:', error);
+      }
+      setIsLoading(false);
+    }
+    fetchProject();
+  }, [slug]);
+
+  if (isLoading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p>Yükleniyor...</p></div>;
+  if (!project) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p>Proje bulunamadı.</p></div>;
+
+  return <ProjectDetailContent project={project} language={language} />;
 }

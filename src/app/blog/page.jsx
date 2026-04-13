@@ -8,8 +8,10 @@ export default function BlogPage() {
   const { language } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     async function fetchPosts() {
       try {
         const records = await pb.collection('posts').getFullList({
@@ -23,6 +25,15 @@ export default function BlogPage() {
     }
     fetchPosts();
   }, []);
+
+  const formatDate = (dateStr) => {
+    if (!isMounted || !dateStr) return '';
+    try {
+      return new Date(dateStr.substring(0, 10)).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US');
+    } catch (e) {
+      return '';
+    }
+  };
 
   return (
     <div style={{ paddingTop: 'calc(var(--nav-height) + 4rem)', paddingBottom: '8rem' }}>
@@ -66,7 +77,7 @@ export default function BlogPage() {
                     </div>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.3 }}>{post.title}</h2>
                     <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                       <span>{post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US') : ''}</span>
+                       <span>{formatDate(post.created)}</span>
                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Oku →</span>
                     </div>
                   </div>
