@@ -10,12 +10,12 @@ export default function Services() {
     { id: 'custom', icon: <FiCode size={36} />, title: t?.services?.custom, desc: t?.services?.customDesc, gradient: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)' }
   ];
   return (
-    <section id="services" style={{ padding: '8rem 0' }}>
+    <section id="services" style={{ padding: 'var(--section-padding) 0' }}>
       <div className="container">
         <h2 className="section-title" style={{ textAlign: 'center' }}>{t?.services?.title}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem', marginTop: '5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '2.5rem', marginTop: 'clamp(2.5rem, 8vw, 5rem)' }}>
           {servicesList.map(s => (
-            <div key={s.id} className="glass" style={{ padding: '3.5rem 2.5rem', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', gap: '2rem', textAlign: 'center', transition: 'transform 0.3s' }}>
+            <div key={s.id} className="glass card-hover" style={{ padding: 'clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem)', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', gap: '2rem', textAlign: 'center' }}>
               <div style={{ width: 85, height: 85, margin: '0 auto', borderRadius: 'var(--radius-lg)', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{s.icon}</div>
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>{s.title}</h3>

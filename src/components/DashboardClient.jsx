@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { FiGrid, FiSettings, FiLogOut, FiPlusCircle, FiFileText, FiLayout, FiChevronLeft, FiChevronRight, FiMail } from 'react-icons/fi';
+import { FiGrid, FiSettings, FiLogOut, FiPlusCircle, FiFileText, FiLayout, FiChevronLeft, FiChevronRight, FiMail, FiMenu, FiX } from 'react-icons/fi';
 import dynamic from 'next/dynamic';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const OverviewContent = dynamic(() => import('./dashboard/OverviewContent'), { ssr: false });
 const BlogManager = dynamic(() => import('./dashboard/BlogManager'), { ssr: false });
@@ -11,10 +12,12 @@ const ProjectManager = dynamic(() => import('./dashboard/ProjectManager'), { ssr
 
 export default function DashboardClient() {
   const { currentUser, loading, logout } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [isMounted, setIsMounted] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,34 +36,51 @@ export default function DashboardClient() {
   const isAdmin = currentUser.role === 'admin' || currentUser.email === 'yunusemredemirtas.dev@gmail.com';
 
   const menuItems = [
-    { id: 'overview', label: 'Genel Bakış', icon: <FiGrid />, adminOnly: false },
-    { id: 'blogs', label: 'Blog Yönetimi', icon: <FiFileText />, adminOnly: true },
-    { id: 'projects', label: 'Proje Yönetimi', icon: <FiLayout />, adminOnly: true },
+    { id: 'overview', label: t?.dashboard?.overview, icon: <FiGrid />, adminOnly: false },
+    { id: 'blogs', label: t?.dashboard?.blogMode, icon: <FiFileText />, adminOnly: true },
+    { id: 'projects', label: t?.dashboard?.projectMode, icon: <FiLayout />, adminOnly: true },
   ];
 
   const sidebarWidth = isCollapsed ? 80 : 320;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-color)' }}>
-      <aside 
-        className="glass" 
+    <div className="dashboard-layout" style={{ background: 'var(--bg-color)' }}>
+      {/* Mobile Toggle Button */}
+      <button 
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="mobile-only glass"
         style={{ 
-          width: sidebarWidth, 
-          padding: isCollapsed ? '2.5rem 0.75rem' : '2.5rem 1.5rem', 
+          position: 'fixed', top: '1.5rem', right: '1.5rem', zIndex: 110, 
+          width: 50, height: 50, borderRadius: '12px', display: 'flex', 
+          alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: 'var(--accent)'
+        }}
+      >
+        {isMobileMenuOpen ? <FiX /> : <FiMenu />}
+      </button>
+
+      {/* Sidebar overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="mobile-only"
+          onClick={() => setIsMobileMenuOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90, backdropFilter: 'blur(4px)' }} 
+        />
+      )}
+
+      <aside 
+        className={`glass dashboard-sidebar ${isMobileMenuOpen ? 'open' : ''}`} 
+        style={{ 
+          width: isMobileMenuOpen ? 280 : sidebarWidth, 
+          padding: isCollapsed && !isMobileMenuOpen ? '2.5rem 0.75rem' : '2.5rem 1.5rem', 
           display: 'flex', 
           flexDirection: 'column', 
           gap: '2.5rem', 
           borderRight: '1px solid var(--glass-border)', 
-          position: 'fixed', 
-          left: 0, 
-          bottom: 0, 
-          top: 0,
-          transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           zIndex: 100,
           overflow: 'hidden'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-end', width: '100%' }}>
+        <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-end', width: '100%' }}>
            <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             style={{ 
@@ -71,6 +91,12 @@ export default function DashboardClient() {
               {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
            </button>
         </div>
+
+        {isMobileMenuOpen && (
+          <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
+             <h2 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: 900 }}>DASHBOARD</h2>
+          </div>
+        )}
         
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
           {menuItems.map(item => {
@@ -78,13 +104,13 @@ export default function DashboardClient() {
             return (
               <button 
                 key={item.id}
-                onClick={() => setActiveTab(item.id)} 
-                title={isCollapsed ? item.label : ''}
+                onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }} 
+                title={(isCollapsed && !isMobileMenuOpen) ? item.label : ''}
                 style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  gap: isCollapsed ? '0' : '1rem', 
+                  justifyContent: (isCollapsed && !isMobileMenuOpen) ? 'center' : 'flex-start',
+                  gap: (isCollapsed && !isMobileMenuOpen) ? '0' : '1rem', 
                   padding: '1rem', 
                   borderRadius: '12px', 
                   background: activeTab === item.id ? 'var(--accent-gradient)' : 'transparent', 
@@ -98,7 +124,7 @@ export default function DashboardClient() {
                 }}
               >
                  <span style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-                 {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
+                 {(!isCollapsed || isMobileMenuOpen) && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
               </button>
             );
           })}
@@ -107,19 +133,19 @@ export default function DashboardClient() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
            <button 
             onClick={logout} 
-            title={isCollapsed ? 'Çıkış Yap' : ''}
+            title={(isCollapsed && !isMobileMenuOpen) ? t?.auth?.logout : ''}
             style={{ 
-              display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start', 
-              gap: isCollapsed ? '0' : '1rem', padding: '1rem', borderRadius: '12px', 
+              display: 'flex', alignItems: 'center', justifyContent: (isCollapsed && !isMobileMenuOpen) ? 'center' : 'flex-start', 
+              gap: (isCollapsed && !isMobileMenuOpen) ? '0' : '1rem', padding: '1rem', borderRadius: '12px', 
               color: 'var(--error)', fontWeight: 700, border: '1px solid rgba(239, 68, 68, 0.1)', 
               background: 'transparent', cursor: 'pointer', width: '100%' 
             }}
            >
               <span style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center' }}><FiLogOut /></span>
-              {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>Çıkış Yap</span>}
+              {(!isCollapsed || isMobileMenuOpen) && <span style={{ whiteSpace: 'nowrap' }}>{t?.auth?.logout}</span>}
            </button>
            
-           {!isCollapsed && (
+           {(!isCollapsed || isMobileMenuOpen) && (
              <div className="glass" style={{ padding: '0.75rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' }}>
                 <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: '#fff' }}>
                    {currentUser.name?.[0]?.toUpperCase() || 'U'}
@@ -134,10 +160,9 @@ export default function DashboardClient() {
         </div>
       </aside>
 
-      <main style={{ flex: 1, padding: '4rem', marginLeft: sidebarWidth, transition: 'margin 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+      <main className="dashboard-main" style={{ flex: 1, padding: 'clamp(1.5rem, 5vw, 4rem)', marginLeft: sidebarWidth, transition: 'margin 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
          {activeTab === 'overview' && <OverviewContent />}
          {activeTab === 'blogs' && <BlogManager />}
-         {activeTab === 'projects' && <ProjectManager />}
          {activeTab === 'projects' && <ProjectManager />}
       </main>
     </div>
