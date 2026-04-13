@@ -6,6 +6,7 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Script from 'next/script';
 
 export const metadata = {
   metadataBase: new URL('https://yunusemredemirtas.com'),
@@ -79,6 +80,11 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
+        <Script 
+          defer 
+          src="https://umami.yunusemredemirtas.com/analytics" 
+          data-website-id="dfd0b8ee-5acc-42ea-bfea-7cf446a7ca99" 
+        />
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
