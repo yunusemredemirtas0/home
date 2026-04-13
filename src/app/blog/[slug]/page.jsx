@@ -13,9 +13,8 @@ const BlogPostDetailContent = ({ post, language }) => {
   const [readingProgress, setReadingProgress] = useState(0);
 
   // --- GISCUS CONFIGURATION ---
-  // Buraya gelen ID'leri yapıştıracağız
-  const repoId = ""; 
-  const categoryId = "";
+  const repoId = "R_kgDOQ70S0w"; 
+  const categoryId = "DIC_kwDOQ70S084C6xQG";
   // ----------------------------
 
   useEffect(() => {

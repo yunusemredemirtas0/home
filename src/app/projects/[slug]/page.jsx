@@ -12,8 +12,8 @@ const ProjectDetailContent = ({ project, language }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   // --- GISCUS CONFIGURATION ---
-  const repoId = ""; 
-  const categoryId = "";
+  const repoId = "R_kgDOQ70S0w"; 
+  const categoryId = "DIC_kwDOQ70S084C6xQG";
   // ----------------------------
 
   useEffect(() => {
