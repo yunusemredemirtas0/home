@@ -38,6 +38,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
+body.menu-open { overflow: hidden; }
 body {
   font-family: var(--font);
   background: var(--bg-color);
@@ -207,3 +208,35 @@ h1, h2, h3, h4, h5 {
 
 /* Syntax Highlighting overrides for dark theme if needed */
 .hljs { background: transparent !important; }
+
+/* Responsive Utilities */
+.desktop-only { display: flex !important; }
+.mobile-only { display: none !important; }
+
+@media (max-width: 1024px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: flex !important; }
+}
+
+/* Mobile Menu Animations */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-menu-link {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--glass-border);
+  transition: var(--transition);
+}
+
+.mobile-menu-link:hover {
+  color: var(--accent);
+  padding-left: 0.5rem;
+}
