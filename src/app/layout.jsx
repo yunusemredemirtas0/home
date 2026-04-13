@@ -48,11 +48,7 @@ export const metadata = {
   verification: {
     google: 'google-site-verification-id',
   },
-  icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    apple: '/favicon.png',
-  },
+  icons: '/favicon.png',
 };
 
 export default function RootLayout({ children }) {
