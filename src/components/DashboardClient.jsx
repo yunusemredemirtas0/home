@@ -62,15 +62,7 @@ export default function DashboardClient() {
           overflow: 'hidden'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', width: '100%' }}>
-           {!isCollapsed && (
-             <div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
-                   {isAdmin ? 'Yönetim' : 'Panel'}
-                </h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200 }}>{currentUser.email}</p>
-             </div>
-           )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-end', width: '100%' }}>
            <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
             style={{ 
@@ -136,7 +128,8 @@ export default function DashboardClient() {
                 </div>
                 <div style={{ overflow: 'hidden' }}>
                    <p style={{ fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap' }}>{currentUser.name || 'User'}</p>
-                   <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{isAdmin ? 'Administrator' : 'Client'}</p>
+                   <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', marginBottom: '0.1rem' }}>{isAdmin ? 'Administrator' : 'Client'}</p>
+                   <p style={{ fontSize: '0.6rem', color: 'var(--accent-blue)', whiteSpace: 'nowrap', opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }}>{currentUser.email}</p>
                 </div>
              </div>
            )}
