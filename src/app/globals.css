@@ -76,3 +76,88 @@ ul, ol { list-style: none; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 .animate-fade { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); } 50% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); } }
+
+/* Premium Rich Text Styling */
+.premium-rich-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.85;
+  color: var(--text-primary);
+}
+
+.premium-rich-text h1, .premium-rich-text h2, .premium-rich-text h3 {
+  font-family: 'Outfit', sans-serif;
+  color: #fff;
+  margin: 3.5rem 0 1.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.premium-rich-text h1 { font-size: 3rem; }
+.premium-rich-text h2 { font-size: 2.25rem; }
+.premium-rich-text h3 { font-size: 1.75rem; }
+
+.premium-rich-text p { margin-bottom: 2rem; }
+
+.premium-rich-text blockquote {
+  border-left: 5px solid var(--accent);
+  background: rgba(124, 58, 237, 0.05);
+  padding: 2.5rem;
+  margin: 3rem 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.premium-rich-text ul, .premium-rich-text ol {
+  margin: 2rem 0;
+  padding-left: 2rem;
+}
+
+.premium-rich-text li {
+  margin-bottom: 0.75rem;
+}
+
+.premium-rich-text pre {
+  background: #0d1117;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  margin: 2.5rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--glass-border);
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.premium-rich-text img {
+  border-radius: var(--radius-xl);
+  margin: 4rem 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  box-shadow: 0 30px 60px -10px rgba(0,0,0,0.5);
+}
+
+.premium-rich-text .ql-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+  margin: 3rem 0;
+  box-shadow: 0 30px 60px -10px rgba(0,0,0,0.5);
+}
+
+.premium-rich-text a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
+}
+
+.premium-rich-text a:hover {
+  color: var(--accent);
+}
+
+/* Syntax Highlighting overrides for dark theme if needed */
+.hljs { background: transparent !important; }

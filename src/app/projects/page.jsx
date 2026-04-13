@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import pb from '../../lib/pocketbase';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { FiExternalLink, FiCode } from 'react-icons/fi';
+import { FiExternalLink } from 'react-icons/fi';
 
 export default function ProjectsPage() {
   const { language } = useLanguage();
@@ -44,40 +44,33 @@ export default function ProjectsPage() {
             <p>{language === 'tr' ? 'Yükleniyor...' : 'Loading...'}</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '3rem' }}>
             {projects.length === 0 ? (
               <p style={{ gridColumn: '1/-1', textAlign: 'center', opacity: 0.5 }}>
                  {language === 'tr' ? 'Henüz proje eklenmemiş.' : 'No projects added yet.'}
               </p>
             ) : (
               projects.map(project => (
-                <div key={project.id} className="glass card-hover" style={{ borderRadius: 'var(--radius-2xl)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ position: 'relative', height: 300, overflow: 'hidden' }}>
+                <Link key={project.id} href={`/projects/${project.slug}`} className="glass card-hover" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', display: 'block', textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ height: 240, overflow: 'hidden', position: 'relative' }}>
                     {project.image ? (
                       <img src={pb.files.getURL(project, project.image)} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', background: 'var(--accent-gradient)', opacity: 0.1 }} />
                     )}
-                    {project.link && (
-                       <a href={project.link} target="_blank" rel="noopener noreferrer" className="glass" style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: '#fff' }}>
-                          <FiExternalLink />
-                       </a>
-                    )}
-                  </div>
-                  <div style={{ padding: '2.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-                      {project.tech_stack?.split(',').map((tech, i) => (
-                        <span key={i} style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.3rem 0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)' }}>
-                          {tech.trim()}
-                        </span>
-                      ))}
+                    <div style={{ position: 'absolute', bottom: '1.5rem', right: '1.5rem', background: 'var(--accent)', color: '#fff', padding: '0.5rem 1rem', borderRadius: '30px', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        {project.tech_stack?.split(',')[0]}
                     </div>
-                    <h2 style={{ fontSize: '1.75rem', fontWeight: 850, marginBottom: '1rem' }}>{project.title}</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem', flex: 1 }}>{project.description}</p>
-                    
-                    {/* Link to detail could be added here if needed, but for now external link is good */}
                   </div>
-                </div>
+                  <div style={{ padding: '2.5rem' }}>
+                    <h3 style={{ fontSize: '1.75rem', fontWeight: 850, marginBottom: '1rem', lineHeight: 1.2 }}>{project.title}</h3>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: project.description }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--accent)', letterSpacing: '1px' }}>DETAYLARI GÖR →</span>
+                        <FiExternalLink style={{ opacity: 0.3 }} />
+                    </div>
+                  </div>
+                </Link>
               ))
             )}
           </div>

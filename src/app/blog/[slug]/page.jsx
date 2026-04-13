@@ -1,15 +1,18 @@
 'use client';
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { FiArrowLeft, FiCalendar, FiTag, FiUser } from 'react-icons/fi';
+import { FiArrowLeft, FiCalendar, FiTag, FiUser, FiShare2, FiClock } from 'react-icons/fi';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github-dark.css';
 
 export default function BlogPostDetail({ params }) {
   const { slug } = use(params);
   const { language } = useLanguage();
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const contentRef = useRef(null);
 
   useEffect(() => {
     async function fetchPost() {
@@ -26,59 +29,91 @@ export default function BlogPostDetail({ params }) {
     fetchPost();
   }, [slug]);
 
-  if (isLoading) return <div style={{ paddingTop: '10rem', textAlign: 'center' }}>Yükleniyor...</div>;
-  if (!post) return <div style={{ paddingTop: '10rem', textAlign: 'center' }}>Yazı bulunamadı. <Link href="/blog">Geri dön</Link></div>;
+  useEffect(() => {
+    if (post && contentRef.current) {
+      contentRef.current.querySelectorAll('pre').forEach((block) => {
+        hljs.highlightElement(block);
+      });
+    }
+  }, [post]);
+
+  if (isLoading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="animate-pulse" style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--accent)' }}>Yükleniyor...</div>
+    </div>
+  );
+
+  if (!post) return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
+      <h2 style={{ fontSize: '2rem', fontWeight: 900 }}>Yazı bulunamadı.</h2>
+      <Link href="/blog" className="btn-primary">Blog'a Geri Dön</Link>
+    </div>
+  );
 
   return (
-    <article style={{ paddingTop: 'calc(var(--nav-height) + 4rem)', paddingBottom: '8rem' }}>
-      <div className="container" style={{ maxWidth: 800 }}>
-        <Link href="/blog" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '3rem', fontWeight: 600 }}>
-           <FiArrowLeft /> {language === 'tr' ? 'Blog\'a Dön' : 'Back to Blog'}
-        </Link>
+    <article style={{ paddingTop: 'calc(var(--nav-height) + 2rem)', paddingBottom: '10rem' }} className="animate-fade">
+      {/* Background Glow */}
+      <div style={{ position: 'fixed', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '80%', height: '60%', background: 'var(--accent)', filter: 'blur(150px)', opacity: 0.05, pointerEvents: 'none', zIndex: -1 }}></div>
 
-        <header style={{ marginBottom: '4rem' }}>
-          <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
-             <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiCalendar /> {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</span>
-             <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiTag /> {post.category || 'Genel'}</span>
-             {post.expand?.author && <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><FiUser /> {post.expand.author.name}</span>}
+      <div className="container" style={{ maxWidth: 900 }}>
+        <header style={{ marginBottom: '5rem' }}>
+          <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '4rem', fontWeight: 600, fontSize: '0.95rem', transition: 'var(--transition)' }} className="hover-accent">
+             <FiArrowLeft /> {language === 'tr' ? 'Tüm Yazılar' : 'All Articles'}
+          </Link>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginBottom: '2.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>
+             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiCalendar style={{ color: 'var(--accent)' }} /> {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</span>
+             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiTag style={{ color: 'var(--accent)' }} /> {post.category || 'Genel'}</span>
+             {post.expand?.author && <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiUser style={{ color: 'var(--accent)' }} /> {post.expand.author.name}</span>}
           </div>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 950, letterSpacing: '-2px', lineHeight: 1.1, marginBottom: '2.5rem' }}>{post.title}</h1>
+
+          <h1 style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', fontWeight: 950, letterSpacing: '-3px', lineHeight: 1.05, marginBottom: '3rem', color: '#fff' }}>
+            {post.title}
+          </h1>
           
           {post.image && (
-            <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', marginBottom: '4rem', boxShadow: '0 30px 60px -10px rgba(0,0,0,0.3)' }}>
+            <div style={{ position: 'relative', borderRadius: 'var(--radius-xl)', overflow: 'hidden', marginBottom: '5rem', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.6)', border: '1px solid var(--glass-border)' }}>
               <img src={pb.files.getURL(post, post.image)} alt={post.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
             </div>
           )}
         </header>
 
         <div 
-          className="blog-content" 
+          ref={contentRef}
+          className="premium-rich-text" 
           dangerouslySetInnerHTML={{ __html: post.content }} 
-          style={{ 
-            fontSize: '1.15rem', 
-            lineHeight: 1.8, 
-            color: 'var(--text-primary)',
-          }}
         />
 
-        <hr style={{ margin: '5rem 0', borderColor: 'var(--glass-border)', opacity: 0.1 }} />
-        
-        <div className="glass" style={{ padding: '2.5rem', borderRadius: 'var(--radius-xl)', textAlign: 'center' }}>
-           <h3 style={{ marginBottom: '1rem' }}>{language === 'tr' ? 'Bu yazı hoşunuza gitti mi?' : 'Did you like this article?'}</h3>
-           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>{language === 'tr' ? 'Benzer içeriklerden haberdar olmak için takipte kalın.' : 'Stay tuned for more similar content.'}</p>
-           <Link href="/#contact" className="btn-primary" style={{ display: 'inline-block' }}>{language === 'tr' ? 'Benimle İletişime Geç' : 'Contact Me'}</Link>
-        </div>
+        <footer style={{ marginTop: '8rem', borderTop: '1px solid var(--glass-border)', paddingTop: '4rem' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                 <button className="glass" style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link kopyalandı!'); }}>
+                    <FiShare2 /> {language === 'tr' ? 'Paylaş' : 'Share'}
+                 </button>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                 {post.category && (
+                   <span style={{ padding: '0.5rem 1rem', borderRadius: '30px', background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>
+                     #{post.category}
+                   </span>
+                 )}
+              </div>
+           </div>
+
+           <div className="glass" style={{ marginTop: '5rem', padding: '4rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '200px', height: '200px', background: 'var(--accent)', filter: 'blur(100px)', opacity: 0.1 }}></div>
+              <h3 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '1.5rem', color: '#fff' }}>{language === 'tr' ? 'Daha Fazla Soru?' : 'Got More Questions?'}</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem', fontSize: '1.1rem', maxWidth: '500px', margin: '0 auto 2.5rem' }}>{language === 'tr' ? 'Projeleriniz için işbirliği yapmak veya sadece merhaba demek isterseniz her zaman buradayım.' : 'Whether you want to collaborate on projects or just say hello, I\'m always here.'}</p>
+              <Link href="/#contact" className="btn-primary" style={{ padding: '1rem 3rem' }}>{language === 'tr' ? 'Benimle İletişime Geç' : 'Get in Touch'}</Link>
+           </div>
+        </footer>
       </div>
 
       <style jsx global>{`
-        .blog-content h2 { font-size: 2rem; margin: 3rem 0 1.5rem; font-weight: 800; }
-        .blog-content h3 { font-size: 1.5rem; margin: 2rem 0 1rem; font-weight: 700; }
-        .blog-content p { margin-bottom: 1.5rem; }
-        .blog-content ul, .blog-content ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
-        .blog-content li { margin-bottom: 0.5rem; }
-        .blog-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem 0; }
-        .blog-content blockquote { border-left: 4px solid var(--accent); padding-left: 1.5rem; font-style: italic; color: var(--text-secondary); margin: 2rem 0; }
-        .blog-content pre { background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; overflow-x: auto; margin: 2rem 0; font-family: 'Fira Code', monospace; font-size: 0.9rem; }
+        .hover-accent:hover { color: var(--accent) !important; transform: translateX(-5px); }
+        .premium-rich-text pre code { padding: 0 !important; background: transparent !important; }
       `}</style>
     </article>
   );
