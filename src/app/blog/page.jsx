@@ -13,7 +13,6 @@ export default function BlogPage() {
     async function fetchPosts() {
       try {
         const records = await pb.collection('posts').getFullList({
-          sort: '-created',
           filter: 'status = "published"'
         });
         setPosts(records);
