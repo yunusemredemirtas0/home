@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 export default function sitemap() {
   const baseUrl = 'https://yunusemredemirtas.com';
 
