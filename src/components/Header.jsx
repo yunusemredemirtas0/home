@@ -42,6 +42,7 @@ export default function Header() {
   ];
 
   const closeMenu = () => setIsMenuOpen(false);
+  const isDashboard = pathname?.startsWith('/dashboard');
 
   return (
     <>
@@ -58,22 +59,24 @@ export default function Header() {
           <Logo />
           
           {/* Desktop Navigation */}
-          <nav className="desktop-only" style={{ alignItems: 'center', gap: '0.25rem' }}>
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                style={{
-                  padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.92rem', fontWeight: 500,
-                  color: 'var(--text-secondary)', background: 'transparent', transition: 'color var(--transition)'
-                }}
-                className="hover-accent"
-              >{link.label}</Link>
-            ))}
-          </nav>
+          {!isDashboard && (
+            <nav className="desktop-only" style={{ alignItems: 'center', gap: '0.25rem' }}>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  style={{
+                    padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', fontSize: '0.92rem', fontWeight: 500,
+                    color: 'var(--text-secondary)', background: 'transparent', transition: 'color var(--transition)'
+                  }}
+                  className="hover-accent"
+                >{link.label}</Link>
+              ))}
+            </nav>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div className="desktop-only" style={{ alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button onClick={toggleLanguage} style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{language === 'tr' ? 'EN' : 'TR'}</button>
               <button onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', fontSize: '1.1rem' }}>{theme === 'dark' ? '☀️' : '🌙'}</button>
             </div>
@@ -86,14 +89,16 @@ export default function Header() {
               )}
             </div>
 
-            {/* Mobile Menu Toggle */}
-            <button 
-              className="mobile-only" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', color: 'var(--text-primary)', zIndex: 1100 }}
-            >
-              {isMenuOpen ? <FiX /> : <FiMenu />}
-            </button>
+            {/* Mobile Menu Toggle - Only if not dashboard */}
+            {!isDashboard && (
+              <button 
+                className="mobile-only" 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', color: 'var(--text-primary)', zIndex: 1100 }}
+              >
+                {isMenuOpen ? <FiX /> : <FiMenu />}
+              </button>
+            )}
           </div>
         </div>
       </header>
