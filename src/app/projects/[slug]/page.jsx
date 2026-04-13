@@ -3,7 +3,7 @@ import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { FiArrowLeft, FiExternalLink, FiCpu, FiLayout, FiActivity } from 'react-icons/fi';
+import { FiArrowLeft, FiExternalLink, FiLayout } from 'react-icons/fi';
 import ShareBar from '../../../components/ShareBar';
 import GiscusComments from '../../../components/GiscusComments';
 
@@ -47,40 +47,25 @@ const ProjectDetailContent = ({ project, language }) => {
         <div className="blob blob-3" style={{ top: '60%', left: '70%' }}></div>
       </div>
 
-      <div className="container" style={{ maxWidth: 1100 }}>
-         <header style={{ marginBottom: '8rem' }}>
+      <div className="container" style={{ maxWidth: 900 }}>
+         <header style={{ marginBottom: '6rem', textAlign: 'center' }}>
             <Link href="/projects" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '4rem', fontWeight: 600, fontSize: '0.9rem' }} className="hover-accent">
                 <FiArrowLeft /> {language === 'tr' ? 'Tüm Projeler' : 'All Projects'}
             </Link>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(320px, 1fr)', gap: '5rem', alignItems: 'end' }}>
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--accent)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '2rem', fontSize: '0.85rem' }}>
-                        <FiActivity /> {language === 'tr' ? 'DURUM ÇALIŞMASI' : 'CASE STUDY'}
-                    </div>
-                    <h1 style={{ fontSize: 'clamp(3rem, 7vw, 4.5rem)', fontWeight: 950, letterSpacing: '-4px', lineHeight: 1.05, marginBottom: '2rem', color: '#fff' }}>
-                        {project.title}
-                    </h1>
+            <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 5.5rem)', fontWeight: 950, letterSpacing: '-4px', lineHeight: 1, marginBottom: '2.5rem', color: '#fff' }}>
+                {project.title}
+            </h1>
+
+            {project.tech_stack && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginBottom: '4rem' }}>
+                    {project.tech_stack.split(',').map((tech, idx) => (
+                        <span key={idx} className="glass" style={{ padding: '0.5rem 1.25rem', borderRadius: '30px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '1px' }}>
+                            {tech.trim().toUpperCase()}
+                        </span>
+                    ))}
                 </div>
-                
-                <div className="glass" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', display: 'grid', gap: '2rem', boxShadow: '0 30px 60px -12px rgba(0,0,0,0.4)', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 0, right: 0, width: '100px', height: '100px', background: 'var(--accent)', filter: 'blur(50px)', opacity: 0.1 }}></div>
-                    {project.tech_stack && (
-                        <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                            <div style={{ background: 'var(--accent-gradient)', padding: '0.85rem', borderRadius: '14px', color: '#fff', boxShadow: '0 8px 16px rgba(124, 58, 237, 0.3)' }}><FiCpu size={22} /></div>
-                            <div>
-                                <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>TECHNOLOGIES</p>
-                                <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#fff' }}>{project.tech_stack}</p>
-                            </div>
-                        </div>
-                    )}
-                    {project.link && (
-                        <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ width: '100%', gap: '0.85rem', padding: '1.15rem' }}>
-                            {language === 'tr' ? 'Projeyi Keşfet' : 'Explore Project'} <FiExternalLink />
-                        </a>
-                    )}
-                </div>
-            </div>
+            )}
          </header>
 
          {project.image && (
@@ -90,31 +75,35 @@ const ProjectDetailContent = ({ project, language }) => {
             </div>
          )}
 
-         <div style={{ display: 'grid', gridTemplateColumns: gallery.length > 0 ? 'minmax(0, 1fr) minmax(0, 2fr)' : '1fr', gap: '6rem' }}>
-            {gallery.length > 0 && (
-              <aside style={{ position: 'sticky', top: 'calc(var(--nav-height) + 4rem)', height: 'fit-content' }}>
-                  <div style={{ display: 'grid', gap: '3rem' }}>
-                      <div className="glass" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)' }}>
-                          <h4 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><FiLayout /> {language === 'tr' ? 'Galeri' : 'Gallery'}</h4>
-                          <div style={{ display: 'grid', gap: '1.5rem' }}>
-                              {gallery.map((img, idx) => (
-                                  <div key={idx} style={{ borderRadius: '14px', overflow: 'hidden', cursor: 'zoom-in', transition: 'transform 0.3s ease', boxShadow: '0 10px 20px rgba(0,0,0,0.2)' }} className="card-hover">
-                                      <img src={pb.files.getURL(project, img)} alt={`${project.title} gallery ${idx}`} style={{ width: '100%', height: 'auto' }} />
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
-                  </div>
-              </aside>
-            )}
+         <div 
+            ref={contentRef}
+            className="premium-rich-text" 
+            dangerouslySetInnerHTML={{ __html: project.description || '' }}
+            style={{ fontSize: '1.25rem', marginBottom: '8rem' }}
+         />
 
-            <div 
-              ref={contentRef}
-              className="premium-rich-text" 
-              dangerouslySetInnerHTML={{ __html: project.description || '' }}
-              style={{ fontSize: '1.25rem', maxWidth: gallery.length > 0 ? 'none' : '850px', margin: gallery.length > 0 ? '0' : '0 auto' }}
-            />
-         </div>
+         {project.link && (
+            <div style={{ textAlign: 'center', marginBottom: '8rem' }}>
+                <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '1.5rem 4rem', fontSize: '1.2rem', gap: '1rem', borderRadius: '20px' }}>
+                    {language === 'tr' ? 'Projeyi Keşfet' : 'Explore Project'} <FiExternalLink />
+                </a>
+            </div>
+         )}
+
+         {gallery.length > 0 && (
+            <div style={{ marginTop: '8rem' }}>
+                <h4 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+                    <FiLayout /> {language === 'tr' ? 'Proje Galerisi' : 'Project Gallery'}
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
+                    {gallery.map((img, idx) => (
+                        <div key={idx} style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', cursor: 'zoom-in', transition: 'transform 0.3s ease', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)' }} className="card-hover">
+                            <img src={pb.files.getURL(project, img)} alt={`${project.title} gallery ${idx}`} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+         )}
 
          <div style={{ marginTop: '10rem', paddingTop: '6rem', borderTop: '1px solid var(--glass-border)' }}>
             <h3 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3rem', textAlign: 'center' }}>
@@ -126,7 +115,7 @@ const ProjectDetailContent = ({ project, language }) => {
 
       <style jsx global>{`
         .premium-rich-text pre code { padding: 0 !important; background: transparent !important; }
-        .card-hover:hover { transform: scale(1.03) translateY(-5px); }
+        .card-hover:hover { transform: scale(1.02); }
       `}</style>
     </div>
   );
