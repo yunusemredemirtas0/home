@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { FiTrendingUp, FiEye, FiFileText, FiLayout } from 'react-icons/fi';
+import { FiTrendingUp, FiEye, FiFileText, FiLayout, FiSearch, FiArrowLeft, FiActivity } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 
 export default function AnalyticsOverview() {
@@ -11,27 +11,27 @@ export default function AnalyticsOverview() {
     stats: { totalViews: 0, topPost: '', topProject: '' }
   });
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     async function fetchAnalytics() {
       try {
-        // En çok izlenen 5 blog yazısını getir
         const posts = await pb.collection('posts').getFullList({
           sort: '-views',
-          fields: 'id,title,views'
+          fields: 'id,title,views,slug,created,category'
         });
 
-        // En çok izlenen 5 projeyi getir
         const projects = await pb.collection('projects').getFullList({
           sort: '-views',
-          fields: 'id,title,views'
+          fields: 'id,title,views,slug,created,tech_stack'
         });
 
         const totalViews = [...posts, ...projects].reduce((acc, curr) => acc + (curr.views || 0), 0);
         
         setData({
-          posts: posts.slice(0, 5),
-          projects: projects.slice(0, 5),
+          posts,
+          projects,
           stats: {
             totalViews,
             topPost: posts[0]?.title || '-',
@@ -46,6 +46,15 @@ export default function AnalyticsOverview() {
     }
     fetchAnalytics();
   }, []);
+
+  const allItems = [
+    ...data.posts.map(p => ({ ...p, type: 'Blog' })),
+    ...data.projects.map(p => ({ ...p, type: 'Proje' }))
+  ];
+
+  const filteredItems = searchTerm 
+    ? allItems.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    : [];
 
   const chartData = [
     ...data.posts.map(p => ({ name: p.title.substring(0, 15) + '...', views: p.views || 0, type: 'Blog' })),
@@ -67,13 +76,105 @@ export default function AnalyticsOverview() {
 
   if (loading) return <div style={{ padding: '2rem', opacity: 0.5 }}>Analizler yükleniyor...</div>;
 
+  if (selectedItem) {
+    const rank = allItems.sort((a, b) => b.views - a.views).findIndex(i => i.id === selectedItem.id) + 1;
+    const sameTypeRank = allItems.filter(i => i.type === selectedItem.type).sort((a, b) => b.views - a.views).findIndex(i => i.id === selectedItem.id) + 1;
+    
+    return (
+      <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+        <header style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <button 
+            onClick={() => setSelectedItem(null)} 
+            className="glass" 
+            style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: 'var(--text-primary)' }}
+          >
+            <FiArrowLeft />
+          </button>
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 950, letterSpacing: '-1px' }}>{selectedItem.title}</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{selectedItem.type} Analizi</p>
+          </div>
+        </header>
+
+        <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+           <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px' }}>
+              <p style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>Toplam İzlenme</p>
+              <h3 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent)' }}>{selectedItem.views || 0}</h3>
+           </div>
+           <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px' }}>
+              <p style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>Genel Sıralama</p>
+              <h3 style={{ fontSize: '2rem', fontWeight: 900 }}>#{rank} <span style={{ fontSize: '0.8rem', opacity: 0.4 }}>/ {allItems.length}</span></h3>
+           </div>
+           <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px' }}>
+              <p style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>Kategori Sıralaması</p>
+              <h3 style={{ fontSize: '2rem', fontWeight: 900 }}>#{sameTypeRank} <span style={{ fontSize: '0.8rem', opacity: 0.4 }}>/ {allItems.filter(i => i.type === selectedItem.type).length}</span></h3>
+           </div>
+        </div>
+
+        <div className="glass" style={{ padding: '2rem', borderRadius: '24px' }}>
+           <h4 style={{ fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}><FiActivity /> İçerik Detayları</h4>
+           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
+              <div>
+                 <p style={{ fontSize: '0.85rem', opacity: 0.5, marginBottom: '0.25rem' }}>Oluşturulma Tarihi</p>
+                 <p style={{ fontWeight: 600 }}>{new Date(selectedItem.created).toLocaleDateString('tr-TR')}</p>
+              </div>
+              <div>
+                 <p style={{ fontSize: '0.85rem', opacity: 0.5, marginBottom: '0.25rem' }}>Kategori/Gereksinim</p>
+                 <p style={{ fontWeight: 600 }}>{selectedItem.category || selectedItem.tech_stack || '-'}</p>
+              </div>
+              <div>
+                 <p style={{ fontSize: '0.85rem', opacity: 0.5, marginBottom: '0.25rem' }}>Statik URL</p>
+                 <p style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--accent-blue)' }}>/{selectedItem.type.toLowerCase() === 'blog' ? 'blog' : 'projects'}/{selectedItem.slug}</p>
+              </div>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-      <header>
-        <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px', marginBottom: '0.5rem' }}>
-          Performans Analizi
-        </h2>
-        <p style={{ color: 'var(--text-secondary)' }}>İçeriklerinin nasıl bir performans gösterdiğini buradan takip edebilirsin.</p>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
+        <div>
+          <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px', marginBottom: '0.5rem' }}>
+            Performans Analizi
+          </h2>
+          <p style={{ color: 'var(--text-secondary)' }}>İçeriklerinin nasıl bir performans gösterdiğini buradan takip edebilirsin.</p>
+        </div>
+
+        {/* Content Selector */}
+        <div style={{ position: 'relative', width: '100%', maxWidth: 400 }}>
+           <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0 1.25rem', borderRadius: '14px', border: '1px solid var(--glass-border)' }}>
+              <FiSearch style={{ opacity: 0.4 }} />
+              <input 
+                type="text" 
+                placeholder="İçerik ara (Blog veya Proje)..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '100%', height: 50, background: 'transparent', border: 'none', color: '#fff', outline: 'none', fontSize: '0.9rem' }}
+              />
+           </div>
+           
+           {searchTerm && (
+             <div className="glass" style={{ position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 100, borderRadius: '14px', padding: '0.5rem', border: '1px solid var(--glass-border)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                {filteredItems.length > 0 ? (
+                  filteredItems.slice(0, 5).map(item => (
+                    <button 
+                      key={item.id} 
+                      onClick={() => { setSelectedItem(item); setSearchTerm(''); }}
+                      style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.2s' }}
+                      className="hover-bg"
+                    >
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.title}</span>
+                      <span style={{ fontSize: '0.7rem', opacity: 0.5, background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>{item.type}</span>
+                    </button>
+                  ))
+                ) : (
+                  <p style={{ padding: '1rem', textAlign: 'center', fontSize: '0.85rem', opacity: 0.5 }}>Sonuç bulunamadı.</p>
+                )}
+             </div>
+           )}
+        </div>
       </header>
 
       {/* Stats Grid */}
@@ -137,8 +238,8 @@ export default function AnalyticsOverview() {
          <section className="glass" style={{ padding: '1.5rem', borderRadius: '20px' }}>
             <h4 style={{ fontWeight: 800, marginBottom: '1.5rem', fontSize: '0.95rem' }}>Popüler Blog Yazıları</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               {data.posts.map((p, i) => (
-                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: '12px', background: 'rgba(255,255,255,0.02)' }}>
+               {data.posts.slice(0, 5).map((p, i) => (
+                 <div key={p.id} onClick={() => setSelectedItem({...p, type: 'Blog'})} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', cursor: 'pointer' }} className="hover-accent-bg">
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, opacity: 0.8 }}>{i+1}. {p.title}</span>
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent)' }}>{p.views || 0}</span>
                  </div>
@@ -148,8 +249,8 @@ export default function AnalyticsOverview() {
          <section className="glass" style={{ padding: '1.5rem', borderRadius: '20px' }}>
             <h4 style={{ fontWeight: 800, marginBottom: '1.5rem', fontSize: '0.95rem' }}>Popüler Projeler</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               {data.projects.map((p, i) => (
-                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: '12px', background: 'rgba(255,255,255,0.02)' }}>
+               {data.projects.slice(0, 5).map((p, i) => (
+                 <div key={p.id} onClick={() => setSelectedItem({...p, type: 'Proje'})} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', cursor: 'pointer' }} className="hover-accent-bg">
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, opacity: 0.8 }}>{i+1}. {p.title}</span>
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-blue)' }}>{p.views || 0}</span>
                  </div>
@@ -157,6 +258,10 @@ export default function AnalyticsOverview() {
             </div>
          </section>
       </div>
+      <style jsx>{`
+        .hover-bg:hover { background: rgba(255,255,255,0.05) !important; }
+        .hover-accent-bg:hover { background: rgba(59, 130, 246, 0.05) !important; transform: translateX(5px); transition: all 0.2s; }
+      `}</style>
     </div>
   );
 }
