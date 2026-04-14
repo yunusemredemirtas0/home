@@ -36,27 +36,33 @@ export default function BlogManager() {
   async function fetchPosts() {
     setLoading(true);
     try {
-      // Data Recovery Fix: Disable auto-cancellation to prevent empty lists on fast navigation
+      // Data Recovery Fix: Disable auto-cancellation and remove strict filters
       pb.autoCancellation(false);
       
-      let filterQuery = '';
-      if (filter === 'published') filterQuery = 'status = "published"';
-      if (filter === 'draft') filterQuery = 'status = "draft"';
-      if (filter === 'archived') filterQuery = 'status = "archived"';
-
+      // We fetch ALL records and filter in JS to bypass possible API Rule restrictions 
+      // or field invisibility (like 'created' sort failure).
       const records = await pb.collection('posts').getFullList({
-        filter: filterQuery,
-        sort: '-created'
+        sort: '-id', // Sort by ID as a safer alternative to 'created'
+        requestKey: 'fetch_blogs_' + Date.now() // Cache-busting
       });
       
-      console.log('Blog fetch success:', records.length, 'items');
+      console.log('--- BLOG DATA DEBUG ---');
+      console.log('Total Records:', records.length);
+      if (records.length > 0) console.table(records.slice(0, 3)); 
+      
       setPosts(records || []);
     } catch (error) {
-      console.error('Blog fetch error:', error);
+      console.error('Blog fetch critical error:', error);
     } finally {
       setLoading(false);
     }
   }
+
+  // Client-side filtering logic for display
+  const filteredPosts = posts.filter(post => {
+    if (filter === 'all') return true;
+    return post.status === filter;
+  });
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -259,7 +265,7 @@ export default function BlogManager() {
         <div style={{ padding: '5rem', textAlign: 'center' }}>Yazılar yükleniyor...</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
-          {posts.map(post => {
+          {filteredPosts.map(post => {
             const status = statusOptions.find(o => o.value === post.status) || statusOptions[0];
             return (
               <div key={post.id} className="glass card-hover" style={{ borderRadius: '28px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -277,7 +283,7 @@ export default function BlogManager() {
                       <button onClick={() => handleEdit(post)} className="glass" style={{ width: 38, height: 38, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}><FiEdit2 size={16}/></button>
                       <button onClick={() => handleDelete(post.id)} className="glass" style={{ width: 38, height: 38, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiTrash2 size={16}/></button>
                     </div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.5, fontWeight: 700 }}>{new Date(post.created).toLocaleDateString()}</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.5, fontWeight: 700 }}>{post.created ? new Date(post.created).toLocaleDateString() : 'Bilinmiyor'}</div>
                   </div>
                 </div>
               </div>
@@ -285,7 +291,7 @@ export default function BlogManager() {
           })}
         </div>
       )}
-      {!loading && posts.length === 0 && (
+      {!loading && filteredPosts.length === 0 && (
          <div className="glass" style={{ padding: '5rem', textAlign: 'center', borderRadius: '32px' }}>
             <FiFileText size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
             <p style={{ opacity: 0.5, fontWeight: 600 }}>Aradığın kriterlere uygun yazı bulunamadı.</p>

@@ -41,23 +41,30 @@ export default function ProjectManager() {
       // Data Recovery Fix: Disable auto-cancellation for reliable listing
       pb.autoCancellation(false);
       
-      let filterQuery = '';
-      if (filter === 'published') filterQuery = 'status = "published"';
-      if (filter === 'draft') filterQuery = 'status = "draft"';
-      if (filter === 'archived') filterQuery = 'status = "archived"';
-
+      // Safe Query: Fetch everything and handle filtering in React
+      // This bypasses restrictions on 'created' field or server-side filter syntax.
       const records = await pb.collection('projects').getFullList({
-        filter: filterQuery,
-        sort: '-created'
+        sort: '-id', // Reliable fallback sort
+        requestKey: 'fetch_projects_' + Date.now()
       });
-      console.log('Project fetch success:', records.length, 'items');
+      
+      console.log('--- PROJECT DATA DEBUG ---');
+      console.log('Total Records:', records.length);
+      if (records.length > 0) console.table(records.slice(0, 3));
+
       setProjects(records || []);
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Project fetch critical error:', error);
     } finally {
       setLoading(false);
     }
   }
+
+  // Client-side filtering logic for display
+  const filteredProjects = projects.filter(project => {
+    if (filter === 'all') return true;
+    return project.status === filter;
+  });
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -282,7 +289,7 @@ export default function ProjectManager() {
         <div style={{ padding: '5rem', textAlign: 'center' }}>Projeler derleniyor...</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2.5rem' }}>
-          {projects.map(project => {
+          {filteredProjects.map(project => {
             const status = statusOptions.find(o => o.value === project.status) || statusOptions[0];
             return (
               <div key={project.id} className="glass card-hover" style={{ borderRadius: '32px', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '1px solid rgba(255,255,255,0.04)' }}>
@@ -314,7 +321,7 @@ export default function ProjectManager() {
           })}
         </div>
       )}
-      {!loading && projects.length === 0 && (
+      {!loading && filteredProjects.length === 0 && (
          <div className="glass" style={{ padding: '5rem', textAlign: 'center', borderRadius: '32px' }}>
             <FiLayers size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
             <p style={{ opacity: 0.5, fontWeight: 700 }}>Bu kategoride henüz proje bulunmuyor.</p>
