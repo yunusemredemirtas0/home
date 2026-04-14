@@ -3,11 +3,16 @@ import ProjectClient from './ProjectClient';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   
   try {
-    const project = await pb.collection('projects').getFirstListItem(`slug="${slug}" && status="published"`);
+    const project = await pb.collection('projects').getFirstListItem(`slug="${slug}" && status="published"`, {
+      requestKey: null
+    });
     
     const title = project.seo_title || project.title;
     const description = project.seo_description || project.description?.substring(0, 160).replace(/<[^>]*>/g, '');
@@ -40,13 +45,16 @@ export default async function ProjectDetailPage({ params }) {
   let project = null;
 
   try {
-    project = await pb.collection('projects').getFirstListItem(`slug="${slug}" && status="published"`);
+    project = await pb.collection('projects').getFirstListItem(`slug="${slug}" && status="published"`, {
+        requestKey: null
+    });
   } catch (error) {
-    console.error('Project fetch error:', error);
+    console.error(`Project fetch error for slug [${slug}]:`, error.message);
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-            <p>Proje bulunamadı.</p>
-            <Link href="/projects" style={{ padding: '0.75rem 1.5rem', background: 'var(--accent)', borderRadius: '8px', color: '#fff', textDecoration: 'none' }}>Projelere Geri Dön</Link>
+            <p style={{ fontSize: '1.5rem', fontWeight: 700 }}>Üzgünüz, Aradığınız Proje Henüz Yayında Değil.</p>
+            <p style={{ opacity: 0.6 }}>Lütfen projenin panelden "Published" (Yayınlanmış) durumuna getirildiğinden emin olun.</p>
+            <Link href="/projects" style={{ padding: '0.75rem 2rem', background: 'var(--accent)', borderRadius: '12px', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>Projelere Geri Dön</Link>
         </div>
     );
   }

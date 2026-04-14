@@ -2,11 +2,16 @@ import pb from '../../../lib/pocketbase';
 import BlogPostClient from './BlogPostClient';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   
   try {
-    const post = await pb.collection('posts').getFirstListItem(`slug="${slug}" && status="published"`);
+    const post = await pb.collection('posts').getFirstListItem(`slug="${slug}" && status="published"`, {
+      requestKey: null
+    });
     
     const title = post.seo_title || post.title;
     const description = post.seo_description || post.content?.substring(0, 160).replace(/<[^>]*>/g, '');
@@ -41,11 +46,13 @@ export default async function BlogPostDetailPage({ params }) {
   let post = null;
 
   try {
+    // requestKey: null eklenerek sunucu tarafındaki çakışmalar önlenir
     post = await pb.collection('posts').getFirstListItem(`slug="${slug}" && status="published"`, {
-      expand: 'author'
+      expand: 'author',
+      requestKey: null 
     });
   } catch (error) {
-    console.error('Blog fetch error:', error);
+    console.error(`Blog fetch error for slug [${slug}]:`, error.message);
     notFound();
   }
 
