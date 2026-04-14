@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FiSave, FiSearch, FiInfo, FiHash, FiLayout, FiFileText, FiFilter } from 'react-icons/fi';
+import { FiSave, FiSearch, FiInfo, FiHash, FiLayout, FiFileText, FiFilter, FiCheckCircle } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 
 export default function SEOManager() {
   const [activeTab, setActiveTab] = useState('pages');
+  const [contentTypeFilter, setContentTypeFilter] = useState('all'); // all, posts, projects
   const [pages, setPages] = useState([]);
   const [content, setContent] = useState({ posts: [], projects: [] });
   const [loading, setLoading] = useState(true);
@@ -89,10 +90,14 @@ export default function SEOManager() {
     finally { setSavingId(null); }
   };
 
+  // Filtreleme mantığı
   const filteredItems = [
-    ...content.posts.map(p => ({ ...p, type: 'posts', typeLabel: 'Blog' })),
-    ...content.projects.map(p => ({ ...p, type: 'projects', typeLabel: 'Proje' }))
-  ].filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    ...(contentTypeFilter === 'all' || contentTypeFilter === 'posts' ? content.posts.map(p => ({ ...p, type: 'posts', typeLabel: 'Blog' })) : []),
+    ...(contentTypeFilter === 'all' || contentTypeFilter === 'projects' ? content.projects.map(p => ({ ...p, type: 'projects', typeLabel: 'Proje' })) : [])
+  ].filter(item => {
+    const title = item.title || '';
+    return title.toLowerCase().includes(searchTerm.toLowerCase());
+  }).sort((a,b) => new Date(b.created) - new Date(a.created));
 
   if (loading) return <div style={{ padding: '2rem', opacity: 0.5 }}>SEO verileri yükleniyor...</div>;
 
@@ -128,21 +133,30 @@ export default function SEOManager() {
           ))}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-           <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0 1.5rem', borderRadius: '16px' }}>
-              <FiSearch style={{ opacity: 0.4 }} />
-              <input 
-                type="text" 
-                placeholder="Düzenlemek istediğin içeriği ara..." 
-                className="form-input" 
-                style={{ border: 'none', background: 'transparent' }}
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+           {/* Filters & Search Bar */}
+           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="glass" style={{ flex: 1, minWidth: '300px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '0 1.5rem', borderRadius: '16px' }}>
+                <FiSearch style={{ opacity: 0.4 }} />
+                <input 
+                  type="text" 
+                  placeholder="Yazı veya proje başlığına göre ara..." 
+                  className="form-input" 
+                  style={{ border: 'none', background: 'transparent' }}
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <FilterTag active={contentTypeFilter === 'all'} label="Hepsi" onClick={() => setContentTypeFilter('all')} />
+                  <FilterTag active={contentTypeFilter === 'posts'} label="Blog" onClick={() => setContentTypeFilter('posts')} icon={<FiFileText />} />
+                  <FilterTag active={contentTypeFilter === 'projects'} label="Proje" onClick={() => setContentTypeFilter('projects')} icon={<FiLayout />} />
+              </div>
            </div>
 
            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              {filteredItems.slice(0, 5).map((item) => (
+              {filteredItems.slice(0, 8).map((item) => (
                 <SEOCard 
                   key={item.id}
                   titleLabel={item.title}
@@ -154,11 +168,40 @@ export default function SEOManager() {
                   path={`/${item.type === 'posts' ? 'blog' : 'projects'}/${item.slug}`}
                 />
               ))}
-              {filteredItems.length === 0 && <p style={{ textAlign: 'center', opacity: 0.5, padding: '3rem' }}>Lütfen düzenlemek istediğin içeriği ara.</p>}
+              {filteredItems.length === 0 && (
+                <div className="glass" style={{ padding: '4rem', textAlign: 'center', borderRadius: '24px' }}>
+                   <p style={{ opacity: 0.5 }}>Aranılan kriterlere uygun içerik bulunamadı.</p>
+                </div>
+              )}
            </div>
         </div>
       )}
     </div>
+  );
+}
+
+function FilterTag({ active, label, onClick, icon }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="glass"
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '0.5rem', 
+        padding: '0.6rem 1.25rem', 
+        borderRadius: '12px', 
+        fontSize: '0.85rem', 
+        fontWeight: 700,
+        border: active ? '1px solid var(--accent)' : '1px solid var(--glass-border)',
+        background: active ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+        color: active ? 'var(--accent)' : 'var(--text-secondary)',
+        transition: 'all 0.2s',
+        cursor: 'pointer'
+      }}
+    >
+      {icon} {label}
+    </button>
   );
 }
 
