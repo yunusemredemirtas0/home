@@ -11,11 +11,11 @@ export default function Hero() {
   ];
 
   return (
-    <section id="home" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: 'calc(var(--nav-height) + 2rem) 1.5rem 4rem' }}>
+    <section id="home" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: 'calc(var(--nav-height) + 1rem) 1rem 3rem' }}>
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: 700, height: 700, background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 65%)', filter: 'blur(60px)' }} />
       </div>
-      <div className="glass animate-fade" style={{ position: 'relative', zIndex: 1, borderRadius: 36, padding: 'clamp(2.5rem, 6vw, 4rem)', maxWidth: 650, width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.75rem' }}>
+      <div className="glass animate-fade" style={{ position: 'relative', zIndex: 1, borderRadius: 'var(--radius-xl)', padding: 'clamp(1.5rem, 5vw, 4rem)', maxWidth: 650, width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.75rem' }}>
         <div style={{ position: 'relative', width: 140, height: 140, borderRadius: '50%', padding: 4, background: 'var(--accent-gradient)', boxShadow: '0 0 40px rgba(124,58,237,0.4)', animation: 'pulseGlow 3s ease-in-out infinite' }}>
           <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#111', border: '2px solid rgba(255,255,255,0.1)' }}>
              <img src="/profile.png" alt="Yunus Emre" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

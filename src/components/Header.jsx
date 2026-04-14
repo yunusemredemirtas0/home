@@ -132,6 +132,7 @@ export default function Header() {
               href={link.href}
               className="mobile-menu-link"
               onClick={closeMenu}
+              style={{ fontSize: '1.25rem', fontWeight: 700, padding: '0.75rem 0', color: 'var(--text-primary)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
             >{link.label}</Link>
           ))}
           

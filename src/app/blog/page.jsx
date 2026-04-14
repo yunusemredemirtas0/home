@@ -52,7 +52,7 @@ export default function BlogPage() {
             <p>{t?.blog?.loading}</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 350px), 1fr))', gap: '2.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 'clamp(1.5rem, 4vw, 2.5rem)' }}>
             {posts.length === 0 ? (
               <p style={{ gridColumn: '1/-1', textAlign: 'center', opacity: 0.5 }}>
                  {t?.blog?.noPosts}

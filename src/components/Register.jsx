@@ -30,9 +30,9 @@ export default function Register() {
   };
 
   return (
-    <div style={{ minHeight: 'calc(100vh - var(--nav-height))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div className="glass animate-fade" style={{ padding: '3.5rem 3rem', borderRadius: 'var(--radius-xl)', width: '100%', maxWidth: 480 }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '2.5rem', textAlign: 'center', letterSpacing: '-1px' }}>Kayıt Ol</h1>
+    <div style={{ minHeight: 'calc(100vh - var(--nav-height))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.25rem' }}>
+      <div className="glass animate-fade" style={{ padding: 'clamp(2rem, 8vw, 3.5rem) clamp(1.5rem, 6vw, 3rem)', borderRadius: 'var(--radius-xl)', width: '100%', maxWidth: 480 }}>
+        <h1 style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', fontWeight: 900, marginBottom: '2.5rem', textAlign: 'center', letterSpacing: '-1px' }}>Kayıt Ol</h1>
         {error && <div style={{ color: 'var(--error)', background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '12px', marginBottom: '2rem', textAlign: 'center', fontSize: '0.95rem' }}>{error}</div>}
         <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>

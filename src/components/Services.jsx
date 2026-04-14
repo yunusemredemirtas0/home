@@ -13,13 +13,13 @@ export default function Services() {
     <section id="services" style={{ padding: 'var(--section-padding) 0' }}>
       <div className="container">
         <h2 className="section-title" style={{ textAlign: 'center' }}>{t?.services?.title}</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '2.5rem', marginTop: 'clamp(2.5rem, 8vw, 5rem)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 'clamp(1.5rem, 5vw, 2.5rem)', marginTop: 'clamp(2rem, 6vw, 5rem)' }}>
           {servicesList.map(s => (
-            <div key={s.id} className="glass card-hover" style={{ padding: 'clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem)', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', gap: '2rem', textAlign: 'center' }}>
-              <div style={{ width: 85, height: 85, margin: '0 auto', borderRadius: 'var(--radius-lg)', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{s.icon}</div>
+            <div key={s.id} className="glass card-hover" style={{ padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.25rem, 4vw, 2rem)', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column', gap: '1.5rem', textAlign: 'center' }}>
+              <div style={{ width: 70, height: 70, margin: '0 auto', borderRadius: 'var(--radius-lg)', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{s.icon}</div>
               <div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>{s.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem' }}>{s.desc}</p>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.75rem' }}>{s.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '1rem' }}>{s.desc}</p>
               </div>
             </div>
           ))}

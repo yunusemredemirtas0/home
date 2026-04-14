@@ -47,12 +47,12 @@ export default function ProjectClient({ project, language }) {
       </div>
 
       <div className="container" style={{ maxWidth: 900 }}>
-         <header style={{ marginBottom: '6rem', textAlign: 'center' }}>
-            <Link href="/projects" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '4rem', fontWeight: 600, fontSize: '0.9rem' }} className="hover-accent">
+         <header style={{ marginBottom: 'clamp(3rem, 10vw, 6rem)', textAlign: 'center' }}>
+            <Link href="/projects" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 'clamp(2rem, 6vw, 4rem)', fontWeight: 600, fontSize: '0.9rem' }} className="hover-accent">
                 <FiArrowLeft /> {language === 'tr' ? 'Tüm Projeler' : 'All Projects'}
             </Link>
 
-            <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 5.5rem)', fontWeight: 950, letterSpacing: '-4px', lineHeight: 1, marginBottom: '2.5rem', color: '#fff' }}>
+            <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', fontWeight: 950, letterSpacing: '-4px', lineHeight: 1.1, marginBottom: '2.5rem', color: '#fff' }}>
                 {project.title}
             </h1>
 
@@ -94,7 +94,7 @@ export default function ProjectClient({ project, language }) {
                 <h4 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '3rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
                     <FiLayout /> {language === 'tr' ? 'Proje Galerisi' : 'Project Gallery'}
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
                     {gallery.map((img, idx) => (
                         <div key={idx} style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', cursor: 'zoom-in', transition: 'transform 0.3s ease', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)' }} className="card-hover">
                             <img src={pb.files.getURL(project, img)} alt={`${project.title} gallery ${idx}`} style={{ width: '100%', height: 'auto', display: 'block' }} />

@@ -42,7 +42,7 @@ export default function ProjectsPage() {
             <p>{t?.projects?.loading}</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 380px), 1fr))', gap: 'clamp(1.5rem, 4vw, 3rem)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 'clamp(1.5rem, 4vw, 2.5rem)' }}>
             {projects.length === 0 ? (
               <p style={{ gridColumn: '1/-1', textAlign: 'center', opacity: 0.5 }}>
                  {t?.projects?.noPosts}

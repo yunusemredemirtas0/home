@@ -63,8 +63,8 @@ export default function BlogPostClient({ post, language }) {
       <div style={{ position: 'fixed', top: 'var(--nav-height)', left: 0, width: `${readingProgress}%`, height: '4px', background: 'var(--accent-gradient)', zIndex: 100, transition: 'width 0.1s ease-out' }} />
 
       <div className="container" style={{ maxWidth: 850 }}>
-        <header style={{ marginBottom: '5rem', textAlign: 'center' }}>
-          <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '3rem', fontWeight: 600, fontSize: '0.9rem' }} className="hover-accent">
+        <header style={{ marginBottom: 'clamp(2.5rem, 8vw, 5rem)', textAlign: 'center' }}>
+          <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 'clamp(1.5rem, 5vw, 3rem)', fontWeight: 600, fontSize: '0.9rem' }} className="hover-accent">
              <FiArrowLeft /> {language === 'tr' ? 'Tüm Yazılar' : 'All Articles'}
           </Link>
 
