@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FiTrendingUp, FiLayers, FiFileText, FiEye, FiClock, FiSearch } from 'react-icons/fi';
+import { FiTrendingUp, FiLayers, FiFileText, FiEye, FiClock, FiSearch, FiLayout } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import pb from '../../lib/pocketbase';
 import { useLanguage } from '../../contexts/LanguageContext';

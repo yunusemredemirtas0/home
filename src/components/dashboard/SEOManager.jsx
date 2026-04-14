@@ -102,18 +102,18 @@ export default function SEOManager() {
   if (loading) return <div style={{ padding: '2rem', opacity: 0.5 }}>SEO verileri yükleniyor...</div>;
 
   return (
-    <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+    <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', width: '100%' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '2.5rem' }}>
         <div>
-          <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px', marginBottom: '0.5rem' }}>
+          <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px', marginBottom: '0.75rem', background: 'linear-gradient(to right, #fff, rgba(255,255,255,0.5))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             SEO Kontrol Paneli
           </h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Sitenin Google sonuçlarındaki görünümünü buradan yönetebilirsin.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Sitenin Google sonuçlarındaki görünümünü buradan yönetebilirsin.</p>
         </div>
 
-        <div className="glass" style={{ display: 'flex', padding: '0.4rem', borderRadius: '14px', gap: '0.25rem' }}>
-           <button onClick={() => setActiveTab('pages')} style={{ padding: '0.6rem 1.25rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, background: activeTab === 'pages' ? 'var(--accent-gradient)' : 'transparent', color: activeTab === 'pages' ? '#fff' : 'var(--text-secondary)', transition: 'all 0.3s' }}>Sabit Sayfalar</button>
-           <button onClick={() => setActiveTab('content')} style={{ padding: '0.6rem 1.25rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, background: activeTab === 'content' ? 'var(--accent-gradient)' : 'transparent', color: activeTab === 'content' ? '#fff' : 'var(--text-secondary)', transition: 'all 0.3s' }}>İçerik SEO (Blog/Proje)</button>
+        <div className="glass" style={{ display: 'flex', padding: '0.5rem', borderRadius: '16px', gap: '0.35rem', background: 'rgba(255,255,255,0.02)' }}>
+           <button onClick={() => setActiveTab('pages')} style={{ padding: '0.75rem 1.75rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, background: activeTab === 'pages' ? 'var(--accent-gradient)' : 'transparent', color: activeTab === 'pages' ? '#fff' : 'var(--text-secondary)', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', border: 'none', cursor: 'pointer', boxShadow: activeTab === 'pages' ? '0 10px 20px rgba(124,58,237,0.3)' : 'none' }}>Sabit Sayfalar</button>
+           <button onClick={() => setActiveTab('content')} style={{ padding: '0.75rem 1.75rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, background: activeTab === 'content' ? 'var(--accent-gradient)' : 'transparent', color: activeTab === 'content' ? '#fff' : 'var(--text-secondary)', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', border: 'none', cursor: 'pointer', boxShadow: activeTab === 'content' ? '0 10px 20px rgba(124,58,237,0.3)' : 'none' }}>İçerik SEO (Blog/Proje)</button>
         </div>
       </header>
 
@@ -207,35 +207,40 @@ function FilterTag({ active, label, onClick, icon }) {
 
 function SEOCard({ titleLabel, subtitle, data, onToggle, onSave, isSaving, path }) {
   return (
-    <div className="glass" style={{ padding: 'clamp(2.5rem, 6vw, 4rem)', borderRadius: '40px', border: '1px solid var(--glass-border)', maxWidth: '1100px', margin: '0 auto', boxShadow: '0 50px 100px -20px rgba(0,0,0,0.6)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3.5rem', flexWrap: 'wrap', gap: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '2rem' }}>
-         <div>
-            <h3 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-              <FiSearch style={{ color: 'var(--accent)', flexShrink: 0 }} /> 
-              <span>{titleLabel}</span> 
-            </h3>
-            <p style={{ fontSize: '0.85rem', opacity: 0.5, fontWeight: 500 }}>{subtitle} {path}</p>
+    <div className="glass" style={{ padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)', width: '100%', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.5)', transition: 'all 0.3s' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '2rem' }}>
+         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '16px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: 'var(--accent)' }}><FiSearch /></div>
+            <div>
+               <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '0.25rem', color: '#fff' }}>{titleLabel}</h3>
+               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{subtitle} <span style={{ opacity: 0.4, marginLeft: '0.5rem' }}>{path}</span></p>
+            </div>
          </div>
          <button 
           onClick={onSave} 
           disabled={isSaving}
           className="btn-primary" 
-          style={{ padding: '0.8rem 2.5rem', fontSize: '0.9rem', width: 'auto', borderRadius: '15px', boxShadow: '0 10px 20px rgba(124,58,237,0.3)' }}
+          style={{ padding: '0.8rem 2.5rem', fontSize: '0.9rem', width: 'auto', borderRadius: '14px', fontWeight: 800, minWidth: '180px' }}
          >
-           {isSaving ? '...' : <><FiSave style={{ marginRight: '0.5rem' }} /> Ayarları Kaydet</>}
+           {isSaving ? '...' : <><FiSave style={{ marginRight: '0.75rem' }} /> Ayarları Kaydet</>}
          </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         <SEOInput label="Meta Başlık" value={data.title} onChange={v => onToggle('title', v) || onToggle('seo_title', v)} placeholder="Google başlığı..." />
         <SEOInput label="Meta Açıklama" value={data.description} onChange={v => onToggle('description', v) || onToggle('seo_description', v)} placeholder="Tanıtım yazısı..." isTextArea />
-        <SEOInput label="Anahtar Kelimeler" value={data.keywords} onChange={v => onToggle('keywords', v) || onToggle('seo_keywords', v)} placeholder="Örn: teknoloji, yazılım..." />
+        <div style={{ gridColumn: '1 / -1' }}>
+          <SEOInput label="Anahtar Kelimeler" value={data.keywords} onChange={v => onToggle('keywords', v) || onToggle('seo_keywords', v)} placeholder="Örn: teknoloji, yazılım..." />
+        </div>
       </div>
 
-      <div style={{ marginTop: '3.5rem', padding: '2rem', borderRadius: '16px', background: '#fff', color: '#1a0dab', fontSize: '0.9rem', border: '1px solid #dfe1e5', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-         <p style={{ color: '#202124', fontSize: '0.7rem', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>https://yunusemredemirtas.com{path === '/' ? '' : path}</p>
-         <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem', color: '#1a0dab', fontWeight: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.title || 'Sitenin Başlığı Burada Görünecek'}</h4>
-         <p style={{ color: '#4d5156', lineHeight: 1.4, fontSize: '0.8rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{data.description || 'Google arama sonuçlarındaki açıklama burada yer alacak.'}</p>
+      <div style={{ marginTop: '3rem', padding: '2rem', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+         <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: '0.5rem', opacity: 0.6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Google Önizleme</div>
+         <div style={{ padding: '1.5rem', borderRadius: '12px', background: '#fff' }}>
+            <p style={{ color: '#202124', fontSize: '0.8rem', marginBottom: '0.25rem', opacity: 0.8 }}>https://yunusemredemirtas.com{path === '/' ? '' : path}</p>
+            <h4 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: '#1a0dab', fontWeight: 400 }}>{data.title || 'Sitenin Başlığı Burada Görünecek'}</h4>
+            <p style={{ color: '#4d5156', lineHeight: 1.5, fontSize: '0.85rem' }}>{data.description || 'Google arama sonuçlarındaki açıklama burada yer alacak.'}</p>
+         </div>
       </div>
     </div>
   );
