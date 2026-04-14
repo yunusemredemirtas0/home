@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiX, FiCheck, FiInfo, FiFileText } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiX, FiCheck, FiInfo, FiFileText, FiPaperclip } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 import dynamic from 'next/dynamic';
 import { editorModules, editorFormats } from '../../lib/editorConfig';
@@ -8,7 +8,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { 
     ssr: false,
-    loading: () => <div style={{ height: '300px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)' }}>Loading Editor...</div>
+    loading: () => <div style={{ height: '400px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)' }}>Loading Editor...</div>
 });
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -18,8 +18,8 @@ export default function BlogManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingPost, setEditingPost] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [showPreview, setShowPreview] = useState(true); // Default to true for premium feel
-  const [filter, setFilter] = useState('all'); 
+  const [showPreview, setShowPreview] = useState(true);
+  const [filter, setFilter] = useState('all');
   const [isMobile, setIsMobile] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -90,15 +90,12 @@ export default function BlogManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!pb.authStore.model) return;
-
     const data = new FormData();
     data.append('title', formData.title);
     data.append('slug', formData.slug || formData.title.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, '').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c'));
     data.append('content', formData.content);
     data.append('category', formData.category);
     data.append('status', formData.status);
-    data.append('author', pb.authStore.model.id);
     
     if (formData.image) data.append('image', formData.image);
 
@@ -183,10 +180,11 @@ export default function BlogManager() {
                          </button>
                        ))}
                     </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1.5rem', gridColumn: '1 / -1' }}>
-                    <label className="form-label">Kategori</label>
-                    <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))} placeholder="Örn: Teknoloji, Yaşam, Yazılım..." className="form-input" />
                   </div>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1.5rem' }}>
+                  <label className="form-label">Kategori</label>
+                  <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))} placeholder="Örn: Teknoloji, Yaşam, Yazılım..." className="form-input" />
                </div>
             </div>
 
