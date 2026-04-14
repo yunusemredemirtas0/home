@@ -7,6 +7,8 @@ import { FiArrowLeft, FiExternalLink, FiLayout } from 'react-icons/fi';
 import ShareBar from '../../../components/ShareBar';
 import GiscusComments from '../../../components/GiscusComments';
 
+import { trackView } from '../../../lib/analytics';
+
 const ProjectDetailContent = ({ project, language }) => {
   const contentRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -18,6 +20,9 @@ const ProjectDetailContent = ({ project, language }) => {
 
   useEffect(() => {
     setIsMounted(true);
+    if (project?.id) {
+        trackView('projects', project.id);
+    }
   }, []);
 
   useEffect(() => {

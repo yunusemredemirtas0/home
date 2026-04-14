@@ -7,6 +7,8 @@ import { FiArrowLeft, FiCalendar, FiTag, FiLinkedin, FiTwitter, FiGithub } from 
 import ShareBar from '../../../components/ShareBar';
 import GiscusComments from '../../../components/GiscusComments';
 
+import { trackView } from '../../../lib/analytics';
+
 const BlogPostDetailContent = ({ post, language }) => {
   const contentRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -19,6 +21,9 @@ const BlogPostDetailContent = ({ post, language }) => {
 
   useEffect(() => {
     setIsMounted(true);
+    if (post?.id) {
+        trackView('posts', post.id);
+    }
     const updateProgress = () => {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (scrollHeight > 0) {

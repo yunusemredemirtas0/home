@@ -2,13 +2,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { FiGrid, FiSettings, FiLogOut, FiPlusCircle, FiFileText, FiLayout, FiChevronLeft, FiChevronRight, FiMail, FiMenu, FiX } from 'react-icons/fi';
+import { FiGrid, FiSettings, FiLogOut, FiPlusCircle, FiFileText, FiLayout, FiChevronLeft, FiChevronRight, FiMail, FiMenu, FiX, FiTrendingUp, FiSearch } from 'react-icons/fi';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const OverviewContent = dynamic(() => import('./dashboard/OverviewContent'), { ssr: false });
 const BlogManager = dynamic(() => import('./dashboard/BlogManager'), { ssr: false });
 const ProjectManager = dynamic(() => import('./dashboard/ProjectManager'), { ssr: false });
+const AnalyticsOverview = dynamic(() => import('./dashboard/AnalyticsOverview'), { ssr: false });
+const SEOManager = dynamic(() => import('./dashboard/SEOManager'), { ssr: false });
 
 export default function DashboardClient() {
   const { currentUser, loading, logout } = useAuth();
@@ -37,8 +39,10 @@ export default function DashboardClient() {
 
   const menuItems = [
     { id: 'overview', label: t?.dashboard?.overview, icon: <FiGrid />, adminOnly: false },
+    { id: 'analytics', label: 'Analitik', icon: <FiTrendingUp />, adminOnly: true },
     { id: 'blogs', label: t?.dashboard?.blogMode, icon: <FiFileText />, adminOnly: true },
     { id: 'projects', label: t?.dashboard?.projectMode, icon: <FiLayout />, adminOnly: true },
+    { id: 'seo', label: 'SEO Ayarları', icon: <FiSearch />, adminOnly: true },
   ];
 
   const sidebarWidth = isCollapsed ? 80 : 320;
@@ -162,8 +166,10 @@ export default function DashboardClient() {
 
       <main className="dashboard-main" style={{ flex: 1, padding: 'clamp(1.5rem, 5vw, 4rem)', marginLeft: sidebarWidth, transition: 'margin 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
          {activeTab === 'overview' && <OverviewContent />}
+         {activeTab === 'analytics' && <AnalyticsOverview />}
          {activeTab === 'blogs' && <BlogManager />}
          {activeTab === 'projects' && <ProjectManager />}
+         {activeTab === 'seo' && <SEOManager />}
       </main>
     </div>
   );
