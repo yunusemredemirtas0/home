@@ -1,29 +1,27 @@
 'use client';
-import { useState, useEffect, Suspense } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiX, FiCheck, FiInfo, FiFileText, FiPaperclip } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiClock, FiMonitor, FiType, FiUploadCloud, FiX, FiCheck, FiInfo, FiFileText, FiPaperclip } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 import dynamic from 'next/dynamic';
-import { editorModules, editorFormats } from '../../lib/editorConfig';
-import { useLanguage } from '../../contexts/LanguageContext';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { 
-    ssr: false,
-    loading: () => <div style={{ height: '400px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)' }}>Loading Editor...</div>
+  ssr: false,
+  loading: () => <div style={{ height: '300px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Editor yükleniyor...</div>
 });
 import 'react-quill-new/dist/quill.snow.css';
 
 export default function BlogManager() {
-  const { t } = useLanguage();
   const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingPost, setEditingPost] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
+  const [editingId, setEditingId] = useState(null);
   const [filter, setFilter] = useState('all');
-  const [isMobile, setIsMobile] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
+    excerpt: '',
     content: '',
     category: '',
     status: 'draft',
@@ -32,298 +30,267 @@ export default function BlogManager() {
   });
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 1024px)').matches);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  useEffect(() => {
     fetchPosts();
   }, [filter]);
 
-  const fetchPosts = async () => {
-    setIsLoading(true);
+  async function fetchPosts() {
+    setLoading(true);
     try {
+      // Data Recovery Fix: Disable auto-cancellation to prevent empty lists on fast navigation
+      pb.autoCancellation(false);
+      
       let filterQuery = '';
       if (filter === 'published') filterQuery = 'status = "published"';
       if (filter === 'draft') filterQuery = 'status = "draft"';
       if (filter === 'archived') filterQuery = 'status = "archived"';
 
       const records = await pb.collection('posts').getFullList({
-        expand: 'author',
         filter: filterQuery,
         sort: '-created'
       });
+      
+      console.log('Blog fetch success:', records.length, 'items');
       setPosts(records || []);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('Blog fetch error:', error);
+    } finally {
+      setLoading(false);
     }
-    setIsLoading(false);
-  };
+  }
 
-  const handleEdit = (post) => {
-    if (!post) return;
-    setEditingPost(post);
-    setFormData({
-      title: post.title || '',
-      slug: post.slug || '',
-      content: post.content || '',
-      category: post.category || '',
-      status: post.status || 'draft',
-      image: null,
-      imagePreview: post.image ? pb.files.getURL(post, post.image) : null
-    });
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = async (postId) => {
-    if (window.confirm(t?.dashboard?.actions?.delete + '?')) {
-      try {
-        await pb.collection('posts').delete(postId);
-        setPosts(prev => prev.filter(p => p.id !== postId));
-      } catch (error) {
-        alert('Error.');
-      }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({ 
+        ...prev, 
+        image: file, 
+        imagePreview: URL.createObjectURL(file) 
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData();
-    data.append('title', formData.title);
-    data.append('slug', formData.slug || formData.title.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, '').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c'));
-    data.append('content', formData.content);
-    data.append('category', formData.category);
-    data.append('status', formData.status);
-    
-    if (formData.image) data.append('image', formData.image);
+    Object.keys(formData).forEach(key => {
+      if (key === 'image' && typeof formData[key] === 'string') return;
+      if (formData[key]) data.append(key, formData[key]);
+    });
 
     try {
-      if (editingPost) {
-        await pb.collection('posts').update(editingPost.id, data);
+      if (editingId) {
+        await pb.collection('posts').update(editingId, data);
       } else {
         await pb.collection('posts').create(data);
       }
       setIsFormOpen(false);
-      setEditingPost(null);
+      resetForm();
       fetchPosts();
     } catch (error) {
-      alert('Error: ' + error.message);
+      console.error('Submit error:', error);
+      alert('Hata: ' + error.message);
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({
-        ...prev, 
-        image: file, 
-        imagePreview: URL.createObjectURL(file)
-      }));
-    }
+  const resetForm = () => {
+    setFormData({ title: '', slug: '', excerpt: '', content: '', category: '', status: 'draft', image: null, imagePreview: null });
+    setEditingId(null);
   };
+
+  const handleEdit = (post) => {
+    setFormData({
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      category: post.category || '',
+      status: post.status,
+      image: post.image,
+      imagePreview: post.image ? pb.files.getURL(post, post.image) : null
+    });
+    setEditingId(post.id);
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Bu yazıyı silmek istediğine emin misin?')) {
+      await pb.collection('posts').delete(id);
+      fetchPosts();
+    }
+  }
 
   const statusOptions = [
-    { value: 'draft', label: 'Draft', icon: <FiClock />, color: '#f59e0b' },
-    { value: 'published', label: 'Published', icon: <FiCheck />, color: '#10b981' },
-    { value: 'archived', label: 'Archived', icon: <FiArchive />, color: '#ef4444' }
+    { value: 'draft', label: 'Taslak', icon: <FiClock />, color: '#f59e0b' },
+    { value: 'published', label: 'Yayında', icon: <FiCheck />, color: '#10b981' },
+    { value: 'archived', label: 'Arşiv', icon: <FiArchive />, color: '#ef4444' }
   ];
 
   if (isFormOpen) {
     return (
-      <div className="animate-fade" style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1.2fr 0.8fr' : '1fr', gap: '3rem', alignItems: 'start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-             <div>
-                <h3 style={{ fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-1px' }}>{editingPost ? 'Yazıyı Düzenle' : 'Yeni Blog Yazısı'}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>İçeriğini hazırla ve dünyayla paylaş.</p>
-             </div>
-             <button type="button" className="glass desktop-only" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
-                <FiMonitor /> {showPreview ? 'Önizlemeyi Kapat' : 'Canlı Önizleme'}
-             </button>
-          </header>
+      <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 900 }}>{editingId ? 'Yazıyı Düzenle' : 'Yeni Yazı Ekle'}</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>İçeriğini hazırla ve önizlemeden kontrol et.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button onClick={() => setShowPreview(!showPreview)} className="glass" style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+              <FiMonitor /> {showPreview ? 'Önizlemeyi Kapat' : 'Önizlemeyi Aç'}
+            </button>
+            <button onClick={() => { setIsFormOpen(false); resetForm(); }} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiX /></button>
+          </div>
+        </header>
 
-          <form onSubmit={handleSubmit}>
-            {/* General Info Card */}
+        <div style={{ display: 'grid', gridTemplateColumns: showPreview ? '1.2fr 1fr' : '1fr', gap: '3rem', alignItems: 'start', position: 'relative' }}>
+          {/* Editor Column */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="form-group-card">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
-                  <FiInfo color="var(--accent)" />
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Genel Bilgiler</h4>
-               </div>
                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="form-label">Yazı Başlığı</label>
-                    <div style={{ position: 'relative' }}>
-                      <FiType style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-                      <input type="text" value={formData.title} onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))} required className="form-input" style={{ paddingLeft: '2.8rem' }} placeholder="Etkileyici bir başlık girin..." />
-                    </div>
+                  <div className="input-group">
+                    <label className="form-label">Başlık</label>
+                    <input type="text" value={formData.title} onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))} className="form-input" placeholder="Yazı başlığı..." required />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div className="input-group">
                     <label className="form-label">Durum</label>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                        {statusOptions.map(opt => (
-                         <button 
-                            key={opt.value} 
-                            type="button" 
-                            onClick={() => setFormData(prev => ({...prev, status: opt.value}))}
-                            style={{ 
-                              flex: 1, padding: '0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, 
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                              background: formData.status === opt.value ? 'var(--accent-gradient)' : 'rgba(255,255,255,0.03)',
-                              border: formData.status === opt.value ? 'none' : '1px solid rgba(255,255,255,0.05)',
-                              color: formData.status === opt.value ? '#fff' : 'var(--text-secondary)',
-                              transition: 'all 0.3s'
-                            }}
-                         >
-                            {opt.icon} {opt.label}
-                         </button>
+                         <button key={opt.value} type="button" onClick={() => setFormData(prev => ({...prev, status: opt.value}))} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', background: formData.status === opt.value ? opt.color : 'rgba(255,255,255,0.03)', border: '1px solid', borderColor: formData.status === opt.value ? opt.color : 'var(--glass-border)', color: formData.status === opt.value ? '#fff' : 'var(--text-secondary)', transition: 'all 0.3s' }}>{opt.icon}</button>
                        ))}
                     </div>
                   </div>
                </div>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1.5rem' }}>
-                  <label className="form-label">Kategori</label>
-                  <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))} placeholder="Örn: Teknoloji, Yaşam, Yazılım..." className="form-input" />
-               </div>
-            </div>
 
-            {/* Media Card */}
-            <div className="form-group-card">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
-                  <FiImage color="var(--accent-blue)" />
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Medya ve Kapak Resmi</h4>
-               </div>
-               <label className="drop-zone">
-                  {formData.imagePreview && <div className="drop-zone-glow" />}
-                  <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                      {formData.imagePreview ? (
-                        <div style={{ width: '100%', maxWidth: '200px', height: '120px', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--accent)' }}>
-                           <img src={formData.imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
-                      ) : (
-                        <FiUploadCloud size={40} opacity={0.3} />
-                      )}
-                      <div style={{ textAlign: 'center' }}>
-                         <p style={{ fontWeight: 800, marginBottom: '0.25rem' }}>{formData.imagePreview ? 'Resmi Değiştir' : 'Resim Yükle'}</p>
-                         <p style={{ fontSize: '0.75rem', opacity: 0.5 }}>JPG, PNG veya WebP en fazla 5MB.</p>
-                      </div>
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div className="input-group">
+                    <label className="form-label">Slug</label>
+                    <input type="text" value={formData.slug} onChange={(e) => setFormData(prev => ({...prev, slug: e.target.value}))} className="form-input" placeholder="yazi-url-adresi" required />
                   </div>
-                  <input type="file" hidden onChange={handleImageChange} accept="image/*" />
-               </label>
+                  <div className="input-group">
+                    <label className="form-label">Kategori</label>
+                    <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))} className="form-input" placeholder="Örn: Teknoloji" />
+                  </div>
+               </div>
+
+               <div className="input-group">
+                  <label className="form-label">Kısa Özet</label>
+                  <textarea value={formData.excerpt} onChange={(e) => setFormData(prev => ({...prev, excerpt: e.target.value}))} className="form-input" style={{ minHeight: '80px', resize: 'vertical' }} placeholder="Okuyucuyu etkileyecek kısa bir cümle..." />
+               </div>
             </div>
 
-            {/* Content Editor Card */}
             <div className="form-group-card">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
-                  <FiPaperclip color="var(--accent)" />
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Yazı İçeriği</h4>
-               </div>
-               <div className="rich-editor-container" style={{ minHeight: '450px' }}>
-                  <Suspense fallback={<div>Loading editor...</div>}>
-                     <ReactQuill 
-                         theme="snow" 
-                         value={formData.content} 
-                         onChange={(val) => setFormData(prev => ({...prev, content: val}))} 
-                         modules={editorModules}
-                         formats={editorFormats}
-                         style={{ height: isMobile ? '350px' : '400px' }} 
-                     />
-                  </Suspense>
+              <label className="form-label" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiType style={{ color: 'var(--accent)' }}/> İçerik Editörü</label>
+              <ReactQuill 
+                theme="snow" 
+                value={formData.content} 
+                onChange={(val) => setFormData(prev => ({...prev, content: val}))} 
+                style={{ height: '400px', marginBottom: '3rem' }}
+              />
+            </div>
+
+            <div className="form-group-card">
+               <label className="form-label"><FiImage style={{ color: 'var(--accent)' }}/> Kapak Görseli</label>
+               <div className="drop-zone" onClick={() => document.getElementById('imageInput').click()}>
+                  {formData.imagePreview ? (
+                    <img src={formData.imagePreview} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '12px' }} />
+                  ) : (
+                    <>
+                      <FiUploadCloud size={40} opacity={0.3} />
+                      <p style={{ fontSize: '0.9rem', opacity: 0.5 }}>Görsel yüklemek için tıkla veya sürükle</p>
+                    </>
+                  )}
+                  <input id="imageInput" type="file" hidden onChange={handleImageChange} accept="image/*" />
                </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '4rem' }}>
-               <button type="button" className="glass" onClick={() => setIsFormOpen(false)} style={{ padding: '1rem 2.5rem', borderRadius: '15px', fontWeight: 700, fontSize: '0.9rem' }}>Vazgeç</button>
-               <button type="submit" className="btn-primary" style={{ padding: '1rem 3rem', borderRadius: '15px', fontWeight: 900, fontSize: '0.95rem' }}>
-                  <FiSave style={{ marginRight: '0.75rem' }} /> {editingPost ? 'Değişiklikleri Kaydet' : 'Yazıyı Yayınla'}
-               </button>
-            </div>
+            <button type="submit" className="btn-primary" style={{ padding: '1.25rem', fontSize: '1.1rem', borderRadius: '18px', boxShadow: '0 20px 40px rgba(124,58,237,0.3)' }}>
+              <FiSave /> {editingId ? 'Değişiklikleri Kaydet' : 'Yazıyı Yayınla'}
+            </button>
           </form>
-        </div>
 
-        {/* Premium Preview Section */}
-        {showPreview && (
-          <div className="desktop-only" style={{ position: 'sticky', top: '6rem' }}>
-             <div className="device-frame" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          {/* Centered Sticky Preview Column (v4) */}
+          {showPreview && (
+            <div className="desktop-only sticky-center" style={{ width: '100%' }}>
+              <div className="device-frame shadow-2xl" style={{ border: '8px solid #1a1a1a', borderRadius: '32px' }}>
                 <div className="device-header">
-                   <div className="device-dot" style={{ background: '#ff5f56' }} />
-                   <div className="device-dot" style={{ background: '#ffbd2e' }} />
-                   <div className="device-dot" style={{ background: '#27c93f' }} />
-                   <div style={{ marginLeft: '1rem', fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>PREVIEW MODE</div>
+                  <div className="device-dot" style={{ background: '#ff5f56' }} />
+                  <div className="device-dot" style={{ background: '#ffbd2e' }} />
+                  <div className="device-dot" style={{ background: '#27c93f' }} />
+                  <div style={{ marginLeft: 'auto', fontSize: '0.65rem', opacity: 0.4, fontWeight: 800, letterSpacing: '1px' }}>BLOG PREVIEW</div>
                 </div>
-                <div style={{ flex: 1, overflowY: 'auto', padding: '2.5rem' }} className="custom-scrollbar">
-                   {formData.imagePreview && (
-                     <div style={{ width: '100%', height: '220px', borderRadius: '18px', overflow: 'hidden', marginBottom: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
-                        <img src={formData.imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                     </div>
-                   )}
-                   <span style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{formData.category || 'GENEL'}</span>
-                   <h1 style={{ fontSize: '2.25rem', fontWeight: 950, marginBottom: '1.5rem', lineHeight: 1.1, marginTop: '0.5rem' }}>{formData.title || 'Yazı Başlığı...'}</h1>
-                   <div style={{ width: '40px', height: '4px', background: 'var(--accent)', borderRadius: '2px', marginBottom: '2rem' }} />
-                   <div dangerouslySetInnerHTML={{ __html: formData.content }} className="rich-text-content premium-rich-text" />
+                <div className="custom-scrollbar" style={{ height: '70vh', overflowY: 'auto', background: 'var(--bg-color)', padding: '2rem' }}>
+                  {formData.imagePreview && <img src={formData.imagePreview} style={{ width: '100%', height: '220px', objectFit: 'cover', borderRadius: '20px', marginBottom: '2rem' }} />}
+                  <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '2px' }}>{formData.category || 'Kategori'}</span>
+                  <h1 style={{ fontSize: '2.5rem', fontWeight: 950, margin: '1rem 0', lineHeight: 1.1, letterSpacing: '-1.5px' }}>{formData.title || 'Yazı Başlığı'}</h1>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1.5rem 0', opacity: 0.6, fontSize: '0.85rem' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-gradient)' }} />
+                    <span>Yunus Emre Demirtaş</span>
+                    <span>•</span>
+                    <span>{new Date().toLocaleDateString()}</span>
+                  </div>
+                  <div className="premium-rich-text custom-quill-content" dangerouslySetInnerHTML={{ __html: formData.content }} />
                 </div>
-             </div>
-          </div>
-        )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+    <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div>
-          <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px' }}>Blog Yönetimi</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Toplam {posts.length} yazı bulunmaktadır.</p>
+          <h2 style={{ fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-1.5px' }}>Blog Yönetimi</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Yazılarını oluştur, düzenle ve performanslarını takip et.</p>
         </div>
-        <button onClick={() => { setEditingPost(null); setFormData({ title: '', slug: '', content: '', category: '', status: 'draft', image: null, imagePreview: null }); setIsFormOpen(true); }} className="btn-primary" style={{ padding: '0.8rem 1.75rem', borderRadius: '15px' }}>
+        <button onClick={() => setIsFormOpen(true)} className="btn-primary" style={{ padding: '0.85rem 1.75rem', borderRadius: '15px' }}>
           <FiPlus /> Yeni Yazı Ekle
         </button>
       </header>
 
-      {/* List Filters */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-        {['all', 'published', 'draft', 'archived'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} className="glass" style={{ padding: '0.6rem 1.25rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 800, background: filter === f ? 'var(--accent-gradient)' : 'transparent', border: '1px solid var(--glass-border)', color: filter === f ? '#fff' : 'var(--text-secondary)' }}>
-            {f.toUpperCase()}
-          </button>
+      <div className="glass" style={{ padding: '0.5rem', borderRadius: '20px', display: 'flex', gap: '0.5rem', width: 'fit-content' }}>
+        {['all', 'published', 'draft', 'archived'].map(t => (
+          <button key={t} onClick={() => setFilter(t)} style={{ padding: '0.6rem 1.5rem', borderRadius: '15px', fontSize: '0.85rem', fontWeight: 800, textTransform: 'capitalize', background: filter === t ? 'var(--accent-gradient)' : 'transparent', color: filter === t ? '#fff' : 'var(--text-secondary)', transition: 'all 0.3s' }}>{t}</button>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gap: '1rem' }}>
-        {isLoading ? (
-          <div style={{ padding: '4rem', textAlign: 'center', opacity: 0.5 }}>Yükleniyor...</div>
-        ) : posts.length === 0 ? (
-          <div className="glass" style={{ padding: '5rem', textAlign: 'center', borderRadius: '32px', border: '1px solid var(--glass-border)', borderStyle: 'dashed' }}>
-             <p style={{ opacity: 0.5 }}>Seçili kriterlere uygun yazı bulunamadı.</p>
-          </div>
-        ) : posts.map(post => {
-           const status = statusOptions.find(o => o.value === post.status) || statusOptions[0];
-           return (
-            <div key={post.id} className="glass card-hover" style={{ padding: '1.25rem 2.5rem', borderRadius: '24px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flex: '1 1 300px' }}>
-                <div style={{ position: 'relative', width: 64, height: 64, borderRadius: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.03)' }}>
-                  {post.image ? <img src={pb.files.getURL(post, post.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <FiFileText size={24} style={{ margin: '20px', opacity: 0.2 }} />}
+      {loading ? (
+        <div style={{ padding: '5rem', textAlign: 'center' }}>Yazılar yükleniyor...</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+          {posts.map(post => {
+            const status = statusOptions.find(o => o.value === post.status) || statusOptions[0];
+            return (
+              <div key={post.id} className="glass card-hover" style={{ borderRadius: '28px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'relative', height: '180px' }}>
+                  <img src={post.image ? pb.files.getURL(post, post.image) : '/blog-placeholder.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.5rem 1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, color: status.color }}>
+                    {status.icon} {status.label}
+                  </div>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '0.25rem' }}>{post.title}</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                     <span style={{ color: status.color, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>{status.icon} {status.label}</span>
-                     <span style={{ opacity: 0.3 }}>•</span>
-                     <span style={{ color: 'var(--text-secondary)' }}>{post.category || 'General'}</span>
+                <div style={{ padding: '1.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '1px' }}>{post.category || 'Genel'}</span>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0.75rem 0', lineHeight: 1.3 }}>{post.title}</h3>
+                  <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button onClick={() => handleEdit(post)} className="glass" style={{ width: 38, height: 38, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}><FiEdit2 size={16}/></button>
+                      <button onClick={() => handleDelete(post.id)} className="glass" style={{ width: 38, height: 38, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiTrash2 size={16}/></button>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.5, fontWeight: 700 }}>{new Date(post.created).toLocaleDateString()}</div>
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                 <button onClick={() => handleEdit(post)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}><FiEdit2 /></button>
-                 {post.status !== 'archived' && <button onClick={() => pb.collection('posts').update(post.id, { status: 'archived' }).then(() => fetchPosts())} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}><FiArchive /></button>}
-                 <button onClick={() => handleDelete(post.id)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiTrash2 /></button>
-              </div>
-            </div>
-           );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
+      {!loading && posts.length === 0 && (
+         <div className="glass" style={{ padding: '5rem', textAlign: 'center', borderRadius: '32px' }}>
+            <FiFileText size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+            <p style={{ opacity: 0.5, fontWeight: 600 }}>Aradığın kriterlere uygun yazı bulunamadı.</p>
+         </div>
+      )}
     </div>
   );
 }

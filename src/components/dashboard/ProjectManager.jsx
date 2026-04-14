@@ -1,53 +1,46 @@
 'use client';
-import { useState, useEffect, Suspense } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiImage, FiLink, FiCpu, FiArchive, FiDownload, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiInfo, FiExternalLink, FiLayers, FiPaperclip } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiImage, FiLink, FiCpu, FiArchive, FiDownload, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiInfo, FiExternalLink, FiLayers, FiPaperclip, FiCheck } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 import dynamic from 'next/dynamic';
-import { editorModules, editorFormats } from '../../lib/editorConfig';
-import { useLanguage } from '../../contexts/LanguageContext';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { 
-    ssr: false,
-    loading: () => <div style={{ height: '300px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)' }}>Loading Editor...</div>
+  ssr: false,
+  loading: () => <div style={{ height: '300px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)' }}>Editor yükleniyor...</div>
 });
 import 'react-quill-new/dist/quill.snow.css';
 
 export default function ProjectManager() {
-  const { t } = useLanguage();
   const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingProject, setEditingProject] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [filter, setFilter] = useState('all');
   const [showPreview, setShowPreview] = useState(true);
-  const [filter, setFilter] = useState('all'); 
-  const [isMobile, setIsMobile] = useState(false);
+
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
     description: '',
-    tech_stack: '',
-    link: '',
+    category: '',
+    github: '',
+    demo: '',
+    technologies: '',
     status: 'draft',
     image: null,
-    imagePreview: null,
-    gallery: [],
-    galleryPreviews: []
+    imagePreview: null
   });
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 1024px)').matches);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     fetchProjects();
   }, [filter]);
 
-  const fetchProjects = async () => {
-    setIsLoading(true);
+  async function fetchProjects() {
+    setLoading(true);
     try {
+      // Data Recovery Fix: Disable auto-cancellation for reliable listing
+      pb.autoCancellation(false);
+      
       let filterQuery = '';
       if (filter === 'published') filterQuery = 'status = "published"';
       if (filter === 'draft') filterQuery = 'status = "draft"';
@@ -57,343 +50,276 @@ export default function ProjectManager() {
         filter: filterQuery,
         sort: '-created'
       });
+      console.log('Project fetch success:', records.length, 'items');
       setProjects(records || []);
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      console.error('Fetch error:', error);
+    } finally {
+      setLoading(false);
     }
-    setIsLoading(false);
+  }
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({ 
+        ...prev, 
+        image: file, 
+        imagePreview: URL.createObjectURL(file) 
+      }));
+    }
   };
 
   const handleEdit = (project) => {
-    if (!project) return;
-    setEditingProject(project);
     setFormData({
-      title: project.title || '',
-      slug: project.slug || '',
-      description: project.description || '',
-      tech_stack: project.tech_stack || '',
-      link: project.link || '',
-      status: project.status || 'draft',
-      image: null,
-      imagePreview: project.image ? pb.files.getURL(project, project.image) : null,
-      gallery: [],
-      galleryPreviews: project.gallery?.map(img => pb.files.getURL(project, img)) || []
+      title: project.title,
+      slug: project.slug,
+      description: project.description,
+      category: project.category || '',
+      github: project.github || '',
+      demo: project.demo || '',
+      technologies: project.technologies || '',
+      status: project.status,
+      image: project.image,
+      imagePreview: project.image ? pb.files.getURL(project, project.image) : null
     });
+    setEditingId(project.id);
     setIsFormOpen(true);
-  };
-
-  const handleDelete = async (postId) => {
-    if (window.confirm(t?.dashboard?.actions?.delete + '?')) {
-      try {
-        await pb.collection('projects').delete(postId);
-        setProjects(prev => prev.filter(p => p.id !== postId));
-      } catch (error) {
-        alert('Error.');
-      }
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData();
-    data.append('title', formData.title);
-    data.append('slug', formData.slug || formData.title.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, '').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c'));
-    data.append('description', formData.description);
-    data.append('tech_stack', formData.tech_stack);
-    data.append('link', formData.link);
-    data.append('status', formData.status);
-    
-    if (formData.image) data.append('image', formData.image);
-    if (formData.gallery && formData.gallery.length > 0) {
-      for (let file of formData.gallery) {
-        data.append('gallery', file);
-      }
-    }
+    Object.keys(formData).forEach(key => {
+      if (key === 'image' && typeof formData[key] === 'string') return;
+      if (formData[key]) data.append(key, formData[key]);
+    });
 
     try {
-      if (editingProject) {
-        await pb.collection('projects').update(editingProject.id, data);
+      if (editingId) {
+        await pb.collection('projects').update(editingId, data);
       } else {
         await pb.collection('projects').create(data);
       }
       setIsFormOpen(false);
-      setEditingProject(null);
+      resetForm();
       fetchProjects();
     } catch (error) {
-      alert('Error: ' + error.message);
+      alert('Hata: ' + error.message);
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({
-        ...prev, 
-        image: file, 
-        imagePreview: URL.createObjectURL(file)
-      }));
-    }
+  const resetForm = () => {
+    setFormData({ title: '', slug: '', description: '', category: '', github: '', demo: '', technologies: '', status: 'draft', image: null, imagePreview: null });
+    setEditingId(null);
   };
 
-  const handleGalleryChange = (e) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    if (files.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        gallery: files,
-        galleryPreviews: files.map(f => URL.createObjectURL(f))
-      }));
+  const handleDelete = async (id) => {
+    if (window.confirm('Bu projeyi silmek istediğine emin misin?')) {
+      await pb.collection('projects').delete(id);
+      fetchProjects();
     }
-  };
+  }
+
+  const handleArchive = async (id, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'archived' ? 'draft' : 'archived';
+      await pb.collection('projects').update(id, { status: newStatus });
+      fetchProjects();
+    } catch (err) { console.error(err); }
+  }
 
   const statusOptions = [
-    { value: 'draft', label: 'Draft', icon: <FiClock />, color: '#f59e0b' },
-    { value: 'published', label: 'Published', icon: <FiCheckCircle />, color: '#10b981' },
-    { value: 'archived', label: 'Archived', icon: <FiArchive />, color: '#ef4444' }
+    { value: 'draft', label: 'Taslak', icon: <FiClock />, color: '#f59e0b' },
+    { value: 'published', label: 'Yayında', icon: <FiCheck />, color: '#10b981' },
+    { value: 'archived', label: 'Arşiv', icon: <FiArchive />, color: '#ef4444' }
   ];
 
   if (isFormOpen) {
     return (
-      <div className="animate-fade" style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1.2fr 0.8fr' : '1fr', gap: '3rem', alignItems: 'start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-             <div>
-                <h3 style={{ fontSize: '1.75rem', fontWeight: 950, letterSpacing: '-1px' }}>{editingProject ? 'Projeyi Düzenle' : 'Yeni Proje Ekle'}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>İşlerini en iyi şekilde sergile.</p>
-             </div>
-             <button type="button" className="glass desktop-only" onClick={() => setShowPreview(!showPreview)} style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
-                <FiMonitor /> {showPreview ? 'Önizlemeyi Kapat' : 'Canlı Önizleme'}
+      <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 950 }}>{editingId ? 'Projeyi Düzenle' : 'Yeni Proje Ekle'}</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>Projeni dünyaya tanıtmadan önce son bir kez önizle.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+             <button onClick={() => setShowPreview(!showPreview)} className="glass" style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+                <FiMonitor /> {showPreview ? 'Önizlemeyi Kapat' : 'Önizlemeyi Aç'}
              </button>
-          </header>
+             <button onClick={() => { setIsFormOpen(false); resetForm(); }} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiX /></button>
+          </div>
+        </header>
 
-          <form onSubmit={handleSubmit}>
-            {/* General Info Card */}
+        <div style={{ display: 'grid', gridTemplateColumns: showPreview ? '1.2fr 1fr' : '1fr', gap: '3rem', alignItems: 'start', position: 'relative' }}>
+          {/* Editor Column */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="form-group-card">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
-                  <FiInfo color="var(--accent)" />
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Proje Bilgileri</h4>
-               </div>
                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div className="input-group">
                     <label className="form-label">Proje Başlığı</label>
-                    <div style={{ position: 'relative' }}>
-                      <FiType style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-                      <input type="text" value={formData.title} onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))} required className="form-input" style={{ paddingLeft: '2.8rem' }} placeholder="Projenin adını girin..." />
-                    </div>
+                    <input type="text" value={formData.title} onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))} className="form-input" placeholder="Proje adını gir..." required />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div className="input-group">
                     <label className="form-label">Durum</label>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                        {statusOptions.map(opt => (
-                         <button 
-                            key={opt.value} 
-                            type="button" 
-                            onClick={() => setFormData(prev => ({...prev, status: opt.value}))}
-                            style={{ 
-                              flex: 1, padding: '0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, 
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                              background: formData.status === opt.value ? 'var(--accent-gradient)' : 'rgba(255,255,255,0.03)',
-                              border: formData.status === opt.value ? 'none' : '1px solid rgba(255,255,255,0.05)',
-                              color: formData.status === opt.value ? '#fff' : 'var(--text-secondary)',
-                              transition: 'all 0.3s'
-                            }}
-                         >
-                            {opt.icon} {opt.label}
-                         </button>
+                         <button key={opt.value} type="button" onClick={() => setFormData(prev => ({...prev, status: opt.value}))} style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', background: formData.status === opt.value ? opt.color : 'rgba(255,255,255,0.03)', border: '1px solid', borderColor: formData.status === opt.value ? opt.color : 'var(--glass-border)', color: formData.status === opt.value ? '#fff' : 'var(--text-secondary)', transition: 'all 0.4s' }}>{opt.icon}</button>
                        ))}
                     </div>
                   </div>
                </div>
 
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div className="input-group">
+                    <label className="form-label">Kategori</label>
+                    <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))} className="form-input" placeholder="Web, Mobil, AI..." />
+                  </div>
+                  <div className="input-group">
+                    <label className="form-label">Teknolojiler</label>
+                    <input type="text" value={formData.technologies} onChange={(e) => setFormData(prev => ({...prev, technologies: e.target.value}))} className="form-input" placeholder="React, Node.js, PB..." />
+                  </div>
+               </div>
+
                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="form-label">Kullanılan Teknolojiler</label>
-                    <div style={{ position: 'relative' }}>
-                      <FiCpu style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-                      <input type="text" value={formData.tech_stack} onChange={(e) => setFormData(prev => ({...prev, tech_stack: e.target.value}))} placeholder="Örn: React, Node.js, PocketBase..." className="form-input" style={{ paddingLeft: '2.8rem' }} />
-                    </div>
+                  <div className="input-group">
+                    <label className="form-label">GitHub</label>
+                    <input type="url" value={formData.github} onChange={(e) => setFormData(prev => ({...prev, github: e.target.value}))} className="form-input" placeholder="https://github..." />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="form-label">Proje Bağlantısı (URL)</label>
-                    <div style={{ position: 'relative' }}>
-                      <FiLink style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-                      <input type="url" value={formData.link} onChange={(e) => setFormData(prev => ({...prev, link: e.target.value}))} placeholder="https://..." className="form-input" style={{ paddingLeft: '2.8rem' }} />
-                    </div>
+                  <div className="input-group">
+                    <label className="form-label">Yayın Linki (Demo)</label>
+                    <input type="url" value={formData.demo} onChange={(e) => setFormData(prev => ({...prev, demo: e.target.value}))} className="form-input" placeholder="https://demo..." />
                   </div>
                </div>
             </div>
 
-            {/* Content Card */}
             <div className="form-group-card">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
-                  <FiPaperclip color="var(--accent)" />
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Proje Detayları</h4>
-               </div>
-               <div className="rich-editor-container" style={{ minHeight: '400px' }}>
-                  <Suspense fallback={<div>Loading editor...</div>}>
-                    <ReactQuill 
-                        theme="snow" 
-                        value={formData.description} 
-                        onChange={(val) => setFormData(prev => ({...prev, description: val}))} 
-                        modules={editorModules}
-                        formats={editorFormats}
-                        style={{ height: isMobile ? '350px' : '400px' }} 
-                    />
-                  </Suspense>
-               </div>
+              <label className="form-label" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiCpu style={{ color: 'var(--accent)' }}/> Teknik Detaylar / Tanıtım</label>
+              <ReactQuill 
+                theme="snow" 
+                value={formData.description} 
+                onChange={(val) => setFormData(prev => ({...prev, description: val}))} 
+                style={{ height: '350px', marginBottom: '3.5rem' }}
+              />
             </div>
 
-            {/* Media Card */}
             <div className="form-group-card">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
-                  <FiImage color="var(--accent-blue)" />
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Proje Görselleri</h4>
-               </div>
-               
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
-                  <div>
-                    <label className="form-label" style={{ marginBottom: '1rem' }}>Ana Görsel</label>
-                    <label className="drop-zone">
-                        {formData.imagePreview && <div className="drop-zone-glow" />}
-                        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                            {formData.imagePreview ? (
-                              <div style={{ width: '100%', height: '140px', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--accent)' }}>
-                                <img src={formData.imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              </div>
-                            ) : (
-                              <FiUploadCloud size={32} opacity={0.3} />
-                            )}
-                            <p style={{ fontWeight: 800, fontSize: '0.85rem' }}>{formData.imagePreview ? 'Değiştir' : 'Ana Resim Yükle'}</p>
-                        </div>
-                        <input type="file" hidden onChange={handleImageChange} accept="image/*" />
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ marginBottom: '1rem' }}>Galeri (Çoklu)</label>
-                    <label className="drop-zone">
-                        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                               {formData.galleryPreviews.slice(0, 3).map((img, i) => (
-                                 <div key={i} style={{ width: 40, height: 40, borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                    <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                 </div>
-                               ))}
-                               {formData.galleryPreviews.length > 3 && <div style={{ width: 40, height: 40, borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>+{formData.galleryPreviews.length-3}</div>}
-                               {formData.galleryPreviews.length === 0 && <FiLayers size={32} opacity={0.3} />}
-                            </div>
-                            <p style={{ fontWeight: 800, fontSize: '0.85rem' }}>{formData.galleryPreviews.length > 0 ? `${formData.galleryPreviews.length} Resim Seçildi` : 'Galeriye Ekle'}</p>
-                        </div>
-                        <input type="file" multiple hidden onChange={handleGalleryChange} accept="image/*" />
-                    </label>
-                  </div>
+               <label className="form-label"><FiImage style={{ color: 'var(--accent)' }}/> Kapak Resmi</label>
+               <div className="drop-zone" onClick={() => document.getElementById('imageInput').click()}>
+                  {formData.imagePreview ? (
+                    <img src={formData.imagePreview} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '14px' }} />
+                  ) : (
+                    <>
+                      <FiUploadCloud size={40} opacity={0.3} />
+                      <p style={{ opacity: 0.5, fontSize: '0.9rem' }}>Sürükle veya Gözat</p>
+                    </>
+                  )}
+                  <input id="imageInput" type="file" hidden onChange={handleImageChange} />
                </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '4rem' }}>
-               <button type="button" className="glass" onClick={() => setIsFormOpen(false)} style={{ padding: '1rem 2.5rem', borderRadius: '15px', fontWeight: 700, fontSize: '0.9rem' }}>Vazgeç</button>
-               <button type="submit" className="btn-primary" style={{ padding: '1rem 3rem', borderRadius: '15px', fontWeight: 900, fontSize: '0.95rem' }}>
-                  <FiSave style={{ marginRight: '0.75rem' }} /> {editingProject ? 'Projeyi Güncelle' : 'Projeyi Yayınla'}
-               </button>
-            </div>
+            <button type="submit" className="btn-primary" style={{ padding: '1.25rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 25px 50px rgba(124,58,237,0.3)', width: '100%' }}>
+              <FiSave /> {editingId ? 'Proje Güncelle' : 'Proje Yayınla'}
+            </button>
           </form>
-        </div>
 
-        {/* Premium Preview Section */}
-        {showPreview && (
-          <div className="desktop-only" style={{ position: 'sticky', top: '6rem' }}>
-             <div className="device-frame" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-                <div className="device-header">
-                   <div className="device-dot" style={{ background: '#ff5f56' }} />
-                   <div className="device-dot" style={{ background: '#ffbd2e' }} />
-                   <div className="device-dot" style={{ background: '#27c93f' }} />
-                   <div style={{ marginLeft: '1rem', fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>PROJECT PREVIEW</div>
-                </div>
-                <div style={{ flex: 1, overflowY: 'auto', padding: '2.5rem' }} className="custom-scrollbar">
-                   {formData.imagePreview && (
-                     <div style={{ width: '100%', height: '220px', borderRadius: '18px', overflow: 'hidden', marginBottom: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
-                        <img src={formData.imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                     </div>
-                   )}
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                      <div style={{ flex: 1 }}>
-                        <h1 style={{ fontSize: '2rem', fontWeight: 950, marginBottom: '0.5rem', lineHeight: 1.1 }}>{formData.title || 'Proje Başlığı...'}</h1>
-                        <p style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{formData.tech_stack || 'TEKNOLOJİ YIĞINI'}</p>
-                      </div>
-                      {formData.link && <div style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FiExternalLink /></div>}
-                   </div>
-                   <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '2rem 0' }} />
-                   <div dangerouslySetInnerHTML={{ __html: formData.description }} className="rich-text-content premium-rich-text" />
-                   
-                   {formData.galleryPreviews.length > 0 && (
-                     <div style={{ marginTop: '3rem' }}>
-                        <p style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '1rem', textTransform: 'uppercase' }}>PROJE GALERİSİ</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                           {formData.galleryPreviews.map((img, i) => (
-                             <img key={i} src={img} style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }} />
-                           ))}
+          {/* Centered Sticky Preview Column (v4) */}
+          {showPreview && (
+            <div className="desktop-only sticky-center" style={{ width: '100%' }}>
+               <div className="device-frame" style={{ border: '10px solid #1a1a1a', borderRadius: '40px', overflow: 'hidden' }}>
+                  <div className="device-header">
+                     <div className="device-dot" />
+                     <div className="device-dot" />
+                     <div className="device-dot" />
+                     <div style={{ marginLeft: 'auto', fontSize: '0.65rem', opacity: 0.4, fontWeight: 900, letterSpacing: '2px' }}>PROJECT LIVE</div>
+                  </div>
+                  <div className="custom-scrollbar" style={{ height: '75vh', overflowY: 'auto', background: 'var(--bg-color)', padding: '2.5rem' }}>
+                     {formData.imagePreview && <img src={formData.imagePreview} style={{ width: '100%', height: '240px', objectFit: 'cover', borderRadius: '24px', marginBottom: '2rem', border: '1px solid rgba(255,255,255,0.05)' }} />}
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: '1rem' }}>
+                        <div>
+                           <span style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '2px' }}>{formData.category || 'Portfolio'}</span>
+                           <h1 style={{ fontSize: '2.25rem', fontWeight: 950, margin: '0.75rem 0', letterSpacing: '-1.5px' }}>{formData.title || 'Adsız Proje'}</h1>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                           {formData.github && <div className="glass" style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiCpu /></div>}
+                           {formData.demo && <div className="glass" style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiExternalLink /></div>}
                         </div>
                      </div>
-                   )}
-                </div>
-             </div>
-          </div>
-        )}
+                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '2rem' }}>
+                        {(formData.technologies || 'React, Tailwind...').split(',').map((tag, i) => (
+                           <span key={i} style={{ fontSize: '0.7rem', fontWeight: 800, padding: '4px 12px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.2)' }}>{tag.trim()}</span>
+                        ))}
+                     </div>
+                     <div className="premium-rich-text custom-quill-content" dangerouslySetInnerHTML={{ __html: formData.description }} />
+                  </div>
+               </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+    <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div>
-          <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px' }}>Proje Yönetimi</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Toplam {projects.length} proje bulunmaktadır.</p>
+          <h2 style={{ fontSize: '2.25rem', fontWeight: 950, letterSpacing: '-1.5px' }}>Proje Arşivi</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Mimari yeteneklerini ve teknik donanımını sergilediğin projeler.</p>
         </div>
-        <button onClick={() => { setEditingProject(null); setFormData({ title: '', slug: '', description: '', tech_stack: '', link: '', status: 'draft', image: null, imagePreview: null, gallery: [], galleryPreviews: [] }); setIsFormOpen(true); }} className="btn-primary" style={{ padding: '0.8rem 1.75rem', borderRadius: '15px' }}>
+        <button onClick={() => setIsFormOpen(true)} className="btn-primary" style={{ padding: '0.85rem 1.75rem', borderRadius: '15px' }}>
           <FiPlus /> Yeni Proje Ekle
         </button>
       </header>
 
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-        {['all', 'published', 'draft', 'archived'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} className="glass" style={{ padding: '0.6rem 1.25rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 800, background: filter === f ? 'var(--accent-gradient)' : 'transparent', border: '1px solid var(--glass-border)', color: filter === f ? '#fff' : 'var(--text-secondary)' }}>
-            {f.toUpperCase()}
-          </button>
+      <div className="glass" style={{ padding: '0.5rem', borderRadius: '20px', display: 'flex', gap: '0.5rem', width: 'fit-content' }}>
+        {['all', 'published', 'draft', 'archived'].map(t => (
+          <button key={t} onClick={() => setFilter(t)} style={{ padding: '0.6rem 1.5rem', borderRadius: '15px', fontSize: '0.85rem', fontWeight: 800, textTransform: 'capitalize', background: filter === t ? 'var(--accent-gradient)' : 'transparent', color: filter === t ? '#fff' : 'var(--text-secondary)', transition: 'all 0.4s' }}>{t}</button>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
-        {isLoading ? (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', opacity: 0.5, padding: '4rem' }}>Yükleniyor...</div>
-        ) : projects.length === 0 ? (
-          <div className="glass" style={{ gridColumn: '1/-1', padding: '5rem', textAlign: 'center', borderRadius: '32px', border: '1px solid var(--glass-border)', borderStyle: 'dashed' }}>
-             <p style={{ opacity: 0.5 }}>Proje bulunamadı.</p>
-          </div>
-        ) : projects.map(project => {
-           const status = statusOptions.find(o => o.value === project.status) || statusOptions[0];
-           return (
-            <div key={project.id} className="glass card-hover" style={{ borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column' }}>
-               <div style={{ position: 'relative', height: 220 }}>
-                  {project.image ? <img src={pb.files.getURL(project, project.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiLayers size={40} opacity={0.1} /></div>}
-                  <div style={{ position: 'absolute', top: 15, right: 15, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 12px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, color: status.color }}>
-                     {status.icon} {status.label.toUpperCase()}
+      {loading ? (
+        <div style={{ padding: '5rem', textAlign: 'center' }}>Projeler derleniyor...</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2.5rem' }}>
+          {projects.map(project => {
+            const status = statusOptions.find(o => o.value === project.status) || statusOptions[0];
+            return (
+              <div key={project.id} className="glass card-hover" style={{ borderRadius: '32px', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ position: 'relative', height: '190px' }}>
+                  <img src={project.image ? pb.files.getURL(project, project.image) : '/project-placeholder.jpg'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', padding: '0.5rem 1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 900, color: status.color }}>
+                    {status.icon} {status.label}
                   </div>
-               </div>
-               <div style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '0.5rem', color: '#fff' }}>{project.title}</h3>
-                  <p style={{ color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1.5rem' }}>{project.tech_stack}</p>
-                  
-                  <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem' }}>
-                     <button onClick={() => handleEdit(project)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}><FiEdit2 /></button>
-                     {project.status !== 'archived' && <button onClick={() => pb.collection('projects').update(project.id, { status: 'archived' }).then(() => fetchProjects())} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}><FiArchive /></button>}
-                     <button onClick={() => handleDelete(project.id)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiTrash2 /></button>
+                </div>
+                <div style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 950, textTransform: 'uppercase', color: 'var(--accent)', letterSpacing: '1.5px' }}>{project.category || 'Genel'}</span>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0.75rem 0', letterSpacing: '-0.5px' }}>{project.title}</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', mb: '1.5rem', opacity: 0.6 }}>
+                     {(project.technologies || '').split(',').slice(0, 3).map((tag, i) => (
+                       <span key={i} style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '6px' }}>#{tag.trim()}</span>
+                     ))}
                   </div>
-               </div>
-            </div>
-           );
-        })}
-      </div>
+                  <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                      <button onClick={() => handleEdit(project)} className="glass-icon-btn" style={{ width: 40, height: 40, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)' }}><FiEdit2 size={16}/></button>
+                      <button onClick={() => handleArchive(project.id, project.status)} className="glass-icon-btn" style={{ width: 40, height: 40, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--warning)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)' }}><FiArchive size={16}/></button>
+                      <button onClick={() => handleDelete(project.id)} className="glass-icon-btn" style={{ width: 40, height: 40, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)' }}><FiTrash2 size={16}/></button>
+                    </div>
+                    {project.demo && <a href={project.demo} target="_blank" className="hover-accent" style={{ color: 'var(--text-secondary)' }}><FiExternalLink size={18}/></a>}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {!loading && projects.length === 0 && (
+         <div className="glass" style={{ padding: '5rem', textAlign: 'center', borderRadius: '32px' }}>
+            <FiLayers size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
+            <p style={{ opacity: 0.5, fontWeight: 700 }}>Bu kategoride henüz proje bulunmuyor.</p>
+         </div>
+      )}
     </div>
   );
 }

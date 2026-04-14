@@ -270,3 +270,27 @@ ul, ol { list-style: none; }
   opacity: 0.1;
   pointer-events: none;
 }
+/* Visibility Utilities (v4 Premium) */
+.desktop-only { display: flex !important; }
+.mobile-only { display: none !important; }
+
+@media (max-width: 1024px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: flex !important; }
+}
+
+/* Vertical Sticky Center Helper */
+.sticky-center {
+  position: sticky;
+  top: 50%;
+  transform: translateY(-50%);
+  align-self: flex-start;
+}
+
+/* Premium Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Version Marker: 2026-04-15.01.07 */

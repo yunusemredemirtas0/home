@@ -96,7 +96,7 @@ export default function Header() {
               <button 
                 className="mobile-only" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', color: 'var(--text-primary)', zIndex: 1100 }}
+                style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem', color: 'var(--text-primary)', zIndex: 1100, background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--glass-border)' }}
               >
                 {isMenuOpen ? <FiX /> : <FiMenu />}
               </button>
