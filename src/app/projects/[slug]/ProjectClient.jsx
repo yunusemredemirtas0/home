@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import pb from '../../../lib/pocketbase';
-import { FiArrowLeft, FiExternalLink, FiLayout } from 'react-icons/fi';
+import { FiArrowLeft, FiExternalLink, FiLayout, FiLinkedin, FiTwitter, FiGithub } from 'react-icons/fi';
 import ShareBar from '../../../components/ShareBar';
 import GiscusComments from '../../../components/GiscusComments';
 import { trackView } from '../../../lib/analytics';
@@ -105,6 +105,22 @@ export default function ProjectClient({ project, language }) {
          )}
 
          <div style={{ marginTop: '10rem', paddingTop: '6rem', borderTop: '1px solid var(--glass-border)' }}>
+            <div className="glass" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', display: 'flex', gap: '2.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '8rem' }}>
+               <div style={{ width: 100, height: 100, borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--accent)', padding: '4px' }}>
+                  <img src="/profile.png" alt="Yunus Emre" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+               </div>
+               <div style={{ flex: 1, minWidth: '250px' }}>
+                  <p style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '0.5rem' }}>{language === 'tr' ? 'Yazar' : 'Author'}</p>
+                  <h4 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '0.75rem', color: '#fff' }}>Yunus Emre DEMİRTAŞ</h4>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>{language === 'tr' ? 'Web Geliştirici & Tasarımcı. Dijital dünyada estetik ve performansı birleştiren deneyimler inşa ediyorum.' : 'Web Developer & Designer. Building experiences that combine aesthetics and performance in the digital world.'}</p>
+                  <div style={{ display: 'flex', gap: '1.25rem', marginTop: '1.5rem' }}>
+                     <a href="https://linkedin.com" target="_blank" className="hover-accent" style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}><FiLinkedin /></a>
+                     <a href="https://twitter.com" target="_blank" className="hover-accent" style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}><FiTwitter /></a>
+                     <a href="https://github.com" target="_blank" className="hover-accent" style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}><FiGithub /></a>
+                  </div>
+               </div>
+            </div>
+
             <ShareBar isStatic={true} title={project.title} url={typeof window !== 'undefined' ? window.location.href : ''} />
 
             <h3 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '4rem', textAlign: 'center' }}>

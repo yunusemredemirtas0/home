@@ -93,7 +93,7 @@ export default function BlogPostClient({ post, language }) {
         <footer style={{ marginTop: '8rem', paddingTop: '4rem', borderTop: '1px solid var(--glass-border)' }}>
            <div className="glass" style={{ padding: '3rem', borderRadius: 'var(--radius-xl)', display: 'flex', gap: '2.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ width: 100, height: 100, borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--accent)', padding: '4px' }}>
-                 <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--accent-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 900, color: '#fff' }}>Y</div>
+                 <img src="/profile.png" alt="Yunus Emre" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
               </div>
               <div style={{ flex: 1, minWidth: '250px' }}>
                  <p style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '0.5rem' }}>{language === 'tr' ? 'Yazar' : 'Author'}</p>
