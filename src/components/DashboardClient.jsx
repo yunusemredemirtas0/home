@@ -161,11 +161,13 @@ export default function DashboardClient() {
       </aside>
 
       <main className="dashboard-main">
-         {activeTab === 'overview' && <OverviewContent />}
-         {activeTab === 'analytics' && <AnalyticsOverview />}
-         {activeTab === 'blogs' && <BlogManager />}
-         {activeTab === 'projects' && <ProjectManager />}
-         {activeTab === 'seo' && <SEOManager />}
+         <div className="dashboard-content-container">
+            {activeTab === 'overview' && <OverviewContent />}
+            {activeTab === 'analytics' && <AnalyticsOverview />}
+            {activeTab === 'blogs' && <BlogManager />}
+            {activeTab === 'projects' && <ProjectManager />}
+            {activeTab === 'seo' && <SEOManager />}
+         </div>
       </main>
     </div>
   );

@@ -167,8 +167,8 @@ export default function ProjectManager() {
       </header>
 
       {isFormOpen ? (
-         <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1fr 1fr' : '1fr', gap: '2rem' }}>
-          <form onSubmit={handleSubmit} className="glass" style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', borderRadius: 'var(--radius-xl)' }}>
+         <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1.2fr 0.8fr' : '1fr', gap: '3rem', alignItems: 'start' }}>
+          <form onSubmit={handleSubmit} className="glass" style={{ padding: 'clamp(2rem, 5vw, 3.5rem)', borderRadius: '32px', boxShadow: '0 40px 100px -20px rgba(0,0,0,0.4)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingProject ? t?.dashboard?.actions?.edit : t?.dashboard?.actions?.addNew}</h3>
                 <button type="button" className="desktop-only" onClick={() => setShowPreview(!showPreview)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: '#fff', cursor: 'pointer' }}>
@@ -267,18 +267,18 @@ export default function ProjectManager() {
           {isLoading ? <p>{t?.projects?.loading}</p> : projects.length === 0 ? (
             <p style={{ gridColumn: '1/-1', textAlign: 'center', opacity: 0.5, padding: '4rem' }}>No projects found for this filter.</p>
           ) : projects.map(project => (
-              <div key={project.id} className="glass card-hover" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}>
+              <div key={project.id} className="glass card-hover" style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.4)', transition: 'all 0.3s' }}>
                  <div style={{ position: 'relative' }}>
-                    {project.image ? <img src={pb.files.getURL(project, project.image)} alt="" style={{ width: '100%', height: 180, objectFit: 'cover' }} /> : <div style={{ width: '100%', height: 180, background: 'rgba(255,255,255,0.05)' }} />}
-                    <div style={{ position: 'absolute', top: 10, right: 10, background: 'var(--bg-color)', border: '1px solid var(--glass-border)', padding: '6px', borderRadius: '50%', display: 'flex' }}>{statusIcons[project.status || 'draft']}</div>
+                    {project.image ? <img src={pb.files.getURL(project, project.image)} alt="" style={{ width: '100%', height: 200, objectFit: 'cover' }} /> : <div style={{ width: '100%', height: 200, background: 'rgba(255,255,255,0.05)' }} />}
+                    <div style={{ position: 'absolute', top: 12, right: 12, background: 'var(--bg-color)', border: '1px solid var(--glass-border)', padding: '6px', borderRadius: '50%', display: 'flex', boxShadow: '0 5px 10px rgba(0,0,0,0.3)' }}>{statusIcons[project.status || 'draft']}</div>
                  </div>
-                 <div style={{ padding: '1.5rem' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{project.title}</h3>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '1.5rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: project.description }} />
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                       <button title={t?.dashboard?.actions?.edit} onClick={() => handleEdit(project)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer' }}><FiEdit2 /></button>
-                       {project.status !== 'archived' && <button title={t?.dashboard?.actions?.archive} onClick={() => handleArchive(project)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: 'none', cursor: 'pointer' }}><FiArchive /></button>}
-                       <button title={t?.dashboard?.actions?.delete} onClick={() => handleDelete(project.id)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', cursor: 'pointer' }}><FiTrash2 /></button>
+                 <div style={{ padding: '2rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '0.75rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: '#fff' }}>{project.title}</h3>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '2rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.6, minHeight: '2.7rem' }} dangerouslySetInnerHTML={{ __html: project.description }} />
+                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                       <button title={t?.dashboard?.actions?.edit} onClick={() => handleEdit(project)} style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiEdit2 /></button>
+                       {project.status !== 'archived' && <button title={t?.dashboard?.actions?.archive} onClick={() => handleArchive(project)} style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiArchive /></button>}
+                       <button title={t?.dashboard?.actions?.delete} onClick={() => handleDelete(project.id)} style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiTrash2 /></button>
                     </div>
                  </div>
               </div>

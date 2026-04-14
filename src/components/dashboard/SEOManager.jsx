@@ -207,20 +207,22 @@ function FilterTag({ active, label, onClick, icon }) {
 
 function SEOCard({ titleLabel, subtitle, data, onToggle, onSave, isSaving, path }) {
   return (
-    <div className="glass" style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', borderRadius: '24px', border: '1px solid var(--glass-border)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-         <h3 style={{ fontSize: 'clamp(1.1rem, 3vw, 1.25rem)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-           <FiSearch style={{ color: 'var(--accent)', flexShrink: 0 }} /> 
-           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{titleLabel}</span> 
-           <span style={{ fontSize: '0.8rem', opacity: 0.4, fontWeight: 500 }}>({subtitle})</span>
-         </h3>
+    <div className="glass" style={{ padding: 'clamp(2.5rem, 6vw, 4rem)', borderRadius: '40px', border: '1px solid var(--glass-border)', maxWidth: '1100px', margin: '0 auto', boxShadow: '0 50px 100px -20px rgba(0,0,0,0.6)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3.5rem', flexWrap: 'wrap', gap: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '2rem' }}>
+         <div>
+            <h3 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+              <FiSearch style={{ color: 'var(--accent)', flexShrink: 0 }} /> 
+              <span>{titleLabel}</span> 
+            </h3>
+            <p style={{ fontSize: '0.85rem', opacity: 0.5, fontWeight: 500 }}>{subtitle} {path}</p>
+         </div>
          <button 
           onClick={onSave} 
           disabled={isSaving}
           className="btn-primary" 
-          style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem', width: 'auto' }}
+          style={{ padding: '0.8rem 2.5rem', fontSize: '0.9rem', width: 'auto', borderRadius: '15px', boxShadow: '0 10px 20px rgba(124,58,237,0.3)' }}
          >
-           {isSaving ? '...' : <><FiSave style={{ marginRight: '0.5rem' }} /> Kaydet</>}
+           {isSaving ? '...' : <><FiSave style={{ marginRight: '0.5rem' }} /> Ayarları Kaydet</>}
          </button>
       </div>
 
@@ -230,7 +232,7 @@ function SEOCard({ titleLabel, subtitle, data, onToggle, onSave, isSaving, path 
         <SEOInput label="Anahtar Kelimeler" value={data.keywords} onChange={v => onToggle('keywords', v) || onToggle('seo_keywords', v)} placeholder="Örn: teknoloji, yazılım..." />
       </div>
 
-      <div style={{ marginTop: '2.5rem', padding: '1.25rem', borderRadius: '12px', background: '#fff', color: '#1a0dab', fontSize: '0.85rem', border: '1px solid #dfe1e5', overflow: 'hidden' }}>
+      <div style={{ marginTop: '3.5rem', padding: '2rem', borderRadius: '16px', background: '#fff', color: '#1a0dab', fontSize: '0.9rem', border: '1px solid #dfe1e5', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
          <p style={{ color: '#202124', fontSize: '0.7rem', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>https://yunusemredemirtas.com{path === '/' ? '' : path}</p>
          <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem', color: '#1a0dab', fontWeight: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.title || 'Sitenin Başlığı Burada Görünecek'}</h4>
          <p style={{ color: '#4d5156', lineHeight: 1.4, fontSize: '0.8rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{data.description || 'Google arama sonuçlarındaki açıklama burada yer alacak.'}</p>

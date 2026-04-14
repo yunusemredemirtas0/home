@@ -117,8 +117,8 @@ ul, ol { list-style: none; }
 /* Dashboard Specific Layout Utilities */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 30vw, 360px), 1fr));
+  gap: 2rem;
 }
 @media (max-width: 640px) {
   .dashboard-grid { grid-template-columns: 1fr; gap: 1rem; }
@@ -148,9 +148,18 @@ ul, ol { list-style: none; }
 
 .dashboard-main {
   flex: 1;
-  min-width: 0; /* Prevents flex items from overflowing */
-  padding: 'clamp(1.5rem, 5vw, 4rem)';
+  min-width: 0;
+  padding: clamp(1.5rem, 5vw, 4rem);
   transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.dashboard-content-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 @media (max-width: 1024px) {

@@ -161,8 +161,8 @@ export default function BlogManager() {
       </header>
 
       {isFormOpen ? (
-        <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1fr 1fr' : '1fr', gap: '2rem' }}>
-          <form onSubmit={handleSubmit} className="glass" style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', borderRadius: 'var(--radius-xl)', position: 'relative' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1.2fr 0.8fr' : '1fr', gap: '3rem', alignItems: 'start' }}>
+          <form onSubmit={handleSubmit} className="glass" style={{ padding: 'clamp(2rem, 5vw, 3.5rem)', borderRadius: '32px', position: 'relative', boxShadow: '0 40px 100px -20px rgba(0,0,0,0.4)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingPost ? t?.dashboard?.actions?.edit : t?.dashboard?.actions?.addNew}</h3>
                 <button type="button" className="desktop-only" onClick={() => setShowPreview(!showPreview)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: '#fff', cursor: 'pointer' }}>
@@ -249,21 +249,21 @@ export default function BlogManager() {
               <p style={{ color: 'var(--text-secondary)' }}>No posts found.</p>
             </div>
           ) : posts.map(post => (
-              <div key={post.id} className="glass card-hover" style={{ padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 3vw, 1.5rem)', borderRadius: 'var(--radius-lg)', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flex: '1 1 250px' }}>
+              <div key={post.id} className="glass card-hover" style={{ padding: '1.25rem 2rem', borderRadius: '20px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flex: '1 1 300px' }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    {post.image ? <img src={pb.files.getURL(post, post.image)} alt="" style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '8px' }} /> : <div style={{ width: 50, height: 50, borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }} />}
-                    <div style={{ position: 'absolute', top: -8, right: -8, background: 'var(--bg-color)', border: '1px solid var(--glass-border)', padding: '3px', borderRadius: '50%', display: 'flex', fontSize: '0.8rem' }}>{statusIcons[post.status || 'draft']}</div>
+                    {post.image ? <img src={pb.files.getURL(post, post.image)} alt="" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '12px', boxShadow: '0 5px 15px rgba(0,0,0,0.3)' }} /> : <div style={{ width: 60, height: 60, borderRadius: '12px', background: 'rgba(255,255,255,0.05)' }} />}
+                    <div style={{ position: 'absolute', top: -8, right: -8, background: 'var(--bg-color)', border: '1px solid var(--glass-border)', padding: '4px', borderRadius: '50%', display: 'flex', fontSize: '0.85rem', boxShadow: '0 5px 10px rgba(0,0,0,0.2)' }}>{statusIcons[post.status || 'draft']}</div>
                   </div>
                   <div style={{ overflow: 'hidden' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{post.title}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{post.category || 'General'} • {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</p>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: '#fff' }}>{post.title}</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>{post.category || 'General'} • {post.created ? new Date(post.created.substring(0, 10)).toLocaleDateString() : ''}</p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                  <button title={t?.dashboard?.actions?.edit} onClick={() => handleEdit(post)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer' }}><FiEdit2 /></button>
-                  {post.status !== 'archived' && <button title={t?.dashboard?.actions?.archive} onClick={() => handleArchive(post)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: 'none', cursor: 'pointer' }}><FiArchive /></button>}
-                  <button title={t?.dashboard?.actions?.delete} onClick={() => handleDelete(post.id)} style={{ padding: '0.6rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', cursor: 'pointer' }}><FiTrash2 /></button>
+                <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0 }}>
+                  <button title={t?.dashboard?.actions?.edit} onClick={() => handleEdit(post)} style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }} className="hover-accent"><FiEdit2 /></button>
+                  {post.status !== 'archived' && <button title={t?.dashboard?.actions?.archive} onClick={() => handleArchive(post)} style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}><FiArchive /></button>}
+                  <button title={t?.dashboard?.actions?.delete} onClick={() => handleDelete(post.id)} style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}><FiTrash2 /></button>
                 </div>
               </div>
           ))}
