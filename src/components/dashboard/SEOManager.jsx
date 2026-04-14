@@ -23,8 +23,8 @@ export default function SEOManager() {
       try {
         const [seoRecords, posts, projects] = await Promise.all([
           pb.collection('seo_settings').getFullList(),
-          pb.collection('posts').getFullList({ sort: '-created' }),
-          pb.collection('projects').getFullList({ sort: '-created' })
+          pb.collection('posts').getFullList(),
+          pb.collection('projects').getFullList()
         ]);
         
         const mergedPages = defaultPages.map(dp => {
