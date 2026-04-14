@@ -20,6 +20,7 @@ export default function ProjectManager() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [filter, setFilter] = useState('all'); 
+  const [isMobile, setIsMobile] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -30,6 +31,13 @@ export default function ProjectManager() {
     image: null,
     gallery: []
   });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 1024px)').matches);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetchProjects();
@@ -159,7 +167,7 @@ export default function ProjectManager() {
       </header>
 
       {isFormOpen ? (
-         <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !window?.matchMedia('(max-width: 1024px)').matches) ? '1fr 1fr' : '1fr', gap: '2rem' }}>
+         <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1fr 1fr' : '1fr', gap: '2rem' }}>
           <form onSubmit={handleSubmit} className="glass" style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', borderRadius: 'var(--radius-xl)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingProject ? t?.dashboard?.actions?.edit : t?.dashboard?.actions?.addNew}</h3>

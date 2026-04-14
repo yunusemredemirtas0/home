@@ -1,3 +1,9 @@
+'use client';
+import { useState, useEffect, Suspense } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiCheckCircle, FiClock, FiMonitor } from 'react-icons/fi';
+import pb from '../../lib/pocketbase';
+import dynamic from 'next/dynamic';
+import { editorModules, editorFormats } from '../../lib/editorConfig';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { 
@@ -14,6 +20,7 @@ export default function BlogManager() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [filter, setFilter] = useState('all'); 
+  const [isMobile, setIsMobile] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -22,6 +29,13 @@ export default function BlogManager() {
     status: 'draft',
     image: null
   });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 1024px)').matches);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -147,7 +161,7 @@ export default function BlogManager() {
       </header>
 
       {isFormOpen ? (
-        <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !window?.matchMedia('(max-width: 1024px)').matches) ? '1fr 1fr' : '1fr', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: (showPreview && !isMobile) ? '1fr 1fr' : '1fr', gap: '2rem' }}>
           <form onSubmit={handleSubmit} className="glass" style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', borderRadius: 'var(--radius-xl)', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{editingPost ? t?.dashboard?.actions?.edit : t?.dashboard?.actions?.addNew}</h3>
