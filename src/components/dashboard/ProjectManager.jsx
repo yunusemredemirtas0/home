@@ -142,7 +142,7 @@ export default function ProjectManager() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px' }}>{t?.dashboard?.projectMode}</h2>
           {!isFormOpen && (
-            <button onClick={() => { setEditingProject(null); setFormData({ title: '', slug: '', description: '', tech_stack: '', link: '', status: 'draft', image: null, gallery: [] }); setIsFormOpen(true); }} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.8rem 1.5rem' }}>
+            <button onClick={() => { setEditingProject(null); setFormData({ title: '', slug: '', description: '', tech_stack: '', link: '', status: 'draft', image: null, gallery: [] }); setIsFormOpen(true); }} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.8rem 1.5rem', width: 'auto' }}>
               <FiPlus /> {t?.dashboard?.actions?.addNew}
             </button>
           )}
@@ -204,7 +204,7 @@ export default function ProjectManager() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
               <label className="form-label">Description & Details</label>
-              <div className="rich-editor-container" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+              <div className="rich-editor-container" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden', minHeight: '350px' }}>
                  <Suspense fallback={<div>Loading editor...</div>}>
                     <ReactQuill 
                         theme="snow" 
@@ -212,11 +212,10 @@ export default function ProjectManager() {
                         onChange={(val) => setFormData(prev => ({...prev, description: val}))} 
                         modules={editorModules}
                         formats={editorFormats}
-                        style={{ height: '300px', color: '#000' }} 
+                        style={{ height: isMobile ? '250px' : '300px', color: '#000' }} 
                     />
                  </Suspense>
               </div>
-              <div style={{ height: '50px' }}></div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
@@ -245,12 +244,12 @@ export default function ProjectManager() {
           </form>
 
           {showPreview && (
-            <div className="glass preview-container desktop-only" style={{ padding: '2.5rem', borderRadius: 'var(--radius-xl)', overflowY: 'auto', maxHeight: '100vh', position: 'sticky', top: '2rem' }}>
+            <div className="glass preview-container desktop-only" style={{ padding: '2.5rem', borderRadius: 'var(--radius-xl)', overflowY: 'auto', maxHeight: '85vh', position: 'sticky', top: '2rem' }}>
                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '2rem', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '2px' }}>Project Preview</h3>
-                 <div className="project-content-preview">
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '0.5rem', lineHeight: 1.1 }}>{formData.title || 'Untitled Project'}</h1>
+                 <div className="project-content-preview" style={{ maxWidth: '100%' }}>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '0.5rem', lineHeight: 1.1, wordBreak: 'break-word' }}>{formData.title || 'Untitled Project'}</h1>
                     <p style={{ color: 'var(--accent)', fontWeight: 700, marginBottom: '2rem' }}>{formData.tech_stack}</p>
-                    <div dangerouslySetInnerHTML={{ __html: formData.description }} className="rich-text-content" />
+                    <div dangerouslySetInnerHTML={{ __html: formData.description }} className="rich-text-content" style={{ overflow: 'hidden' }} />
                  </div>
                  <style jsx global>{`
                     .rich-text-content { font-size: 1.1rem; line-height: 1.7; color: var(--text-primary); }

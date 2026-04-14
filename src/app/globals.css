@@ -24,6 +24,11 @@
   --font:             'Outfit', 'Inter', system-ui, sans-serif;
   --nav-height:       80px;
   
+  /* Dashboard Sidebar Widths */
+  --sidebar-full:     320px;
+  --sidebar-collapsed: 80px;
+  --sidebar-mobile:   280px;
+  
   /* Fluid Typography & Spacing */
   --h1-size: clamp(2.5rem, 8vw, 4.5rem);
   --h2-size: clamp(2rem, 6vw, 3.25rem);
@@ -44,7 +49,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; width: 100%; position: relative; }
+html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden !important; width: 100%; position: relative; }
 body.menu-open { overflow: hidden; }
 body {
   font-family: var(--font);
@@ -52,7 +57,7 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   width: 100%;
   position: relative;
   -webkit-font-smoothing: antialiased;
@@ -106,7 +111,8 @@ ul, ol { list-style: none; }
 }
 .premium-rich-text h1 { font-size: var(--h2-size); margin: 3rem 0 1.5rem; }
 .premium-rich-text h2 { font-size: var(--h3-size); margin: 2.5rem 0 1.25rem; }
-.premium-rich-text img { border-radius: var(--radius-lg); margin: 2rem 0; width: 100%; }
+.premium-rich-text img { border-radius: var(--radius-lg); margin: 2rem 0; max-width: 100%; height: auto; }
+.premium-rich-text pre, .premium-rich-text table { max-width: 100%; overflow-x: auto; }
 
 /* Dashboard Specific Layout Utilities */
 .dashboard-grid {
@@ -123,18 +129,36 @@ ul, ol { list-style: none; }
   display: flex;
   min-height: 100vh;
   width: 100%;
+  background: var(--bg-color);
 }
+
 .dashboard-sidebar {
   position: sticky;
   top: 0;
   height: 100vh;
   z-index: 50;
-  transition: width var(--transition);
+  width: var(--sidebar-full);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
 }
+
+.dashboard-sidebar.collapsed {
+  width: var(--sidebar-collapsed);
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0; /* Prevents flex items from overflowing */
+  padding: 'clamp(1.5rem, 5vw, 4rem)';
+  transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @media (max-width: 1024px) {
   .dashboard-sidebar {
     position: fixed;
+    width: var(--sidebar-mobile) !important;
     transform: translateX(-100%);
+    z-index: 1000;
   }
   .dashboard-sidebar.open {
     transform: translateX(0);
@@ -142,6 +166,8 @@ ul, ol { list-style: none; }
   .dashboard-main {
     margin-left: 0 !important;
     width: 100% !important;
+    padding: 1.5rem !important;
+    padding-top: 5rem !important;
   }
 }
 

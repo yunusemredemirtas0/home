@@ -207,31 +207,33 @@ function FilterTag({ active, label, onClick, icon }) {
 
 function SEOCard({ titleLabel, subtitle, data, onToggle, onSave, isSaving, path }) {
   return (
-    <div className="glass" style={{ padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--glass-border)' }}>
+    <div className="glass" style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', borderRadius: '24px', border: '1px solid var(--glass-border)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-         <h3 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-           <FiSearch style={{ color: 'var(--accent)' }} /> {titleLabel} <span style={{ fontSize: '0.8rem', opacity: 0.4, fontWeight: 500 }}>({subtitle})</span>
+         <h3 style={{ fontSize: 'clamp(1.1rem, 3vw, 1.25rem)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+           <FiSearch style={{ color: 'var(--accent)', flexShrink: 0 }} /> 
+           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{titleLabel}</span> 
+           <span style={{ fontSize: '0.8rem', opacity: 0.4, fontWeight: 500 }}>({subtitle})</span>
          </h3>
          <button 
           onClick={onSave} 
           disabled={isSaving}
           className="btn-primary" 
-          style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}
+          style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem', width: 'auto' }}
          >
-           {isSaving ? 'Kaydediliyor...' : <><FiSave style={{ marginRight: '0.5rem' }} /> Değişiklikleri Kaydet</>}
+           {isSaving ? '...' : <><FiSave style={{ marginRight: '0.5rem' }} /> Kaydet</>}
          </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
         <SEOInput label="Meta Başlık" value={data.title} onChange={v => onToggle('title', v) || onToggle('seo_title', v)} placeholder="Google başlığı..." />
         <SEOInput label="Meta Açıklama" value={data.description} onChange={v => onToggle('description', v) || onToggle('seo_description', v)} placeholder="Tanıtım yazısı..." isTextArea />
         <SEOInput label="Anahtar Kelimeler" value={data.keywords} onChange={v => onToggle('keywords', v) || onToggle('seo_keywords', v)} placeholder="Örn: teknoloji, yazılım..." />
       </div>
 
-      <div style={{ marginTop: '2.5rem', padding: '1.5rem', borderRadius: '12px', background: '#fff', color: '#1a0dab', fontSize: '0.9rem', border: '1px solid #dfe1e5' }}>
-         <p style={{ color: '#202124', fontSize: '0.75rem', marginBottom: '0.25rem' }}>https://yunusemredemirtas.com{path === '/' ? '' : path}</p>
-         <h4 style={{ fontSize: '1.25rem', marginBottom: '0.25rem', color: '#1a0dab', fontWeight: 400 }}>{data.title || 'Sitenin Başlığı Burada Görünecek'}</h4>
-         <p style={{ color: '#4d5156', lineHeight: 1.5 }}>{data.description || 'Google arama sonuçlarındaki açıklama burada yer alacak.'}</p>
+      <div style={{ marginTop: '2.5rem', padding: '1.25rem', borderRadius: '12px', background: '#fff', color: '#1a0dab', fontSize: '0.85rem', border: '1px solid #dfe1e5', overflow: 'hidden' }}>
+         <p style={{ color: '#202124', fontSize: '0.7rem', marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>https://yunusemredemirtas.com{path === '/' ? '' : path}</p>
+         <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem', color: '#1a0dab', fontWeight: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.title || 'Sitenin Başlığı Burada Görünecek'}</h4>
+         <p style={{ color: '#4d5156', lineHeight: 1.4, fontSize: '0.8rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{data.description || 'Google arama sonuçlarındaki açıklama burada yer alacak.'}</p>
       </div>
     </div>
   );

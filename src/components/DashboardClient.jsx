@@ -45,8 +45,6 @@ export default function DashboardClient() {
     { id: 'seo', label: 'SEO Ayarları', icon: <FiSearch />, adminOnly: true },
   ];
 
-  const sidebarWidth = isCollapsed ? 80 : 320;
-
   return (
     <div className="dashboard-layout" style={{ background: 'var(--bg-color)' }}>
       {/* Mobile Toggle Button */}
@@ -54,7 +52,7 @@ export default function DashboardClient() {
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="mobile-only glass"
         style={{ 
-          position: 'fixed', top: '1.5rem', right: '1.5rem', zIndex: 110, 
+          position: 'fixed', top: '1.5rem', right: '1.5rem', zIndex: 1100, 
           width: 50, height: 50, borderRadius: '12px', display: 'flex', 
           alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: 'var(--accent)'
         }}
@@ -67,20 +65,18 @@ export default function DashboardClient() {
         <div 
           className="mobile-only"
           onClick={() => setIsMobileMenuOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90, backdropFilter: 'blur(4px)' }} 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 900, backdropFilter: 'blur(8px)' }} 
         />
       )}
 
       <aside 
-        className={`glass dashboard-sidebar ${isMobileMenuOpen ? 'open' : ''}`} 
+        className={`glass dashboard-sidebar ${isMobileMenuOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`} 
         style={{ 
-          width: isMobileMenuOpen ? 280 : sidebarWidth, 
           padding: isCollapsed && !isMobileMenuOpen ? '2.5rem 0.75rem' : '2.5rem 1.5rem', 
           display: 'flex', 
           flexDirection: 'column', 
           gap: '2.5rem', 
           borderRight: '1px solid var(--glass-border)', 
-          zIndex: 100,
           overflow: 'hidden'
         }}
       >
@@ -164,7 +160,7 @@ export default function DashboardClient() {
         </div>
       </aside>
 
-      <main className="dashboard-main" style={{ flex: 1, padding: 'clamp(1.5rem, 5vw, 4rem)', marginLeft: sidebarWidth, transition: 'margin 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+      <main className="dashboard-main">
          {activeTab === 'overview' && <OverviewContent />}
          {activeTab === 'analytics' && <AnalyticsOverview />}
          {activeTab === 'blogs' && <BlogManager />}

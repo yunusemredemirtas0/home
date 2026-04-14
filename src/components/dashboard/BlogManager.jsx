@@ -136,7 +136,7 @@ export default function BlogManager() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 950, letterSpacing: '-1.5px' }}>{t?.dashboard?.blogMode}</h2>
           {!isFormOpen && (
-            <button onClick={() => { setEditingPost(null); setFormData({ title: '', slug: '', content: '', category: '', status: 'draft', image: null }); setIsFormOpen(true); }} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.8rem 1.5rem' }}>
+            <button onClick={() => { setEditingPost(null); setFormData({ title: '', slug: '', content: '', category: '', status: 'draft', image: null }); setIsFormOpen(true); }} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.8rem 1.5rem', width: 'auto' }}>
               <FiPlus /> {t?.dashboard?.actions?.addNew}
             </button>
           )}
@@ -201,7 +201,7 @@ export default function BlogManager() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2.5rem' }}>
               <label className="form-label">Content</label>
-              <div className="rich-editor-container" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+              <div className="rich-editor-container" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden', minHeight: '400px' }}>
                  <Suspense fallback={<div>Loading editor...</div>}>
                     <ReactQuill 
                         theme="snow" 
@@ -209,11 +209,10 @@ export default function BlogManager() {
                         onChange={(val) => setFormData(prev => ({...prev, content: val}))} 
                         modules={editorModules}
                         formats={editorFormats}
-                        style={{ height: '350px', color: '#000' }} 
+                        style={{ height: isMobile ? '300px' : '350px', color: '#000' }} 
                     />
                  </Suspense>
               </div>
-              <div style={{ height: '50px' }}></div>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', flexWrap: 'wrap', paddingTop: '2rem', borderTop: '1px solid var(--glass-border)' }}>
@@ -225,11 +224,11 @@ export default function BlogManager() {
           </form>
 
           {showPreview && (
-            <div className="glass preview-container desktop-only" style={{ padding: '2.5rem', borderRadius: 'var(--radius-xl)', overflowY: 'auto', maxHeight: '100vh', position: 'sticky', top: '2rem' }}>
+            <div className="glass preview-container desktop-only" style={{ padding: '2.5rem', borderRadius: 'var(--radius-xl)', overflowY: 'auto', maxHeight: '85vh', position: 'sticky', top: '2rem' }}>
                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '2rem', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '2px' }}>Live Preview</h3>
-                 <div className="blog-content-preview">
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.1 }}>{formData.title || 'Untitled Post'}</h1>
-                    <div dangerouslySetInnerHTML={{ __html: formData.content }} className="rich-text-content" />
+                 <div className="blog-content-preview" style={{ maxWidth: '100%' }}>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.1, wordBreak: 'break-word' }}>{formData.title || 'Untitled Post'}</h1>
+                    <div dangerouslySetInnerHTML={{ __html: formData.content }} className="rich-text-content" style={{ overflow: 'hidden' }} />
                  </div>
                  <style jsx global>{`
                     .rich-text-content { font-size: 1.1rem; line-height: 1.7; color: var(--text-primary); }

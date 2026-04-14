@@ -12,6 +12,7 @@ export default function AnalyticsOverview() {
   });
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -44,7 +45,11 @@ export default function AnalyticsOverview() {
         setLoading(false);
       }
     }
+    const checkMobile = () => setIsMobile(window.matchMedia('(max-width: 1024px)').matches);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     fetchAnalytics();
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const allItems = [
@@ -207,9 +212,9 @@ export default function AnalyticsOverview() {
         <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <FiTrendingUp style={{ color: 'var(--accent)' }} /> En Çok İzlenen İçerikler
         </h3>
-        <div style={{ width: '100%', height: 300 }}>
+        <div style={{ width: '100%', height: isMobile ? 250 : 300 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <BarChart data={chartData} margin={{ top: 10, right: isMobile ? 0 : 10, left: isMobile ? -35 : -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
               <XAxis 
                 dataKey="name" 
@@ -234,7 +239,7 @@ export default function AnalyticsOverview() {
       </div>
 
       {/* Detailed Tables */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '2rem' }}>
          <section className="glass" style={{ padding: '1.5rem', borderRadius: '20px' }}>
             <h4 style={{ fontWeight: 800, marginBottom: '1.5rem', fontSize: '0.95rem' }}>Popüler Blog Yazıları</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
