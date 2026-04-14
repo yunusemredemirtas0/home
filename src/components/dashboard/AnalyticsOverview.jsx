@@ -177,7 +177,6 @@ export default function AnalyticsOverview() {
                 {data.projects.length === 0 && <p style={{ opacity: 0.5, fontSize: '0.9rem', textAlign: 'center', padding: '2rem' }}>Henüz veri yok.</p>}
             </div>
         </div>
-      </div>
     </div>
   );
 }

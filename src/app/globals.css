@@ -25,9 +25,10 @@
   --nav-height:       80px;
   
   /* Dashboard Sidebar Widths */
-  --sidebar-full:     320px;
-  --sidebar-collapsed: 80px;
+  --sidebar-full:     280px;
+  --sidebar-collapsed: 105px;
   --sidebar-mobile:   280px;
+  --sidebar-transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   
   /* Fluid Typography & Spacing */
   --h1-size: clamp(2.5rem, 8vw, 4.5rem);
@@ -138,8 +139,11 @@ ul, ol { list-style: none; }
   height: 100vh;
   z-index: 50;
   width: var(--sidebar-full);
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width var(--sidebar-transition), transform var(--sidebar-transition);
   flex-shrink: 0;
+  background: rgba(10, 10, 10, 0.6) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 20px 0 50px rgba(0,0,0,0.3);
 }
 
 .dashboard-sidebar.collapsed {
