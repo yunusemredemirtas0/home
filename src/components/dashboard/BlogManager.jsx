@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiX, FiCheck, FiInfo } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiImage, FiArchive, FiCheckCircle, FiClock, FiMonitor, FiType, FiUploadCloud, FiX, FiCheck, FiInfo, FiFileText } from 'react-icons/fi';
 import pb from '../../lib/pocketbase';
 import dynamic from 'next/dynamic';
 import { editorModules, editorFormats } from '../../lib/editorConfig';
@@ -154,7 +154,7 @@ export default function BlogManager() {
                   <FiInfo color="var(--accent)" />
                   <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Genel Bilgiler</h4>
                </div>
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label className="form-label">Yazı Başlığı</label>
                     <div style={{ position: 'relative' }}>
@@ -183,8 +183,7 @@ export default function BlogManager() {
                          </button>
                        ))}
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', gridColumn: '1 / -1' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1.5rem', gridColumn: '1 / -1' }}>
                     <label className="form-label">Kategori</label>
                     <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))} placeholder="Örn: Teknoloji, Yaşam, Yazılım..." className="form-input" />
                   </div>
@@ -217,8 +216,11 @@ export default function BlogManager() {
             </div>
 
             {/* Content Editor Card */}
-            <div className="form-group-card" style={{ padding: '0.5rem', background: 'transparent', border: 'none' }}>
-               <label className="form-label" style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }}>Yazı İçeriği</label>
+            <div className="form-group-card">
+               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
+                  <FiPaperclip color="var(--accent)" />
+                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Yazı İçeriği</h4>
+               </div>
                <div className="rich-editor-container" style={{ minHeight: '450px' }}>
                   <Suspense fallback={<div>Loading editor...</div>}>
                      <ReactQuill 
@@ -244,7 +246,7 @@ export default function BlogManager() {
 
         {/* Premium Preview Section */}
         {showPreview && (
-          <div className="desktop-only" style={{ position: 'sticky', top: '2rem' }}>
+          <div className="desktop-only" style={{ position: 'sticky', top: '6rem' }}>
              <div className="device-frame" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
                 <div className="device-header">
                    <div className="device-dot" style={{ background: '#ff5f56' }} />
@@ -317,6 +319,7 @@ export default function BlogManager() {
               </div>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                  <button onClick={() => handleEdit(post)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}><FiEdit2 /></button>
+                 {post.status !== 'archived' && <button onClick={() => pb.collection('posts').update(post.id, { status: 'archived' }).then(() => fetchPosts())} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}><FiArchive /></button>}
                  <button onClick={() => handleDelete(post.id)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiTrash2 /></button>
               </div>
             </div>

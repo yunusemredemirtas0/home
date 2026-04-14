@@ -173,7 +173,7 @@ export default function ProjectManager() {
                   <FiInfo color="var(--accent)" />
                   <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Proje Bilgileri</h4>
                </div>
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label className="form-label">Proje Başlığı</label>
                     <div style={{ position: 'relative' }}>
@@ -203,6 +203,9 @@ export default function ProjectManager() {
                        ))}
                     </div>
                   </div>
+               </div>
+
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label className="form-label">Kullanılan Teknolojiler</label>
                     <div style={{ position: 'relative' }}>
@@ -221,8 +224,11 @@ export default function ProjectManager() {
             </div>
 
             {/* Content Card */}
-            <div className="form-group-card" style={{ padding: '0.5rem', background: 'transparent', border: 'none' }}>
-               <label className="form-label" style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }}>Proje Detayları</label>
+            <div className="form-group-card">
+               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
+                  <FiPaperclip color="var(--accent)" />
+                  <h4 style={{ fontWeight: 800, fontSize: '1rem' }}>Proje Detayları</h4>
+               </div>
                <div className="rich-editor-container" style={{ minHeight: '400px' }}>
                   <Suspense fallback={<div>Loading editor...</div>}>
                     <ReactQuill 
@@ -295,7 +301,7 @@ export default function ProjectManager() {
 
         {/* Premium Preview Section */}
         {showPreview && (
-          <div className="desktop-only" style={{ position: 'sticky', top: '2rem' }}>
+          <div className="desktop-only" style={{ position: 'sticky', top: '6rem' }}>
              <div className="device-frame" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
                 <div className="device-header">
                    <div className="device-dot" style={{ background: '#ff5f56' }} />
@@ -380,6 +386,7 @@ export default function ProjectManager() {
                   
                   <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem' }}>
                      <button onClick={() => handleEdit(project)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}><FiEdit2 /></button>
+                     {project.status !== 'archived' && <button onClick={() => pb.collection('projects').update(project.id, { status: 'archived' }).then(() => fetchProjects())} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}><FiArchive /></button>}
                      <button onClick={() => handleDelete(project.id)} className="glass" style={{ width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}><FiTrash2 /></button>
                   </div>
                </div>
