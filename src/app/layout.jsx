@@ -18,6 +18,7 @@ export const metadata = {
   keywords: ['Yunus Emre DEMİRTAŞ', 'Full Stack Developer', 'Mobil Uygulama Geliştirici', 'Next.js Geliştirici', 'React Native Developer', 'Backend Mimarisi'],
   authors: [{ name: 'Yunus Emre DEMİRTAŞ' }],
   creator: 'Yunus Emre DEMİRTAŞ',
+  applicationName: 'Yunus Emre DEMİRTAŞ',
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
@@ -52,7 +53,15 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  const jsonLd = {
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Yunus Emre DEMİRTAŞ",
+    "url": "https://yunusemredemirtas.com",
+    "alternateName": ["Yunus Emre Demirtaş", "yunusemredemirtas.com"]
+  };
+
+  const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "name": "Yunus Emre DEMİRTAŞ",
@@ -77,7 +86,11 @@ export default function RootLayout({ children }) {
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
         />
       </head>
       <body>

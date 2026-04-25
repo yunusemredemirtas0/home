@@ -2,7 +2,7 @@ export const runtime = 'edge';
 
 export default function manifest() {
   return {
-    name: 'Yunus Emre DEMİRTAŞ | Web Geliştirici',
+    name: 'Yunus Emre DEMİRTAŞ',
     short_name: 'Yunus Emre',
     description: 'Modern, hızlı ve SEO uyumlu web deneyimleri.',
     start_url: '/',
